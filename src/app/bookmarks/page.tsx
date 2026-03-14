@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getAllHackathonsUnfiltered } from "@/lib/data";
+import { getAllHackathonsUnfiltered } from "@/lib/supabase/data";
 import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -13,6 +13,7 @@ import type { Hackathon } from "@/types";
 export default function BookmarksPage() {
   const { user } = useAuth();
   const [bookmarkedSlugs, setBookmarkedSlugs] = useState<string[]>([]);
+  const [allHackathons, setAllHackathons] = useState<Hackathon[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -20,7 +21,14 @@ export default function BookmarksPage() {
     setBookmarkedSlugs(saved);
   }, [refreshKey]);
 
-  const allHackathons = getAllHackathonsUnfiltered();
+  useEffect(() => {
+    const load = async () => {
+      const h = await getAllHackathonsUnfiltered();
+      setAllHackathons(h);
+    };
+    load();
+  }, []);
+
   const bookmarkedHackathons = bookmarkedSlugs
     .map((slug) => allHackathons.find((h) => h.slug === slug))
     .filter((h): h is Hackathon => h !== undefined);

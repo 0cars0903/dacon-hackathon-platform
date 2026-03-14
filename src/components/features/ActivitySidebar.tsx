@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getFilteredActivityFeed, getPlatformStats } from "@/lib/data";
+import { getFilteredActivityFeed, getPlatformStats } from "@/lib/supabase/data";
 import { useAuth } from "@/components/features/AuthProvider";
 import { timeAgo } from "@/lib/utils";
 import type { ActivityFeedItem } from "@/types";
@@ -9,20 +9,25 @@ import type { ActivityFeedItem } from "@/types";
 export function ActivitySidebar() {
   const { user, getProfile } = useAuth();
   const [activities, setActivities] = useState<ActivityFeedItem[]>([]);
-  const [stats, setStats] = useState({ ongoingHackathons: 0, totalTeams: 0, totalSubmissions: 0 });
+  const [stats, setStats] = useState({ ongoingHackathons: 0, upcomingHackathons: 0, totalUsers: 0, totalTeams: 0 });
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    const profile = user ? getProfile(user.id) : null;
-    const role = (user?.role as "admin" | "user") || "user";
-    const joinedHackathons = profile?.joinedHackathons || [];
-    setActivities(getFilteredActivityFeed(user?.id || "", role, joinedHackathons));
-    const s = getPlatformStats();
-    setStats({
-      ongoingHackathons: s.ongoingHackathons,
-      totalTeams: s.totalTeams,
-      totalSubmissions: s.totalSubmissions,
-    });
+    const load = async () => {
+      const profile = user ? await getProfile(user.id) : null;
+      const role = (user?.role as "admin" | "user") || "user";
+      const joinedHackathons = profile?.joinedHackathons || [];
+      const acts = await getFilteredActivityFeed(user?.id || "", role, joinedHackathons);
+      setActivities(acts);
+      const s = await getPlatformStats();
+      setStats({
+        ongoingHackathons: s.ongoingHackathons,
+        upcomingHackathons: s.upcomingHackathons,
+        totalUsers: s.totalUsers,
+        totalTeams: s.totalTeams,
+      });
+    };
+    load();
   }, [refreshKey, user, getProfile]);
 
   // 10초마다 새로고침
@@ -99,8 +104,8 @@ export function ActivitySidebar() {
               <span className="font-medium text-gray-900 dark:text-white">{stats.totalTeams}팀</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-500 dark:text-gray-400">총 제출</span>
-              <span className="font-medium text-gray-900 dark:text-white">{stats.totalSubmissions}건</span>
+              <span className="text-gray-500 dark:text-gray-400">총 사용자</span>
+              <span className="font-medium text-gray-900 dark:text-white">{stats.totalUsers}명</span>
             </div>
           </div>
         </div>

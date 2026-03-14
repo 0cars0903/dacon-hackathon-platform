@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { getHackathons } from "@/lib/data";
+import { getHackathons } from "@/lib/supabase/data";
 import { Badge } from "@/components/common/Badge";
 import { getDday, getStatusLabel } from "@/lib/utils";
 import { RecommendedHackathons } from "@/components/features/RecommendedHackathons";
 import { StatsOverview } from "@/components/features/StatsOverview";
 
-export default function HomePage() {
-  const hackathons = getHackathons();
+export default async function HomePage() {
+  const hackathons = await getHackathons();
   const ongoingCount = hackathons.filter(
     (h) => h.status === "ongoing" || h.status === "upcoming"
   ).length;

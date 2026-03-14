@@ -6,7 +6,7 @@ import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
 import { FollowButton, FollowStats } from "@/components/features/FollowButton";
-import { getHackathonBySlug } from "@/lib/data";
+import { getHackathonBySlug } from "@/lib/supabase/data";
 import { formatDate, timeAgo } from "@/lib/utils";
 import type { UserProfile, Team } from "@/types";
 
@@ -19,21 +19,26 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
   useEffect(() => {
     // AuthProvider 초기화(ensureMVPData) 완료 후에만 프로필 조회
     if (isLoading) return;
-    const p = getProfile(params.id);
-    if (p) {
-      setProfile(p);
-      // 해당 유저의 팀 로드
-      const stored = localStorage.getItem("dacon_teams");
-      if (stored) {
-        const teams = JSON.parse(stored);
-        const userTeamList = teams.filter((t: { members?: { userId: string }[]; creatorId?: string }) =>
-          t.members?.some((m: { userId: string }) => m.userId === params.id) || t.creatorId === params.id
-        );
-        setUserTeams(userTeamList);
+
+    const load = async () => {
+      const p = await getProfile(params.id);
+      if (p) {
+        setProfile(p);
+        // 해당 유저의 팀 로드
+        const stored = localStorage.getItem("dacon_teams");
+        if (stored) {
+          const teams = JSON.parse(stored);
+          const userTeamList = teams.filter((t: { members?: { userId: string }[]; creatorId?: string }) =>
+            t.members?.some((m: { userId: string }) => m.userId === params.id) || t.creatorId === params.id
+          );
+          setUserTeams(userTeamList);
+        }
+      } else {
+        setNotFound(true);
       }
-    } else {
-      setNotFound(true);
-    }
+    };
+
+    load();
   }, [params.id, getProfile, isLoading]);
 
   if (notFound) {
@@ -158,20 +163,13 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
           <p className="text-sm text-gray-400">아직 참가한 해커톤이 없습니다.</p>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
-            {profile.joinedHackathons.map((slug) => {
-              const h = getHackathonBySlug(slug);
-              if (!h) return null;
-              return (
-                <Link key={slug} href={`/hackathons/${slug}`} className="group rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-blue-300 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">{h.title.length > 30 ? h.title.slice(0, 30) + "…" : h.title}</span>
-                    <Badge variant={h.status === "ongoing" ? "success" : h.status === "upcoming" ? "info" : "muted"} size="sm">
-                      {h.status === "ongoing" ? "진행중" : h.status === "upcoming" ? "예정" : "종료"}
-                    </Badge>
-                  </div>
-                </Link>
-              );
-            })}
+            {profile.joinedHackathons.map((slug) => (
+              <Link key={slug} href={`/hackathons/${slug}`} className="group rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-blue-300 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">{slug}</span>
+                </div>
+              </Link>
+            ))}
           </div>
         )}
       </section>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { getHackathonDetail, getHackathonBySlug, logActivity, addNotification } from "@/lib/data";
+import { getHackathonDetail, getHackathonBySlug, logActivity, addNotification } from "@/lib/supabase/data";
 import {
   hasGroundTruth,
   getGroundTruth,
@@ -49,9 +49,10 @@ const ALLOWED_FILE_TYPES = [
 
 export default function HackathonSubmitPage() {
   const params = useParams();
-  const slug = params.slug as string;
-  const detail = getHackathonDetail(slug);
-  const hackathon = getHackathonBySlug(slug);
+  const slug = (params.slug as string) || "";
+  const [detail, setDetail] = useState<any>(null);
+  const [hackathon, setHackathon] = useState<any>(null);
+  useEffect(() => { const load = async () => { setDetail(await getHackathonDetail(slug)); setHackathon(await getHackathonBySlug(slug)); }; load(); }, [slug]);
   const { user } = useAuth();
 
   const [formValues, setFormValues] = useState<Record<string, string>>({});
@@ -208,7 +209,6 @@ export default function HackathonSubmitPage() {
         });
         addNotification(user.id, {
           message: `채점 완료! 점수: ${result.finalScore}점 (${slug})`,
-          timestamp: new Date().toISOString(),
           type: "success",
           link: `/hackathons/${slug}/leaderboard`,
         });

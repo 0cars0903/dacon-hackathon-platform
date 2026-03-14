@@ -3,31 +3,51 @@
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getHackathonBySlug, getHackathonDetail, getTeamsByHackathon, getLeaderboard } from "@/lib/data";
+import { getHackathonBySlug, getHackathonDetail, getTeamsByHackathon, getLeaderboard } from "@/lib/supabase/data";
 import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import { formatDate, getDday, formatDateTime } from "@/lib/utils";
+import type { Hackathon, HackathonDetail, Team, Leaderboard } from "@/types";
 
 export default function HackathonOverviewPage() {
   const params = useParams();
   const slug = params.slug as string;
   const { user, getProfile, joinHackathon } = useAuth();
-  const hackathon = getHackathonBySlug(slug);
-  const detail = getHackathonDetail(slug);
-  const teams = getTeamsByHackathon(slug);
-  const leaderboard = getLeaderboard(slug);
 
+  const [hackathon, setHackathon] = useState<Hackathon | null>(null);
+  const [detail, setDetail] = useState<HackathonDetail | null>(null);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [leaderboard, setLeaderboard] = useState<Leaderboard | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [justRegistered, setJustRegistered] = useState(false);
 
   useEffect(() => {
+    const load = async () => {
+      const [h, d, t, l] = await Promise.all([
+        getHackathonBySlug(slug),
+        getHackathonDetail(slug),
+        getTeamsByHackathon(slug),
+        getLeaderboard(slug),
+      ]);
+      setHackathon(h || null);
+      setDetail(d || null);
+      setTeams(t);
+      setLeaderboard(l || null);
+    };
+    load();
+  }, [slug]);
+
+  useEffect(() => {
     if (!user) return;
-    const profile = getProfile(user.id);
-    if (profile?.joinedHackathons.includes(slug)) {
-      setIsRegistered(true);
-    }
+    const load = async () => {
+      const profile = await getProfile(user.id);
+      if (profile?.joinedHackathons.includes(slug)) {
+        setIsRegistered(true);
+      }
+    };
+    load();
   }, [user, slug, getProfile]);
 
   if (!hackathon || !detail) return null;
@@ -36,30 +56,28 @@ export default function HackathonOverviewPage() {
   const isEnded = hackathon.status === "ended";
   const submissionCount = leaderboard?.entries?.length || 0;
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!user) {
       window.location.href = "/login";
       return;
     }
-    joinHackathon(slug);
+    await joinHackathon(slug);
     setIsRegistered(true);
     setShowConfirm(false);
     setJustRegistered(true);
 
     // 활동 로그
-    import("@/lib/data").then(({ logActivity, addNotification }) => {
-      logActivity({
-        type: "team_created",
-        message: `${user.name}님이 ${hackathon.title}에 참가 등록했습니다.`,
-        timestamp: new Date().toISOString(),
-        hackathonSlug: slug,
-      });
-      addNotification(user.id, {
-        message: `${hackathon.title} 참가 등록이 완료되었습니다! 팀을 구성하고 제출을 준비해보세요.`,
-        timestamp: new Date().toISOString(),
-        type: "success",
-        link: `/hackathons/${slug}/submit`,
-      });
+    const { logActivity, addNotification } = await import("@/lib/supabase/data");
+    await logActivity({
+      type: "team_created",
+      message: `${user.name}님이 ${hackathon.title}에 참가 등록했습니다.`,
+      timestamp: new Date().toISOString(),
+      hackathonSlug: slug,
+    });
+    await addNotification(user.id, {
+      message: `${hackathon.title} 참가 등록이 완료되었습니다! 팀을 구성하고 제출을 준비해보세요.`,
+      type: "success",
+      link: `/hackathons/${slug}/submit`,
     });
   };
 

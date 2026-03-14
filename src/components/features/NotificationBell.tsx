@@ -7,8 +7,16 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   addNotification,
-  type StoredNotification,
-} from "@/lib/data";
+} from "@/lib/supabase/data";
+
+type StoredNotification = {
+  id: string;
+  message: string;
+  read: boolean;
+  timestamp: string;
+  link?: string;
+  type?: string;
+};
 
 function timeAgoShort(dateStr: string): string {
   const now = Date.now();
@@ -21,38 +29,36 @@ function timeAgoShort(dateStr: string): string {
 }
 
 /** 최초 로그인 시 시드 알림 생성 */
-function ensureSeedNotifications(userId: string) {
-  const existing = getNotifications(userId);
+async function ensureSeedNotifications(userId: string) {
+  const existing = await getNotifications(userId);
   if (existing.length > 0) return;
 
-  const seeds: Omit<StoredNotification, "id" | "userId" | "read">[] = [
+  const seeds: Array<{ message: string; type?: "info" | "success" | "warning"; link?: string }> = [
     {
       message: "긴급 인수인계 해커톤 제출 마감이 3일 남았습니다!",
-      timestamp: "2026-03-14T09:00:00+09:00",
       type: "warning",
       link: "/hackathons/daker-handover-2026-03/submit",
     },
     {
       message: "404found 팀이 새로운 멤버를 모집하고 있습니다.",
-      timestamp: "2026-03-13T15:30:00+09:00",
       type: "info",
       link: "/camp",
     },
     {
       message: "모델 경량화 해커톤 리더보드가 업데이트되었습니다.",
-      timestamp: "2026-03-12T10:00:00+09:00",
       type: "success",
       link: "/hackathons/aimers-8-model-lite/leaderboard",
     },
     {
       message: "GenAI 앱 개발 해커톤이 곧 시작됩니다!",
-      timestamp: "2026-03-11T08:00:00+09:00",
       type: "info",
       link: "/hackathons/genai-app-challenge-2026",
     },
   ];
 
-  seeds.forEach((s) => addNotification(userId, s));
+  for (const s of seeds) {
+    await addNotification(userId, s);
+  }
 }
 
 export function NotificationBell() {
@@ -63,10 +69,11 @@ export function NotificationBell() {
   const ref = useRef<HTMLDivElement>(null);
 
   // 알림 로드
-  const loadNotifications = useCallback(() => {
+  const loadNotifications = useCallback(async () => {
     if (!user) return;
-    ensureSeedNotifications(user.id);
-    setNotifications(getNotifications(user.id));
+    await ensureSeedNotifications(user.id);
+    const notifs = await getNotifications(user.id);
+    setNotifications(notifs);
   }, [user]);
 
   useEffect(() => {
@@ -92,18 +99,18 @@ export function NotificationBell() {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const handleMarkRead = (id: string) => {
-    markNotificationRead(id);
-    loadNotifications();
+  const handleMarkRead = async (id: string) => {
+    await markNotificationRead(id);
+    await loadNotifications();
   };
 
-  const handleMarkAllRead = () => {
+  const handleMarkAllRead = async () => {
     if (!user) return;
-    markAllNotificationsRead(user.id);
-    loadNotifications();
+    await markAllNotificationsRead(user.id);
+    await loadNotifications();
   };
 
-  const typeIcon = (type: string) => {
+  const typeIcon = (type: string | undefined) => {
     switch (type) {
       case "warning":
         return "⚠️";
@@ -167,8 +174,8 @@ export function NotificationBell() {
               notifications.map((n) => (
                 <button
                   key={n.id}
-                  onClick={() => {
-                    handleMarkRead(n.id);
+                  onClick={async () => {
+                    await handleMarkRead(n.id);
                     if (n.link) {
                       window.location.href = n.link;
                       setIsOpen(false);

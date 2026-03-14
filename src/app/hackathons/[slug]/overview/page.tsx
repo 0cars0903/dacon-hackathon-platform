@@ -1,7 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { getHackathonDetail } from "@/lib/data";
+import { getHackathonDetail } from "@/lib/supabase/data";
 import { EmptyState } from "@/components/common/EmptyState";
 import { formatKRW, formatDateTime } from "@/lib/utils";
 
@@ -10,7 +11,15 @@ import { formatKRW, formatDateTime } from "@/lib/utils";
 export default function HackathonInfoPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const detail = getHackathonDetail(slug);
+  const [detail, setDetail] = useState<any>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      const d = await getHackathonDetail(slug);
+      setDetail(d);
+    };
+    load();
+  }, [slug]);
 
   if (!detail) {
     return <EmptyState emoji="📏" title="상세 정보를 불러올 수 없습니다" />;

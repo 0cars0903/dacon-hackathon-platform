@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getHackathons } from "@/lib/data";
+import { useEffect, useState } from "react";
+import { getHackathons } from "@/lib/supabase/data";
 import { getStatusLabel } from "@/lib/utils";
+import type { Hackathon } from "@/types";
 
 const quickLinks = [
   { href: "/", label: "홈", emoji: "🏠" },
@@ -16,7 +18,15 @@ const quickLinks = [
 
 export function NavigationSidebar() {
   const pathname = usePathname();
-  const hackathons = getHackathons();
+  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const data = await getHackathons();
+      setHackathons(data);
+    };
+    load();
+  }, []);
 
   return (
     <aside className="hidden w-60 shrink-0 border-r border-gray-200 bg-white xl:block dark:border-gray-800 dark:bg-gray-950">

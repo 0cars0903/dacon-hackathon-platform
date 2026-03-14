@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { getLeaderboard, getHackathonBySlug, getHackathonDetail } from "@/lib/data";
+import { getLeaderboard, getHackathonBySlug, getHackathonDetail } from "@/lib/supabase/data";
 import { getDynamicLeaderboard } from "@/lib/scoring";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -12,39 +12,56 @@ import type { LeaderboardEntry, MetricColumn, LeaderboardRound } from "@/types";
 export default function HackathonLeaderboardPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const hackathon = getHackathonBySlug(slug);
-  const staticLeaderboard = getLeaderboard(slug);
-  const dynamicLb = getDynamicLeaderboard(slug);
-  const detail = getHackathonDetail(slug);
-
-  // 동적 리더보드가 있으면 정적 데이터와 병합
-  const leaderboard = (() => {
-    if (!staticLeaderboard && !dynamicLb) return null;
-    if (!dynamicLb) return staticLeaderboard;
-    if (!staticLeaderboard) return dynamicLb;
-
-    // 병합: 동적 엔트리의 teamName이 정적에도 있으면 높은 점수 우선
-    const mergedMap = new Map<string, LeaderboardEntry>();
-    staticLeaderboard.entries.forEach((e: LeaderboardEntry) => mergedMap.set(e.teamName, e));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (dynamicLb.entries || []).forEach((e: any) => {
-      const existing = mergedMap.get(e.teamName);
-      if (!existing || e.score > existing.score) {
-        mergedMap.set(e.teamName, { ...e, rank: 0 });
-      }
-    });
-
-    const sorted = [...mergedMap.values()]
-      .sort((a, b) => b.score - a.score)
-      .map((e, i) => ({ ...e, rank: i + 1 }));
-
-    return {
-      ...staticLeaderboard,
-      entries: sorted,
-      updatedAt: dynamicLb.updatedAt || staticLeaderboard.updatedAt,
-    };
-  })();
+  const [hackathon, setHackathon] = useState<any>(null);
+  const [staticLeaderboard, setStaticLeaderboard] = useState<any>(null);
+  const [leaderboard, setLeaderboard] = useState<any>(null);
+  const [detail, setDetail] = useState<any>(null);
   const [activeRound, setActiveRound] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      const h = await getHackathonBySlug(slug);
+      setHackathon(h);
+
+      const staticLb = await getLeaderboard(slug);
+      setStaticLeaderboard(staticLb);
+
+      const dynamicLb = getDynamicLeaderboard(slug);
+      const d = await getHackathonDetail(slug);
+      setDetail(d);
+
+      // 동적 리더보드가 있으면 정적 데이터와 병합
+      if (!staticLb && !dynamicLb) {
+        setLeaderboard(null);
+      } else if (!dynamicLb) {
+        setLeaderboard(staticLb);
+      } else if (!staticLb) {
+        setLeaderboard(dynamicLb);
+      } else {
+        // 병합: 동적 엔트리의 teamName이 정적에도 있으면 높은 점수 우선
+        const mergedMap = new Map<string, LeaderboardEntry>();
+        staticLb.entries.forEach((e: LeaderboardEntry) => mergedMap.set(e.teamName, e));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (dynamicLb.entries || []).forEach((e: any) => {
+          const existing = mergedMap.get(e.teamName);
+          if (!existing || e.score > existing.score) {
+            mergedMap.set(e.teamName, { ...e, rank: 0 });
+          }
+        });
+
+        const sorted = [...mergedMap.values()]
+          .sort((a, b) => b.score - a.score)
+          .map((e, i) => ({ ...e, rank: i + 1 }));
+
+        setLeaderboard({
+          ...staticLb,
+          entries: sorted,
+          updatedAt: dynamicLb.updatedAt || staticLb.updatedAt,
+        });
+      }
+    };
+    load();
+  }, [slug]);
 
   // 예정 중인 해커톤은 리더보드 비공개
   if (hackathon?.status === "upcoming") {
@@ -111,7 +128,7 @@ export default function HackathonLeaderboardPage() {
         <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
           <p className="mb-3 text-xs font-semibold text-gray-500 dark:text-gray-400">평가 비중</p>
           <div className="flex gap-2">
-            {evalBreakdown.map((item) => (
+            {evalBreakdown.map((item: any) => (
               <div key={item.key} className="flex-1 rounded-lg bg-white p-3 text-center dark:bg-gray-800">
                 <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{item.weightPercent}%</p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">{item.label}</p>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "./AuthProvider";
 import {
   createTeamInvitation,
@@ -8,8 +8,8 @@ import {
   joinByInviteCode,
   addNotification,
   logActivity,
-} from "@/lib/data";
-import type { TeamInvitation } from "@/types";
+} from "@/lib/supabase/data";
+import type { TeamInvitation, UserProfile } from "@/types";
 
 interface TeamInviteModalProps {
   isOpen: boolean;
@@ -27,10 +27,19 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
   const [inviteCode, setInviteCode] = useState("");
   const [joinResult, setJoinResult] = useState<{ success: boolean; message: string } | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [allProfiles, setAllProfiles] = useState<UserProfile[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const profs = await getAllProfiles();
+      setAllProfiles(profs);
+    };
+    load();
+  }, [getAllProfiles]);
 
   if (!isOpen || !user) return null;
 
-  const profiles = getAllProfiles().filter((p) => p.id !== user.id);
+  const profiles = allProfiles.filter((p) => p.id !== user.id);
   const filteredProfiles = searchQuery
     ? profiles.filter(
         (p) =>
@@ -40,13 +49,21 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
       )
     : [];
 
-  const teamInvites = getInvitationsByTeam(teamCode);
+  const [teamInvites, setTeamInvites] = useState<TeamInvitation[]>([]);
 
-  const handleCreateOpenInvite = () => {
-    const inv = createTeamInvitation(teamCode, teamName, hackathonSlug, user.id, user.name);
+  useEffect(() => {
+    const load = async () => {
+      const invs = await getInvitationsByTeam(teamCode);
+      setTeamInvites(invs);
+    };
+    load();
+  }, [teamCode]);
+
+  const handleCreateOpenInvite = async () => {
+    const inv = await createTeamInvitation(teamCode, teamName, hackathonSlug, user.id, user.name);
     if (inv) {
       setGeneratedInvite(inv);
-      logActivity({
+      await logActivity({
         type: "team_created",
         message: `${user.name}님이 ${teamName} 팀의 초대 코드를 생성했습니다.`,
         timestamp: new Date().toISOString(),
@@ -55,15 +72,11 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
     }
   };
 
-  const handleInviteUser = (targetId: string, targetName: string) => {
-    const inv = createTeamInvitation(teamCode, teamName, hackathonSlug, user.id, user.name, {
-      id: targetId,
-      name: targetName,
-    });
+  const handleInviteUser = async (targetId: string, targetName: string) => {
+    const inv = await createTeamInvitation(teamCode, teamName, hackathonSlug, user.id, user.name, targetId);
     if (inv) {
-      addNotification(targetId, {
+      await addNotification(targetId, {
         message: `${user.name}님이 ${teamName} 팀에 초대했습니다.`,
-        timestamp: new Date().toISOString(),
         type: "info",
         link: `/messages`,
       });
@@ -71,12 +84,12 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
     }
   };
 
-  const handleJoinByCode = () => {
+  const handleJoinByCode = async () => {
     if (!inviteCode.trim()) return;
-    const result = joinByInviteCode(inviteCode.trim().toUpperCase(), user.id, user.name);
+    const result = await joinByInviteCode(inviteCode.trim().toUpperCase(), user.id, user.name);
     if (result.success) {
       setJoinResult({ success: true, message: "팀에 성공적으로 참가했습니다!" });
-      logActivity({
+      await logActivity({
         type: "team_created",
         message: `${user.name}님이 초대 코드로 팀에 참가했습니다.`,
         timestamp: new Date().toISOString(),

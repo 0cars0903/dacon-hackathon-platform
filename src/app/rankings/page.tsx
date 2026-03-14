@@ -1,18 +1,33 @@
 "use client";
 
-import { useState } from "react";
-import { getAllLeaderboards, getHackathons, getAllHackathonsUnfiltered } from "@/lib/data";
+import { useState, useEffect } from "react";
+import { getAllLeaderboards, getHackathons, getAllHackathonsUnfiltered } from "@/lib/supabase/data";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ScoreChart } from "@/components/features/ScoreChart";
 import { formatDateTime, timeAgo } from "@/lib/utils";
+import type { Hackathon, Leaderboard } from "@/types";
 
 type SortKey = "rank" | "score";
 
 export default function RankingsPage() {
-  const hackathons = getHackathons();
-  const allHackathons = getAllHackathonsUnfiltered();
-  const allLeaderboards = getAllLeaderboards();
+  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+  const [allHackathons, setAllHackathons] = useState<Hackathon[]>([]);
+  const [allLeaderboards, setAllLeaderboards] = useState<Leaderboard[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const [hacks, all_hacks, lbs] = await Promise.all([
+        getHackathons(),
+        getAllHackathonsUnfiltered(),
+        getAllLeaderboards(),
+      ]);
+      setHackathons(hacks);
+      setAllHackathons(all_hacks);
+      setAllLeaderboards(lbs);
+    };
+    load();
+  }, []);
 
   // 현재 표시되는 해커톤 + 리더보드 엔트리가 있는 것만 필터
   const visibleSlugs = new Set(hackathons.map((h) => h.slug));

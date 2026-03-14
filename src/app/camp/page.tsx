@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { getTeams, getHackathons } from "@/lib/data";
+import { getTeams, getHackathons } from "@/lib/supabase/data";
 import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
@@ -13,7 +13,7 @@ import { Tag } from "@/components/common/Tag";
 import { ContactModal } from "@/components/features/ContactModal";
 import { TeamInviteModal } from "@/components/features/TeamInviteModal";
 import { timeAgo } from "@/lib/utils";
-import type { Team, TeamJoinRequest, TeamMember } from "@/types";
+import type { Team, TeamJoinRequest, TeamMember, Hackathon } from "@/types";
 
 export default function CampPage() {
   return (
@@ -28,8 +28,20 @@ function CampContent() {
   const hackathonFilter = searchParams.get("hackathon") || "all";
   const { user } = useAuth();
 
-  const staticTeams = getTeams();
-  const hackathons = getHackathons();
+  const [staticTeams, setStaticTeams] = useState<Team[]>([]);
+  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const [teams, hacks] = await Promise.all([
+        getTeams(),
+        getHackathons(),
+      ]);
+      setStaticTeams(teams);
+      setHackathons(hacks);
+    };
+    load();
+  }, []);
   const [selectedHackathon, setSelectedHackathon] = useState(hackathonFilter);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [localTeams, setLocalTeams] = useState<Team[]>([]);

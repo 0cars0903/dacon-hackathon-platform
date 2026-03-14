@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { getHackathons, getTeams } from "@/lib/data";
+import { getHackathons, getTeams } from "@/lib/supabase/data";
 import type { Hackathon, Team, UserProfile } from "@/types";
 import { Card, CardHeader, CardContent, Badge, EmptyState } from "@/components/common";
 
@@ -54,12 +54,12 @@ export function SearchContent() {
     };
   }, [query]);
 
-  const performSearch = useCallback((searchQuery: string) => {
+  const performSearch = useCallback(async (searchQuery: string) => {
     const lowerQuery = searchQuery.toLowerCase().trim();
     const allResults: SearchResult[] = [];
 
     // Search hackathons
-    const hackathons = getHackathons();
+    const hackathons = await getHackathons();
     hackathons.forEach((h) => {
       if (
         h.title.toLowerCase().includes(lowerQuery) ||
@@ -78,7 +78,7 @@ export function SearchContent() {
     });
 
     // Search teams
-    const teams = getTeams();
+    const teams = await getTeams();
     teams.forEach((t) => {
       if (
         t.name.toLowerCase().includes(lowerQuery) ||

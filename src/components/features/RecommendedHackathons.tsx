@@ -1,14 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useThemeContext } from "@/components/layout/ThemeProvider";
-import { getRecommendedHackathons } from "@/lib/data";
+import { getRecommendedHackathons } from "@/lib/supabase/data";
 import { Badge } from "@/components/common/Badge";
 import { getDday, getStatusLabel } from "@/lib/utils";
+import type { Hackathon } from "@/types";
 
 export function RecommendedHackathons() {
   const { interestTags } = useThemeContext();
-  const hackathons = getRecommendedHackathons(interestTags);
+  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const data = await getRecommendedHackathons(interestTags);
+      setHackathons(data);
+    };
+    load();
+  }, [interestTags]);
 
   if (hackathons.length === 0) return null;
 

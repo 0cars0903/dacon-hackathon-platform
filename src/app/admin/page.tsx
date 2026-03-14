@@ -5,8 +5,8 @@ import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
-import { getPlatformStats, getAllHackathonsUnfiltered, getAllLeaderboards, getActivityFeed, getTeams } from "@/lib/data";
-import type { UserProfile } from "@/types";
+import { getPlatformStats, getAllHackathonsUnfiltered, getAllLeaderboards, getActivityFeed, getTeams } from "@/lib/supabase/data";
+import type { UserProfile, Hackathon, Leaderboard, Team, ActivityFeedItem } from "@/types";
 
 interface HackathonForm {
   slug: string;
@@ -54,8 +54,13 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (isAdmin) {
-      setUsers(getAllUsers());
-      setProfiles(getAllProfiles());
+      const load = async () => {
+        const allUsers = await getAllUsers();
+        setUsers(allUsers);
+        const allProfiles = await getAllProfiles();
+        setProfiles(allProfiles);
+      };
+      load();
       // localStorage에서 생성된 해커톤 로드
       const stored = localStorage.getItem("dacon_admin_hackathons");
       if (stored) setCreatedHackathons(JSON.parse(stored));
@@ -192,20 +197,23 @@ export default function AdminPage() {
     showToast("상태가 변경되었습니다.");
   };
 
-  const handleDeleteUser = (userId: string) => {
-    const success = deleteUser(userId);
+  const handleDeleteUser = async (userId: string) => {
+    const success = await deleteUser(userId);
     if (success) {
-      setUsers(getAllUsers());
-      setProfiles(getAllProfiles());
+      const updatedUsers = await getAllUsers();
+      setUsers(updatedUsers);
+      const updatedProfiles = await getAllProfiles();
+      setProfiles(updatedProfiles);
       showToast("사용자가 삭제되었습니다.");
     }
     setConfirmDelete(null);
   };
 
-  const handleRoleChange = (userId: string, newRole: "user" | "admin") => {
-    const success = updateUserRole(userId, newRole);
+  const handleRoleChange = async (userId: string, newRole: "user" | "admin") => {
+    const success = await updateUserRole(userId, newRole);
     if (success) {
-      setUsers(getAllUsers());
+      const updatedUsers = await getAllUsers();
+      setUsers(updatedUsers);
       showToast("권한이 변경되었습니다.");
     }
     setEditingUser(null);
@@ -224,17 +232,19 @@ export default function AdminPage() {
     }
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (!editProfileModal) return;
-    const success = adminUpdateProfile(editProfileModal, {
+    const success = await adminUpdateProfile(editProfileModal, {
       name: editProfileForm.name,
       nickname: editProfileForm.nickname,
       bio: editProfileForm.bio,
       skills: editProfileForm.skills.split(",").map((s) => s.trim()).filter(Boolean),
     });
     if (success) {
-      setUsers(getAllUsers());
-      setProfiles(getAllProfiles());
+      const updatedUsers = await getAllUsers();
+      setUsers(updatedUsers);
+      const updatedProfiles = await getAllProfiles();
+      setProfiles(updatedProfiles);
       showToast("프로필이 수정되었습니다.");
     }
     setEditProfileModal(null);
@@ -624,11 +634,33 @@ function AdminAnalytics({
   profiles: UserProfile[];
   createdHackathons: HackathonForm[];
 }) {
-  const platformStats = getPlatformStats();
-  const allHackathons = getAllHackathonsUnfiltered();
-  const allLeaderboards = getAllLeaderboards();
-  const allTeams = getTeams();
-  const recentActivity = getActivityFeed();
+  const [platformStats, setPlatformStats] = useState<any>(null);
+  const [allHackathons, setAllHackathons] = useState<Hackathon[]>([]);
+  const [allLeaderboards, setAllLeaderboards] = useState<Leaderboard[]>([]);
+  const [allTeams, setAllTeams] = useState<Team[]>([]);
+  const [recentActivity, setRecentActivity] = useState<ActivityFeedItem[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const [stats, hackathons, leaderboards, teams, activity] = await Promise.all([
+        getPlatformStats(),
+        getAllHackathonsUnfiltered(),
+        getAllLeaderboards(),
+        getTeams(),
+        getActivityFeed(),
+      ]);
+      setPlatformStats(stats);
+      setAllHackathons(hackathons);
+      setAllLeaderboards(leaderboards);
+      setAllTeams(teams);
+      setRecentActivity(activity);
+    };
+    load();
+  }, []);
+
+  if (!platformStats) {
+    return <div className="text-center text-gray-400">로딩 중...</div>;
+  }
 
   // 해커톤별 제출 통계
   const hackathonSubmissionData = allHackathons.map((h) => {

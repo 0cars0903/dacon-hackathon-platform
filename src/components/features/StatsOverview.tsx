@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { getPlatformStats } from "@/lib/data";
+import { useEffect, useState } from "react";
+import { getPlatformStats } from "@/lib/supabase/data";
+
+interface PlatformStats {
+  ongoingHackathons: number;
+  upcomingHackathons: number;
+  totalUsers: number;
+  totalTeams: number;
+}
 
 function AnimatedNumber({ target, duration = 1200 }: { target: number; duration?: number }) {
   const [count, setCount] = useState(0);
@@ -33,13 +40,26 @@ function AnimatedNumber({ target, duration = 1200 }: { target: number; duration?
 }
 
 export function StatsOverview() {
-  const stats = useMemo(() => getPlatformStats(), []);
+  const [stats, setStats] = useState<PlatformStats>({
+    ongoingHackathons: 0,
+    upcomingHackathons: 0,
+    totalUsers: 0,
+    totalTeams: 0,
+  });
+
+  useEffect(() => {
+    const load = async () => {
+      const data = await getPlatformStats();
+      setStats(data);
+    };
+    load();
+  }, []);
 
   const STATS = [
     { label: "진행중 해커톤", value: stats.ongoingHackathons, suffix: "개", color: "text-blue-600 dark:text-blue-400" },
     { label: "참가 팀", value: stats.totalTeams, suffix: "팀", color: "text-green-600 dark:text-green-400" },
-    { label: "총 참가자", value: stats.totalMembers, suffix: "명", color: "text-purple-600 dark:text-purple-400" },
-    { label: "제출물", value: stats.totalSubmissions, suffix: "건", color: "text-orange-600 dark:text-orange-400" },
+    { label: "총 참가자", value: stats.totalUsers, suffix: "명", color: "text-purple-600 dark:text-purple-400" },
+    { label: "제출물", value: 0, suffix: "건", color: "text-orange-600 dark:text-orange-400" },
   ];
 
   return (

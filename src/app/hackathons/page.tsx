@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { getHackathons } from "@/lib/data";
+import { getHackathons } from "@/lib/supabase/data";
 import { Badge } from "@/components/common/Badge";
 import { Tag } from "@/components/common/Tag";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -21,10 +21,18 @@ const STATUS_OPTIONS: { key: StatusFilter; label: string; emoji: string }[] = [
 ];
 
 export default function HackathonsPage() {
-  const allHackathons = getHackathons();
+  const [allHackathons, setAllHackathons] = useState<Hackathon[]>([]);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sort, setSort] = useState<SortOption>("latest");
+
+  useEffect(() => {
+    const load = async () => {
+      const data = await getHackathons();
+      setAllHackathons(data);
+    };
+    load();
+  }, []);
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();

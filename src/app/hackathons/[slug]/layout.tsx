@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
-import { getHackathonBySlug } from "@/lib/data";
+import { getHackathonBySlug } from "@/lib/supabase/data";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
 import { BookmarkButton } from "@/components/features/BookmarkButton";
@@ -24,8 +26,16 @@ export default function HackathonLayout({
 }) {
   const params = useParams();
   const pathname = usePathname();
-  const slug = params.slug as string;
-  const hackathon = getHackathonBySlug(slug);
+  const slug = (params.slug as string | string[])[0] || (params.slug as string);
+  const [hackathon, setHackathon] = useState<any>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      const h = await getHackathonBySlug(slug as string);
+      setHackathon(h);
+    };
+    load();
+  }, [slug]);
 
   if (!hackathon) {
     return (

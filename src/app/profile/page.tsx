@@ -6,15 +6,16 @@ import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
-import { getHackathonBySlug } from "@/lib/data";
+import { getHackathonBySlug, getAllHackathonsUnfiltered } from "@/lib/supabase/data";
 import { FollowStats } from "@/components/features/FollowButton";
 import { formatDate, timeAgo } from "@/lib/utils";
-import type { UserProfile, Team } from "@/types";
+import type { Hackathon,  UserProfile, Team } from "@/types";
 
 export default function ProfilePage() {
   const { user, getProfile, updateProfile, changeNickname } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [myTeams, setMyTeams] = useState<Team[]>([]);
+  const [allHackathons, setAllHackathons] = useState<Hackathon[]>([]);
   const [editing, setEditing] = useState(false);
   const [editBio, setEditBio] = useState("");
   const [editSkills, setEditSkills] = useState("");
@@ -25,14 +26,25 @@ export default function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    const load = async () => {
+      const hacks = await getAllHackathonsUnfiltered();
+      setAllHackathons(hacks);
+    };
+    load();
+  }, []);
+
+  useEffect(() => {
     if (user) {
-      const p = getProfile();
-      setProfile(p);
-      if (p) {
-        setEditBio(p.bio || "");
-        setEditSkills(p.skills.join(", "));
-        setEditNickname(p.nickname || p.name);
-      }
+      const load = async () => {
+        const p = await getProfile();
+        setProfile(p);
+        if (p) {
+          setEditBio(p.bio || "");
+          setEditSkills(p.skills.join(", "));
+          setEditNickname(p.nickname || p.name);
+        }
+      };
+      load();
       // 아바타 로드
       const storedAvatar = localStorage.getItem(`dacon_avatar_${user.id}`);
       if (storedAvatar) setAvatarUrl(storedAvatar);
@@ -70,22 +82,24 @@ export default function ProfilePage() {
     );
   }
 
-  const handleSaveProfile = () => {
-    updateProfile({
+  const handleSaveProfile = async () => {
+    await updateProfile({
       bio: editBio,
       skills: editSkills.split(",").map((s) => s.trim()).filter(Boolean),
     });
-    setProfile(getProfile());
+    const p = await getProfile();
+    setProfile(p);
     setEditing(false);
   };
 
-  const handleChangeNickname = () => {
+  const handleChangeNickname = async () => {
     setNicknameError("");
     setNicknameSuccess(false);
-    const result = changeNickname(editNickname);
+    const result = await changeNickname(editNickname);
     if (result.success) {
       setNicknameSuccess(true);
-      setProfile(getProfile());
+      const p = await getProfile();
+      setProfile(p);
       setTimeout(() => setNicknameSuccess(false), 3000);
     } else {
       setNicknameError(result.error || "변경에 실패했습니다.");
@@ -252,7 +266,7 @@ export default function ProfilePage() {
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
                 {profile.joinedHackathons.map((slug) => {
-                  const h = getHackathonBySlug(slug);
+                  const h = allHackathons.find(x => x.slug === slug);
                   if (!h) return null;
                   return (
                     <Link key={slug} href={`/hackathons/${slug}`} className="group rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-blue-300 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700">
@@ -278,7 +292,7 @@ export default function ProfilePage() {
               <div className="space-y-3">
                 {myTeams.map((team: Team & { hackathonSlug?: string; creatorId?: string; members?: { userId: string; role: string }[] }) => {
                   const myRole = team.members?.find((m) => m.userId === user?.id)?.role || (team.creatorId === user?.id ? "팀장" : "팀원");
-                  const h = team.hackathonSlug ? getHackathonBySlug(team.hackathonSlug) : null;
+                  const h = team.hackathonSlug ? allHackathons.find(x => x.slug === team.hackathonSlug) : null;
                   return (
                     <div key={team.teamCode} className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
                       <div className="flex items-center justify-between">
@@ -385,7 +399,7 @@ export default function ProfilePage() {
                 </div>
               ))}
               {profile.joinedHackathons.map((slug) => {
-                const h = getHackathonBySlug(slug);
+                const h = allHackathons.find(x => x.slug === slug);
                 return (
                   <div key={`join-${slug}`} className="flex items-start gap-3">
                     <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-50 text-sm dark:bg-green-900/30">

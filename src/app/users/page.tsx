@@ -14,8 +14,11 @@ export default function UsersDirectoryPage() {
   const [sortBy, setSortBy] = useState<"recent" | "active">("recent");
 
   useEffect(() => {
-    const allProfiles = getAllProfiles();
-    setProfiles(allProfiles);
+    const load = async () => {
+      const allProfiles = await getAllProfiles();
+      setProfiles(allProfiles);
+    };
+    load();
   }, [getAllProfiles]);
 
   // 검색 필터링

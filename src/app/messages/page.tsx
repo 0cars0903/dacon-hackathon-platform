@@ -13,8 +13,8 @@ import {
   rejectInvitation,
   addNotification,
   logActivity,
-} from "@/lib/data";
-import type { DirectMessage, Conversation, TeamInvitation } from "@/types";
+} from "@/lib/supabase/data";
+import type { DirectMessage, Conversation, TeamInvitation, UserProfile } from "@/types";
 
 export default function MessagesPage() {
   const { user, getAllProfiles } = useAuth();
@@ -29,10 +29,12 @@ export default function MessagesPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const loadData = useCallback(() => {
+  const loadData = useCallback(async () => {
     if (!user) return;
-    setConversations(getConversationList(user.id));
-    setInvitations(getInvitationsForUser(user.id).filter((i) => i.status === "pending"));
+    const convs = await getConversationList(user.id);
+    setConversations(convs);
+    const invs = await getInvitationsForUser(user.id);
+    setInvitations(invs.filter((i) => i.status === "pending"));
   }, [user]);
 
   useEffect(() => {
@@ -47,10 +49,15 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!user || !selectedPartnerId) return;
-    setMessages(getConversation(user.id, selectedPartnerId));
-    markMessagesRead(user.id, selectedPartnerId);
-    // 대화 목록 새로고침 (읽음 처리 반영)
-    setConversations(getConversationList(user.id));
+    const load = async () => {
+      const msgs = await getConversation(user.id, selectedPartnerId);
+      setMessages(msgs);
+      await markMessagesRead(user.id, selectedPartnerId);
+      // 대화 목록 새로고침 (읽음 처리 반영)
+      const convs = await getConversationList(user.id);
+      setConversations(convs);
+    };
+    load();
   }, [user, selectedPartnerId, refreshKey]);
 
   useEffect(() => {
@@ -65,7 +72,17 @@ export default function MessagesPage() {
     );
   }
 
-  const profiles = getAllProfiles().filter((p) => p.id !== user.id);
+  const [allProfiles, setAllProfiles] = useState<UserProfile[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const profs = await getAllProfiles();
+      setAllProfiles(profs);
+    };
+    load();
+  }, [getAllProfiles]);
+
+  const profiles = allProfiles.filter((p) => p.id !== user.id);
   const filteredProfiles = searchQuery
     ? profiles.filter(
         (p) =>
@@ -85,12 +102,14 @@ export default function MessagesPage() {
         ? selectedPartner.partnerName
         : "";
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!newMessage.trim() || !selectedPartnerId) return;
-    sendMessage(user.id, user.name, selectedPartnerId, partnerName, newMessage.trim());
+    await sendMessage(user.id, user.name, selectedPartnerId, partnerName, newMessage.trim());
     setNewMessage("");
-    setMessages(getConversation(user.id, selectedPartnerId));
-    setConversations(getConversationList(user.id));
+    const msgs = await getConversation(user.id, selectedPartnerId);
+    setMessages(msgs);
+    const convs = await getConversationList(user.id);
+    setConversations(convs);
   };
 
   const handleStartChat = (partnerId: string) => {
@@ -99,16 +118,15 @@ export default function MessagesPage() {
     setSearchQuery("");
   };
 
-  const handleAcceptInvite = (inv: TeamInvitation) => {
-    const success = acceptInvitation(inv.id, user.id, user.name);
+  const handleAcceptInvite = async (inv: TeamInvitation) => {
+    const success = await acceptInvitation(inv.id, user.id, user.name);
     if (success) {
-      addNotification(inv.inviterId, {
+      await addNotification(inv.inviterId, {
         message: `${user.name}님이 ${inv.teamName} 팀 초대를 수락했습니다.`,
-        timestamp: new Date().toISOString(),
         type: "success",
         link: `/camp`,
       });
-      logActivity({
+      await logActivity({
         type: "team_created",
         message: `${user.name}님이 ${inv.teamName} 팀 초대를 수락하여 합류했습니다.`,
         timestamp: new Date().toISOString(),
@@ -118,17 +136,24 @@ export default function MessagesPage() {
     loadData();
   };
 
-  const handleRejectInvite = (inv: TeamInvitation) => {
-    rejectInvitation(inv.id);
-    addNotification(inv.inviterId, {
+  const handleRejectInvite = async (inv: TeamInvitation) => {
+    await rejectInvitation(inv.id);
+    await addNotification(inv.inviterId, {
       message: `${user.name}님이 ${inv.teamName} 팀 초대를 거절했습니다.`,
-      timestamp: new Date().toISOString(),
       type: "warning",
     });
     loadData();
   };
 
-  const totalUnread = getUnreadMessageCount(user.id);
+  const [totalUnread, setTotalUnread] = useState(0);
+
+  useEffect(() => {
+    const load = async () => {
+      const count = await getUnreadMessageCount(user.id);
+      setTotalUnread(count);
+    };
+    load();
+  }, [user.id, refreshKey]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">

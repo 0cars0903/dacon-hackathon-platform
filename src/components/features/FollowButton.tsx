@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "./AuthProvider";
-import { followUser, unfollowUser, isFollowing, getFollowCounts, addNotification } from "@/lib/data";
+import { followUser, unfollowUser, isFollowing, getFollowCounts, addNotification } from "@/lib/supabase/data";
 
 interface FollowButtonProps {
   targetUserId: string;
@@ -18,7 +18,11 @@ export function FollowButton({ targetUserId, targetUserName, size = "md", onFoll
 
   useEffect(() => {
     if (user) {
-      setFollowing(isFollowing(user.id, targetUserId));
+      const load = async () => {
+        const result = await isFollowing(user.id, targetUserId);
+        setFollowing(result);
+      };
+      load();
     }
   }, [user, targetUserId]);
 
@@ -27,14 +31,13 @@ export function FollowButton({ targetUserId, targetUserName, size = "md", onFoll
   const handleToggle = async () => {
     setLoading(true);
     if (following) {
-      unfollowUser(user.id, targetUserId);
+      await unfollowUser(user.id, targetUserId);
       setFollowing(false);
     } else {
-      followUser(user.id, targetUserId);
+      await followUser(user.id, targetUserId);
       setFollowing(true);
-      addNotification(targetUserId, {
+      await addNotification(targetUserId, {
         message: `${user.name}님이 회원님을 팔로우하기 시작했습니다.`,
-        timestamp: new Date().toISOString(),
         type: "info",
         link: `/users/${user.id}`,
       });
@@ -69,7 +72,11 @@ export function FollowStats({ userId, className = "" }: FollowStatsProps) {
   const [counts, setCounts] = useState({ followers: 0, following: 0 });
 
   useEffect(() => {
-    setCounts(getFollowCounts(userId));
+    const load = async () => {
+      const result = await getFollowCounts(userId);
+      setCounts(result);
+    };
+    load();
   }, [userId]);
 
   return (
