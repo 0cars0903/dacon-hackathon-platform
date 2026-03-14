@@ -33,12 +33,18 @@ function CampContent() {
 
   useEffect(() => {
     const load = async () => {
-      const [teams, hacks] = await Promise.all([
-        getTeams(),
-        getHackathons(),
-      ]);
-      setStaticTeams(teams);
-      setHackathons(hacks);
+      try {
+        console.log("[CampPage] Fetching teams and hackathons from Supabase...");
+        const [teams, hacks] = await Promise.all([
+          getTeams(),
+          getHackathons(),
+        ]);
+        console.log("[CampPage] Loaded:", { teams: teams.length, hackathons: hacks.length });
+        setStaticTeams(teams);
+        setHackathons(hacks);
+      } catch (err) {
+        console.error("[CampPage] Failed to load data:", err);
+      }
     };
     load();
   }, []);
@@ -381,7 +387,7 @@ function CreateTeamForm({ onDone, hackathons }: { onDone: () => void; hackathons
     }
 
     // 활동 로그
-    const { logActivity } = await import("@/lib/data");
+    const { logActivity } = await import("@/lib/supabase/data");
     const h = hackathons.find((hk) => hk.slug === formData.hackathonSlug);
     logActivity({
       type: "team_created",

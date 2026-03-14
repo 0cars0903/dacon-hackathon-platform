@@ -172,7 +172,7 @@ export default function DiscussionPage() {
     setShowNewPostForm(false);
 
     // 활동 로그
-    import("@/lib/data").then(({ logActivity }) => {
+    import("@/lib/supabase/data").then(({ logActivity }) => {
       logActivity({
         type: "forum_post",
         message: `${user.name}님이 토론 게시글을 작성했습니다: "${post.title}"`,

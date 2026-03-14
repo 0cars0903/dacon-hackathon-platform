@@ -14,23 +14,30 @@ function supabase() {
   return createClient();
 }
 
+/** 공통 에러 로깅 헬퍼 */
+function logSupabaseError(fn: string, error: unknown) {
+  console.error(`[Supabase:${fn}]`, error);
+}
+
 // ============================================================
 // HACKATHONS
 // ============================================================
 export async function getHackathons(): Promise<Hackathon[]> {
-  const { data } = await supabase()
+  const { data, error } = await supabase()
     .from("hackathons")
     .select("*")
     .in("status", ["ongoing", "upcoming"])
     .order("created_at", { ascending: false });
+  if (error) logSupabaseError("getHackathons", error);
   return (data ?? []).map(mapHackathon);
 }
 
 export async function getAllHackathonsUnfiltered(): Promise<Hackathon[]> {
-  const { data } = await supabase()
+  const { data, error } = await supabase()
     .from("hackathons")
     .select("*")
     .order("created_at", { ascending: false });
+  if (error) logSupabaseError("getAllHackathonsUnfiltered", error);
   return (data ?? []).map(mapHackathon);
 }
 
@@ -73,14 +80,15 @@ export async function getAllHackathonDetails(): Promise<HackathonDetail[]> {
 }
 
 export async function getPlatformStats() {
-  const { data: ongoingData } = await supabase()
-    .from("hackathons").select("id").eq("status", "ongoing");
-  const { data: upcomingData } = await supabase()
-    .from("hackathons").select("id").eq("status", "upcoming");
-  const { data: usersData } = await supabase()
+  const { data: ongoingData, error: e1 } = await supabase()
+    .from("hackathons").select("slug").eq("status", "ongoing");
+  const { data: upcomingData, error: e2 } = await supabase()
+    .from("hackathons").select("slug").eq("status", "upcoming");
+  const { data: usersData, error: e3 } = await supabase()
     .from("profiles").select("id");
-  const { data: teamsData } = await supabase()
-    .from("teams").select("code");
+  const { data: teamsData, error: e4 } = await supabase()
+    .from("teams").select("team_code");
+  if (e1 || e2 || e3 || e4) logSupabaseError("getPlatformStats", { e1, e2, e3, e4 });
   return {
     ongoingHackathons: ongoingData?.length ?? 0,
     upcomingHackathons: upcomingData?.length ?? 0,
@@ -124,19 +132,21 @@ function mapHackathon(row: any): Hackathon {
 // TEAMS
 // ============================================================
 export async function getTeams(): Promise<Team[]> {
-  const { data } = await supabase()
+  const { data, error } = await supabase()
     .from("teams")
     .select("*, team_members(*)")
     .order("created_at", { ascending: false });
+  if (error) logSupabaseError("getTeams", error);
   return (data ?? []).map(mapTeam);
 }
 
 export async function getTeamsByHackathon(hackathonSlug: string): Promise<Team[]> {
-  const { data } = await supabase()
+  const { data, error } = await supabase()
     .from("teams")
     .select("*, team_members(*)")
     .eq("hackathon_slug", hackathonSlug)
     .order("created_at", { ascending: false });
+  if (error) logSupabaseError("getTeamsByHackathon", error);
   return (data ?? []).map(mapTeam);
 }
 

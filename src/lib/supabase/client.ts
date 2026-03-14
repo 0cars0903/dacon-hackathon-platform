@@ -1,12 +1,29 @@
-import { createBrowserClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 
-let client: ReturnType<typeof createBrowserClient> | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let client: SupabaseClient<any, "public", any> | null = null;
 
-export function createClient() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createClient(): SupabaseClient<any, "public", any> {
   if (client) return client;
-  client = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    console.error(
+      "[Supabase] Missing env vars:",
+      { hasUrl: !!url, hasKey: !!key }
+    );
+  }
+
+  client = createSupabaseClient(url!, key!, {
+    auth: {
+      persistSession: true,
+      storageKey: "dacon-auth-token",
+      flowType: "pkce",
+      detectSessionInUrl: true,
+    },
+  });
   return client;
 }
