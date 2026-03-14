@@ -320,7 +320,7 @@ function CreateTeamForm({ onDone, hackathons }: { onDone: () => void; hackathons
   const [formData, setFormData] = useState({ name: "", hackathonSlug: hackathons[0]?.slug || "", intro: "", lookingFor: "", contactUrl: "" });
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     if (!formData.contactUrl.trim()) { setError("연락처 URL을 입력해주세요 (카카오톡 오픈채팅방 링크 권장)"); return; }
@@ -354,6 +354,17 @@ function CreateTeamForm({ onDone, hackathons }: { onDone: () => void; hackathons
       }
       localStorage.setItem("dacon_profiles", JSON.stringify(profiles));
     }
+
+    // 활동 로그
+    const { logActivity } = await import("@/lib/data");
+    const h = hackathons.find((hk) => hk.slug === formData.hackathonSlug);
+    logActivity({
+      type: "team_created",
+      message: `${newTeam.name} 팀이 ${h?.title || formData.hackathonSlug}에 등록했습니다.`,
+      timestamp: new Date().toISOString(),
+      hackathonSlug: formData.hackathonSlug,
+    });
+
     onDone();
   };
 

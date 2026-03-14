@@ -131,7 +131,7 @@ export interface Submission {
 // === 활동 피드 (확장) ===
 export interface ActivityFeedItem {
   id: string;
-  type: "team_created" | "submission" | "ranking_update";
+  type: "team_created" | "submission" | "ranking_update" | "hackathon_created" | "forum_post" | "user_signup";
   message: string;
   timestamp: string;
   hackathonSlug?: string;

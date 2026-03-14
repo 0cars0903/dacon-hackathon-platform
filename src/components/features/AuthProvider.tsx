@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import type { UserProfile, UserBadge } from "@/types";
-import { getHackathons } from "@/lib/data";
+import { getHackathons, logActivity, addNotification } from "@/lib/data";
 
 export interface User {
   id: string;
@@ -338,6 +338,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userData: User = { id: newUser.id, name: newUser.name, email: newUser.email, role: "user" };
       setUser(userData);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+
+      // 활동 로그 + 환영 알림
+      logActivity({
+        type: "user_signup",
+        message: `${name}님이 DACON 플랫폼에 가입했습니다.`,
+        timestamp: new Date().toISOString(),
+      });
+      addNotification(newUser.id, {
+        message: "DACON 플랫폼에 오신 것을 환영합니다! 프로필을 완성하고 해커톤에 참여해보세요.",
+        timestamp: new Date().toISOString(),
+        type: "info",
+        link: "/profile",
+      });
+
       return true;
     },
     []
@@ -528,6 +542,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       }
       localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+
+      // 활동 로그
+      const h = getHackathons().find((hk) => hk.slug === hackathonSlug);
+      logActivity({
+        type: "team_created",
+        message: `${user.name}님이 ${h?.title || hackathonSlug} 해커톤에 참가했습니다.`,
+        timestamp: new Date().toISOString(),
+        hackathonSlug,
+      });
     }
   }, [user]);
 

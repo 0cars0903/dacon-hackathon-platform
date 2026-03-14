@@ -111,6 +111,13 @@ export function Header() {
                     내 프로필
                   </Link>
                   <Link
+                    href="/bookmarks"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"
+                  >
+                    북마크
+                  </Link>
+                  <Link
                     href="/settings"
                     onClick={() => setUserMenuOpen(false)}
                     className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"

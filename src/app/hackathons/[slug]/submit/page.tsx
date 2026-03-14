@@ -272,6 +272,16 @@ export default function HackathonSubmitPage() {
 
       setSubmitted(true);
       setSubmissions(filtered.filter((s) => s.hackathonSlug === slug && s.userId === user.id));
+
+      // 활동 로그
+      import("@/lib/data").then(({ logActivity }) => {
+        logActivity({
+          type: "submission",
+          message: `${user.name}님이 결과물을 제출했습니다. (v${nextVersion})`,
+          timestamp: new Date().toISOString(),
+          hackathonSlug: slug,
+        });
+      });
     } catch {
       setError("제출 중 오류가 발생했습니다. 다시 시도해주세요.");
     }

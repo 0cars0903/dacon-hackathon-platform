@@ -1,11 +1,13 @@
+import Link from "next/link";
 import { Button } from "./Button";
 
-interface EmptyStateProps {
+export interface EmptyStateProps {
   emoji?: string;
   title: string;
   description?: string;
   actionLabel?: string;
   onAction?: () => void;
+  actionHref?: string;
 }
 
 export function EmptyState({
@@ -14,6 +16,7 @@ export function EmptyState({
   description,
   actionLabel,
   onAction,
+  actionHref,
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -26,7 +29,12 @@ export function EmptyState({
           {description}
         </p>
       )}
-      {actionLabel && onAction && (
+      {actionLabel && actionHref && (
+        <Link href={actionHref}>
+          <Button variant="secondary">{actionLabel}</Button>
+        </Link>
+      )}
+      {actionLabel && onAction && !actionHref && (
         <Button variant="secondary" onClick={onAction}>
           {actionLabel}
         </Button>

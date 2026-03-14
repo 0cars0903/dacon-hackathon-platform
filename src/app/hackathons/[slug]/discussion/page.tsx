@@ -170,6 +170,16 @@ export default function DiscussionPage() {
     setNewPostContent("");
     setNewPostCategory("discussion");
     setShowNewPostForm(false);
+
+    // 활동 로그
+    import("@/lib/data").then(({ logActivity }) => {
+      logActivity({
+        type: "forum_post",
+        message: `${user.name}님이 토론 게시글을 작성했습니다: "${post.title}"`,
+        timestamp: new Date().toISOString(),
+        hackathonSlug,
+      });
+    });
   };
 
   const handleAddComment = () => {
