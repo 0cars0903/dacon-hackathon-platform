@@ -6,17 +6,18 @@ import { getHackathons } from "@/lib/data";
 import { Badge } from "@/components/common/Badge";
 import { Tag } from "@/components/common/Tag";
 import { EmptyState } from "@/components/common/EmptyState";
+import { BookmarkButton } from "@/components/features/BookmarkButton";
 import { getDday, getStatusLabel } from "@/lib/utils";
 import type { Hackathon } from "@/types";
 
 type StatusFilter = "all" | "ongoing" | "ended" | "upcoming";
 type SortOption = "latest" | "deadline";
 
-const STATUS_OPTIONS: { key: StatusFilter; label: string }[] = [
-  { key: "all", label: "전체" },
-  { key: "ongoing", label: "진행중" },
-  { key: "upcoming", label: "예정" },
-  { key: "ended", label: "종료" },
+const STATUS_OPTIONS: { key: StatusFilter; label: string; emoji: string }[] = [
+  { key: "all", label: "전체", emoji: "📋" },
+  { key: "ongoing", label: "진행중", emoji: "🟢" },
+  { key: "upcoming", label: "예정", emoji: "🔵" },
+  { key: "ended", label: "종료", emoji: "⚪" },
 ];
 
 export default function HackathonsPage() {
@@ -71,27 +72,48 @@ export default function HackathonsPage() {
     setSelectedTags([]);
   };
 
+  const counts = useMemo(() => {
+    const map: Record<string, number> = { all: allHackathons.length };
+    allHackathons.forEach((h) => {
+      map[h.status] = (map[h.status] || 0) + 1;
+    });
+    return map;
+  }, [allHackathons]);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
-        해커톤 목록
-      </h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          해커톤 목록
+        </h1>
+        <span className="text-sm text-gray-400">
+          총 {allHackathons.length}개
+        </span>
+      </div>
 
       {/* 필터 영역 */}
-      <div className="mb-6 space-y-4">
+      <div className="mb-6 space-y-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         {/* 상태 필터 */}
         <div className="flex flex-wrap gap-2">
           {STATUS_OPTIONS.map((opt) => (
             <button
               key={opt.key}
               onClick={() => setStatusFilter(opt.key)}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 statusFilter === opt.key
-                  ? "bg-blue-600 text-white"
+                  ? "bg-blue-600 text-white shadow-sm"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
               }`}
             >
+              <span className="text-xs">{opt.emoji}</span>
               {opt.label}
+              <span className={`ml-1 rounded-full px-1.5 text-xs ${
+                statusFilter === opt.key
+                  ? "bg-white/20"
+                  : "bg-gray-200 dark:bg-gray-700"
+              }`}>
+                {counts[opt.key] || 0}
+              </span>
             </button>
           ))}
         </div>
@@ -111,19 +133,29 @@ export default function HackathonsPage() {
           ))}
         </div>
 
-        {/* 정렬 */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            정렬:
-          </span>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SortOption)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
-          >
-            <option value="latest">최신순</option>
-            <option value="deadline">마감임박순</option>
-          </select>
+        {/* 정렬 + 필터 리셋 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              정렬:
+            </span>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortOption)}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+            >
+              <option value="latest">최신순</option>
+              <option value="deadline">마감임박순</option>
+            </select>
+          </div>
+          {(statusFilter !== "all" || selectedTags.length > 0) && (
+            <button
+              onClick={resetFilters}
+              className="text-xs text-blue-600 hover:underline dark:text-blue-400"
+            >
+              필터 초기화
+            </button>
+          )}
         </div>
       </div>
 
@@ -138,8 +170,8 @@ export default function HackathonsPage() {
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((h) => (
-            <HackathonCard key={h.slug} hackathon={h} />
+          {filtered.map((h, i) => (
+            <HackathonCard key={h.slug} hackathon={h} index={i} />
           ))}
         </div>
       )}
@@ -147,15 +179,21 @@ export default function HackathonsPage() {
   );
 }
 
-function HackathonCard({ hackathon: h }: { hackathon: Hackathon }) {
+function HackathonCard({ hackathon: h, index }: { hackathon: Hackathon; index: number }) {
   return (
     <Link
       href={`/hackathons/${h.slug}`}
-      className="group rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700"
+      className="animate-fade-in-up group relative rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-blue-300 hover:shadow-md hover:-translate-y-1 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700"
+      style={{ animationDelay: `${index * 80}ms` }}
     >
+      {/* 북마크 */}
+      <div className="absolute right-3 top-3">
+        <BookmarkButton hackathonSlug={h.slug} />
+      </div>
+
       {/* 썸네일 placeholder */}
       <div className="mb-4 flex h-32 items-center justify-center rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
-        <span className="text-4xl opacity-50">🏆</span>
+        <span className="text-4xl opacity-50 transition-transform group-hover:scale-110">🏆</span>
       </div>
 
       <div className="mb-3 flex items-center justify-between">

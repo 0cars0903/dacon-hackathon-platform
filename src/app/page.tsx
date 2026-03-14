@@ -3,6 +3,7 @@ import { getHackathons, getActivityFeed } from "@/lib/data";
 import { Badge } from "@/components/common/Badge";
 import { getDday, getStatusLabel, timeAgo } from "@/lib/utils";
 import { RecommendedHackathons } from "@/components/features/RecommendedHackathons";
+import { StatsOverview } from "@/components/features/StatsOverview";
 
 export default function HomePage() {
   const hackathons = getHackathons();
@@ -14,29 +15,36 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
       {/* 히어로 배너 */}
-      <section className="mb-10 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-800 p-8 text-white dark:from-blue-700 dark:to-blue-900 sm:p-12">
-        <h1 className="mb-3 text-3xl font-bold sm:text-4xl">
-          긴급 인수인계 해커톤
-        </h1>
-        <p className="mb-6 text-lg text-blue-100">
-          명세서만 남기고 사라진 개발자의 문서를 기반으로
-          <br className="hidden sm:block" />
-          바이브 코딩으로 웹서비스를 완성하세요.
-        </p>
-        <div className="flex flex-wrap items-center gap-4">
-          <Link
-            href="/hackathons"
-            className="inline-block rounded-lg bg-white px-6 py-3 font-semibold text-blue-700 transition-colors hover:bg-blue-50"
-          >
-            해커톤 둘러보기
-          </Link>
-          {upcoming && (
-            <span className="rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur-sm">
-              {getDday(upcoming.period.submissionDeadlineAt)} 마감
-            </span>
-          )}
+      <section className="animate-fade-in-up mb-10 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-8 text-white dark:from-blue-700 dark:via-blue-800 dark:to-blue-900 sm:p-12">
+        <div className="relative">
+          <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/5 sm:h-48 sm:w-48" />
+          <div className="absolute -bottom-12 -right-4 h-24 w-24 rounded-full bg-white/5 sm:h-36 sm:w-36" />
+          <h1 className="relative mb-3 text-3xl font-bold sm:text-4xl">
+            긴급 인수인계 해커톤
+          </h1>
+          <p className="relative mb-6 text-lg text-blue-100">
+            명세서만 남기고 사라진 개발자의 문서를 기반으로
+            <br className="hidden sm:block" />
+            바이브 코딩으로 웹서비스를 완성하세요.
+          </p>
+          <div className="relative flex flex-wrap items-center gap-4">
+            <Link
+              href="/hackathons"
+              className="inline-block rounded-lg bg-white px-6 py-3 font-semibold text-blue-700 shadow-lg transition-all hover:bg-blue-50 hover:shadow-xl hover:-translate-y-0.5"
+            >
+              해커톤 둘러보기
+            </Link>
+            {upcoming && (
+              <span className="rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur-sm">
+                {getDday(upcoming.period.submissionDeadlineAt)} 마감
+              </span>
+            )}
+          </div>
         </div>
       </section>
+
+      {/* 통계 카드 */}
+      <StatsOverview />
 
       {/* AI 추천 해커톤 */}
       <RecommendedHackathons />
@@ -53,11 +61,12 @@ export default function HomePage() {
                 등록된 해커톤이 없습니다
               </p>
             ) : (
-              hackathons.map((h) => (
+              hackathons.map((h, i) => (
                 <Link
                   key={h.slug}
                   href={`/hackathons/${h.slug}`}
-                  className="group rounded-xl border border-gray-200 p-5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-800 dark:hover:border-blue-700"
+                  className="animate-fade-in-up group rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700"
+                  style={{ animationDelay: `${i * 100}ms` }}
                 >
                   <div className="mb-3 flex items-center justify-between">
                     <Badge
@@ -101,10 +110,11 @@ export default function HomePage() {
               최근 활동
             </h2>
             <div className="space-y-3">
-              {activities.map((a) => (
+              {activities.map((a, i) => (
                 <div
                   key={a.id}
-                  className="rounded-lg border border-gray-100 p-3 dark:border-gray-800"
+                  className="animate-slide-in-right rounded-lg border border-gray-100 p-3 transition-all hover:border-gray-200 dark:border-gray-800 dark:hover:border-gray-700"
+                  style={{ animationDelay: `${i * 80}ms` }}
                 >
                   <div className="mb-1 flex items-center gap-2">
                     <span className="text-xs">
@@ -166,7 +176,7 @@ function QuickCard({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-4 rounded-xl border border-gray-200 p-4 transition-all hover:border-blue-300 hover:shadow-sm dark:border-gray-800 dark:hover:border-blue-700"
+      className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-blue-300 hover:shadow-sm hover:-translate-y-0.5 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700"
     >
       <span className="text-2xl">{emoji}</span>
       <div>

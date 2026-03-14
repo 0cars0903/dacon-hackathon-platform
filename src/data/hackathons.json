@@ -3,11 +3,7 @@
     "slug": "aimers-8-model-lite",
     "title": "Aimers 8기 : 모델 경량화 온라인 해커톤",
     "status": "ended",
-    "tags": [
-      "LLM",
-      "Compression",
-      "vLLM"
-    ],
+    "tags": ["LLM", "Compression", "vLLM"],
     "thumbnailUrl": "https://example.com/public/img/aimers8.png",
     "period": {
       "timezone": "Asia/Seoul",
@@ -24,11 +20,7 @@
     "slug": "monthly-vibe-coding-2026-02",
     "title": "월간 해커톤 : 바이브 코딩 개선 AI 아이디어 공모전 (2026.02)",
     "status": "ongoing",
-    "tags": [
-      "Idea",
-      "GenAI",
-      "Workflow"
-    ],
+    "tags": ["Idea", "GenAI", "Workflow"],
     "thumbnailUrl": "https://example.com/public/img/vibe202602.png",
     "period": {
       "timezone": "Asia/Seoul",
@@ -45,12 +37,7 @@
     "slug": "daker-handover-2026-03",
     "title": "긴급 인수인계 해커톤: 명세서만 보고 구현하라",
     "status": "upcoming",
-    "tags": [
-      "VibeCoding",
-      "Web",
-      "Vercel",
-      "Handover"
-    ],
+    "tags": ["VibeCoding", "Web", "Vercel", "Handover"],
     "thumbnailUrl": "https://example.com/public/img/daker-handover-202603.png",
     "period": {
       "timezone": "Asia/Seoul",
@@ -61,6 +48,40 @@
       "detail": "/hackathons/daker-handover-2026-03",
       "rules": "https://example.com/public/rules/daker-handover-202603",
       "faq": "https://example.com/public/faq/daker-handover-202603"
+    }
+  },
+  {
+    "slug": "genai-app-challenge-2026",
+    "title": "GenAI 앱 개발 챌린지 2026",
+    "status": "upcoming",
+    "tags": ["GenAI", "Frontend", "LLM", "Web"],
+    "thumbnailUrl": "https://example.com/public/img/genai-app-2026.png",
+    "period": {
+      "timezone": "Asia/Seoul",
+      "submissionDeadlineAt": "2026-04-15T10:00:00+09:00",
+      "endAt": "2026-04-30T10:00:00+09:00"
+    },
+    "links": {
+      "detail": "/hackathons/genai-app-challenge-2026",
+      "rules": "https://example.com/public/rules/genai-app-2026",
+      "faq": "https://example.com/public/faq/genai-app-2026"
+    }
+  },
+  {
+    "slug": "data-viz-hackathon-2026",
+    "title": "데이터 시각화 해커톤: 공공 데이터로 인사이트 뽑기",
+    "status": "ongoing",
+    "tags": ["Frontend", "Designer", "Workflow"],
+    "thumbnailUrl": "https://example.com/public/img/data-viz-2026.png",
+    "period": {
+      "timezone": "Asia/Seoul",
+      "submissionDeadlineAt": "2026-03-20T10:00:00+09:00",
+      "endAt": "2026-03-25T10:00:00+09:00"
+    },
+    "links": {
+      "detail": "/hackathons/data-viz-hackathon-2026",
+      "rules": "https://example.com/public/rules/data-viz-2026",
+      "faq": "https://example.com/public/faq/data-viz-2026"
     }
   }
 ]

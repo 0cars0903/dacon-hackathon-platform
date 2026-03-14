@@ -4,6 +4,7 @@ import { useState } from "react";
 import { getAllLeaderboards, getHackathons } from "@/lib/data";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
+import { ScoreChart } from "@/components/features/ScoreChart";
 import { formatDateTime, timeAgo } from "@/lib/utils";
 
 type SortKey = "rank" | "score";
@@ -20,7 +21,6 @@ export default function RankingsPage() {
   const leaderboard = allLeaderboards.find(
     (lb) => lb.hackathonSlug === selectedSlug
   );
-  const hackathon = hackathons.find((h) => h.slug === selectedSlug);
 
   const sorted = leaderboard
     ? [...leaderboard.entries].sort((a, b) => {
@@ -39,8 +39,13 @@ export default function RankingsPage() {
     }
   };
 
+  const avgScore = sorted.length > 0
+    ? Math.round(sorted.reduce((sum, e) => sum + e.score, 0) / sorted.length)
+    : 0;
+  const maxScore = sorted.length > 0 ? Math.max(...sorted.map((e) => e.score)) : 0;
+
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
+    <div className="mx-auto max-w-5xl px-4 py-8">
       <h1 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
         랭킹
       </h1>
@@ -53,9 +58,9 @@ export default function RankingsPage() {
             <button
               key={lb.hackathonSlug}
               onClick={() => setSelectedSlug(lb.hackathonSlug)}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 selectedSlug === lb.hackathonSlug
-                  ? "bg-blue-600 text-white"
+                  ? "bg-blue-600 text-white shadow-sm"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
               }`}
             >
@@ -68,6 +73,25 @@ export default function RankingsPage() {
           );
         })}
       </div>
+
+      {/* 통계 카드 + 차트 */}
+      {sorted.length > 0 && (
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+            <p className="text-xs text-gray-500 dark:text-gray-400">참가 팀</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{sorted.length}</p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+            <p className="text-xs text-gray-500 dark:text-gray-400">최고 점수</p>
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{maxScore}</p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+            <p className="text-xs text-gray-500 dark:text-gray-400">평균 점수</p>
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{avgScore}</p>
+          </div>
+          <ScoreChart title="점수 분포" />
+        </div>
+      )}
 
       {leaderboard && (
         <p className="mb-4 text-xs text-gray-400">
@@ -102,19 +126,22 @@ export default function RankingsPage() {
                 >
                   점수 {sortKey === "score" && (sortAsc ? "↑" : "↓")}
                 </th>
-                <th className="px-5 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
+                <th className="hidden px-5 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 sm:table-cell">
                   제출 시간
                 </th>
               </tr>
             </thead>
             <tbody>
-              {sorted.map((entry) => (
+              {sorted.map((entry, i) => (
                 <tr
                   key={entry.rank}
-                  className="border-b border-gray-100 transition-colors hover:bg-gray-50 last:border-0 dark:border-gray-800 dark:hover:bg-gray-800/50"
+                  className="animate-fade-in border-b border-gray-100 transition-colors hover:bg-gray-50 last:border-0 dark:border-gray-800 dark:hover:bg-gray-800/50"
+                  style={{ animationDelay: `${i * 50}ms` }}
                 >
                   <td className="px-5 py-4">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    <span className={`text-sm font-medium ${
+                      entry.rank <= 3 ? "text-lg" : "text-gray-900 dark:text-white"
+                    }`}>
                       {entry.rank <= 3
                         ? ["🥇", "🥈", "🥉"][entry.rank - 1]
                         : `#${entry.rank}`}
@@ -142,7 +169,7 @@ export default function RankingsPage() {
                           rel="noopener noreferrer"
                           className="text-xs text-blue-500 hover:underline"
                         >
-                          🌐 웹사이트
+                          🌐 웹
                         </a>
                         <a
                           href={entry.artifacts.pdfUrl}
@@ -156,11 +183,19 @@ export default function RankingsPage() {
                     )}
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                      {entry.score}
-                    </span>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                        {entry.score}
+                      </span>
+                      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                        <div
+                          className="h-full rounded-full bg-blue-500 transition-all duration-500"
+                          style={{ width: `${Math.min(entry.score, 100)}%` }}
+                        />
+                      </div>
+                    </div>
                   </td>
-                  <td className="px-5 py-4 text-right text-xs text-gray-500 dark:text-gray-400">
+                  <td className="hidden px-5 py-4 text-right text-xs text-gray-500 dark:text-gray-400 sm:table-cell">
                     {timeAgo(entry.submittedAt)}
                   </td>
                 </tr>
