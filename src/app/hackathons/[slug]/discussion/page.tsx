@@ -1,0 +1,587 @@
+"use client";
+
+import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@/components/features/AuthProvider";
+import { Badge, Button, Card, CardContent, CardHeader, EmptyState } from "@/components/common";
+import { cn, timeAgo } from "@/lib/utils";
+import type { ForumPost, ForumComment } from "@/types";
+
+const FORUM_POSTS_KEY = "dacon_forum_posts";
+const FORUM_COMMENTS_KEY = "dacon_forum_comments";
+
+type Category = "all" | "question" | "discussion" | "announcement" | "bug";
+type SortBy = "latest" | "popular";
+
+const CATEGORY_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+  question: { label: "질문", color: "text-blue-700 dark:text-blue-300", bg: "bg-blue-100 dark:bg-blue-900" },
+  discussion: { label: "자유토론", color: "text-purple-700 dark:text-purple-300", bg: "bg-purple-100 dark:bg-purple-900" },
+  announcement: { label: "공지", color: "text-green-700 dark:text-green-300", bg: "bg-green-100 dark:bg-green-900" },
+  bug: { label: "버그리포트", color: "text-red-700 dark:text-red-300", bg: "bg-red-100 dark:bg-red-900" },
+};
+
+// Seed data for demo
+function initializeSamplePosts(hackathonSlug: string) {
+  const existing = localStorage.getItem(FORUM_POSTS_KEY);
+  if (existing) return JSON.parse(existing);
+
+  const samplePosts: ForumPost[] = [
+    {
+      id: `post-${Date.now()}-1`,
+      hackathonSlug,
+      authorId: "user-handover-1",
+      authorName: "최예린",
+      authorNickname: "yerin_dev",
+      title: "팀 멤버 초대 기능 구현 방법 질문입니다",
+      content: "현재 팀 초대 기능을 구현 중인데, QR코드를 통한 초대는 어떻게 하면 좋을까요? 다른 팀들은 어떻게 구현했는지 궁금합니다.",
+      category: "question",
+      likes: ["user-handover-2", "user-handover-3"],
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: `post-${Date.now()}-2`,
+      hackathonSlug,
+      authorId: "user-lgtm-1",
+      authorName: "신지호",
+      authorNickname: "pm_jiho",
+      title: "해커톤 기간 중 팀 활동 정보 공유",
+      content: "안녕하세요! 공식 공지사항입니다. 해커톤 기간 중 일일 스탠드업 미팅은 매일 오전 10시에 진행됩니다. 모두 참여 부탁드립니다.",
+      category: "announcement",
+      likes: ["user-lgtm-2", "user-lgtm-3", "user-handover-1"],
+      createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: `post-${Date.now()}-3`,
+      hackathonSlug,
+      authorId: "user-handover-2",
+      authorName: "한도윤",
+      authorNickname: "frontend_doyun",
+      title: "Tailwind CSS에서 다크모드 구현 팁 공유",
+      content: "안녕하세요! 현재 프로젝트에서 다크모드를 완벽하게 구현했어요. 핵심은 next-themes를 사용해서 localStorage에 저장하고, Tailwind의 dark: 클래스를 활용하는 거예요. 코드 예제는 아래를 참고하세요.",
+      category: "discussion",
+      likes: ["user-lgtm-2", "user-handover-1"],
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: `post-${Date.now()}-4`,
+      hackathonSlug,
+      authorId: "user-lgtm-3",
+      authorName: "윤태양",
+      authorNickname: "backend_taeyang",
+      title: "리더보드 데이터 로딩 시간이 너무 깁니다",
+      content: "제출 후 리더보드가 업데이트되는 데 2-3분이 걸리는데, 이게 정상인가요? 다른 분들은 어떻게 되나요? 혹시 서버 문제가 있는 건 아닐까요?",
+      category: "bug",
+      likes: ["user-handover-1"],
+      createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: `post-${Date.now()}-5`,
+      hackathonSlug,
+      authorId: "user-lgtm-5",
+      authorName: "조은우",
+      authorNickname: "devops_eunwoo",
+      title: "Docker를 이용한 배포 자동화 경험담",
+      content: "해커톤 기간 동안 Docker를 활용해서 배포 프로세스를 완전히 자동화했습니다. CI/CD 파이프라인을 GitHub Actions로 구축했고, 정말 편해졌어요. 혹시 관심 있으신 분들 있으면 공유해드릴 수 있습니다!",
+      category: "discussion",
+      likes: ["user-lgtm-1", "user-lgtm-2", "user-handover-3"],
+      createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    },
+  ];
+
+  localStorage.setItem(FORUM_POSTS_KEY, JSON.stringify(samplePosts));
+  return samplePosts;
+}
+
+export default function DiscussionPage() {
+  const params = useParams();
+  const router = useRouter();
+  const { user } = useAuth();
+  const hackathonSlug = params.slug as string;
+
+  const [posts, setPosts] = useState<ForumPost[]>([]);
+  const [comments, setComments] = useState<ForumComment[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category>("all");
+  const [sortBy, setSortBy] = useState<SortBy>("latest");
+  const [selectedPost, setSelectedPost] = useState<ForumPost | null>(null);
+  const [showNewPostForm, setShowNewPostForm] = useState(false);
+  const [newPostTitle, setNewPostTitle] = useState("");
+  const [newPostContent, setNewPostContent] = useState("");
+  const [newPostCategory, setNewPostCategory] = useState<"question" | "discussion" | "announcement" | "bug">("discussion");
+  const [newCommentContent, setNewCommentContent] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  // Initialize data
+  useEffect(() => {
+    const samplePosts = initializeSamplePosts(hackathonSlug);
+    const storedPosts = samplePosts.filter((p: ForumPost) => p.hackathonSlug === hackathonSlug);
+    const commentsRaw = localStorage.getItem(FORUM_COMMENTS_KEY);
+    const storedComments: ForumComment[] = commentsRaw ? JSON.parse(commentsRaw) : [];
+
+    setPosts(storedPosts);
+    setComments(storedComments);
+    setLoading(false);
+  }, [hackathonSlug]);
+
+  // Save posts to localStorage
+  const savePosts = useCallback((updatedPosts: ForumPost[]) => {
+    const allPosts = JSON.parse(localStorage.getItem(FORUM_POSTS_KEY) || "[]") as ForumPost[];
+    const otherPosts = allPosts.filter((p) => p.hackathonSlug !== hackathonSlug);
+    const merged = [...otherPosts, ...updatedPosts];
+    localStorage.setItem(FORUM_POSTS_KEY, JSON.stringify(merged));
+    setPosts(updatedPosts);
+  }, [hackathonSlug]);
+
+  // Save comments to localStorage
+  const saveComments = useCallback((updatedComments: ForumComment[]) => {
+    localStorage.setItem(FORUM_COMMENTS_KEY, JSON.stringify(updatedComments));
+    setComments(updatedComments);
+  }, []);
+
+  const filteredPosts = posts.filter(
+    (post) => selectedCategory === "all" || post.category === selectedCategory
+  );
+
+  const sortedPosts = [...filteredPosts].sort((a, b) => {
+    if (sortBy === "latest") {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
+    return b.likes.length - a.likes.length;
+  });
+
+  const postComments = selectedPost ? comments.filter((c) => c.postId === selectedPost.id) : [];
+
+  const handleCreatePost = () => {
+    if (!user || !newPostTitle.trim() || !newPostContent.trim()) return;
+
+    const post: ForumPost = {
+      id: `post-${Date.now()}`,
+      hackathonSlug,
+      authorId: user.id,
+      authorName: user.name,
+      title: newPostTitle.trim(),
+      content: newPostContent.trim(),
+      category: newPostCategory,
+      likes: [],
+      createdAt: new Date().toISOString(),
+    };
+
+    savePosts([...posts, post]);
+    setNewPostTitle("");
+    setNewPostContent("");
+    setNewPostCategory("discussion");
+    setShowNewPostForm(false);
+  };
+
+  const handleAddComment = () => {
+    if (!user || !selectedPost || !newCommentContent.trim()) return;
+
+    const comment: ForumComment = {
+      id: `comment-${Date.now()}`,
+      postId: selectedPost.id,
+      authorId: user.id,
+      authorName: user.name,
+      content: newCommentContent.trim(),
+      likes: [],
+      createdAt: new Date().toISOString(),
+    };
+
+    const updatedComments = [...comments, comment];
+    saveComments(updatedComments);
+    setNewCommentContent("");
+  };
+
+  const handleToggleLike = (postId: string) => {
+    if (!user) return;
+
+    const updatedPosts = posts.map((post) => {
+      if (post.id === postId) {
+        const likes = post.likes.includes(user.id)
+          ? post.likes.filter((id) => id !== user.id)
+          : [...post.likes, user.id];
+        return { ...post, likes };
+      }
+      return post;
+    });
+
+    savePosts(updatedPosts);
+    if (selectedPost && selectedPost.id === postId) {
+      setSelectedPost(updatedPosts.find((p) => p.id === postId) || null);
+    }
+  };
+
+  const handleToggleCommentLike = (commentId: string) => {
+    if (!user) return;
+
+    const updatedComments = comments.map((comment) => {
+      if (comment.id === commentId) {
+        const likes = comment.likes.includes(user.id)
+          ? comment.likes.filter((id) => id !== user.id)
+          : [...comment.likes, user.id];
+        return { ...comment, likes };
+      }
+      return comment;
+    });
+
+    saveComments(updatedComments);
+  };
+
+  if (loading) {
+    return <div className="py-8 text-center text-gray-500">로딩 중...</div>;
+  }
+
+  // Post detail view
+  if (selectedPost) {
+    return (
+      <div>
+        {/* Back button */}
+        <button
+          onClick={() => setSelectedPost(null)}
+          className="mb-4 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+        >
+          ← 목록으로 돌아가기
+        </button>
+
+        {/* Post content */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant="info" className={cn(CATEGORY_CONFIG[selectedPost.category].bg, CATEGORY_CONFIG[selectedPost.category].color)}>
+                    {CATEGORY_CONFIG[selectedPost.category].label}
+                  </Badge>
+                </div>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  {selectedPost.title}
+                </h1>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="font-medium">{selectedPost.authorNickname || selectedPost.authorName}</span>
+                  <span className="mx-1">·</span>
+                  <span>{timeAgo(selectedPost.createdAt)}</span>
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="prose dark:prose-invert max-w-none mb-4">
+              <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+                {selectedPost.content}
+              </p>
+            </div>
+            <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => handleToggleLike(selectedPost.id)}
+                className={cn(
+                  "flex items-center gap-1 text-sm font-medium transition-colors",
+                  user && selectedPost.likes.includes(user.id)
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                )}
+              >
+                {user && selectedPost.likes.includes(user.id) ? "❤️" : "🤍"}
+                {selectedPost.likes.length}
+              </button>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                댓글 {postComments.length}개
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Comments section */}
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+            댓글 {postComments.length}
+          </h3>
+
+          {postComments.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              첫 번째 댓글을 남겨보세요!
+            </div>
+          ) : (
+            <div className="space-y-3 mb-6">
+              {postComments.map((comment) => (
+                <Card key={comment.id}>
+                  <CardContent className="pt-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white text-sm">
+                          {comment.authorNickname || comment.authorName}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {timeAgo(comment.createdAt)}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 dark:text-gray-300 text-sm whitespace-pre-wrap mb-2">
+                      {comment.content}
+                    </p>
+                    <button
+                      onClick={() => handleToggleCommentLike(comment.id)}
+                      className={cn(
+                        "text-xs font-medium transition-colors",
+                        user && comment.likes.includes(user.id)
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                      )}
+                    >
+                      {user && comment.likes.includes(user.id) ? "❤️" : "🤍"} {comment.likes.length}
+                    </button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {/* Add comment form */}
+          {user ? (
+            <Card>
+              <CardContent className="pt-4">
+                <textarea
+                  value={newCommentContent}
+                  onChange={(e) => setNewCommentContent(e.target.value)}
+                  placeholder="댓글을 입력하세요..."
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+                  rows={3}
+                />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setNewCommentContent("")}
+                  >
+                    취소
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleAddComment}
+                    disabled={!newCommentContent.trim()}
+                  >
+                    댓글 추가
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
+              댓글을 달려면 <button onClick={() => router.push("/auth/login")} className="text-blue-600 dark:text-blue-400 hover:underline font-medium">로그인</button>이 필요합니다.
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Post list view
+  return (
+    <div>
+      {/* Header with new post button */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">토론 포럼</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            해커톤 참가자들과 자유롭게 질문하고 의견을 나누세요
+          </p>
+        </div>
+        {user ? (
+          <Button
+            onClick={() => setShowNewPostForm(true)}
+            className="whitespace-nowrap"
+          >
+            ✏️ 글쓰기
+          </Button>
+        ) : (
+          <Button
+            onClick={() => router.push("/auth/login")}
+            variant="secondary"
+            className="whitespace-nowrap"
+          >
+            로그인하고 글쓰기
+          </Button>
+        )}
+      </div>
+
+      {/* New post form */}
+      {showNewPostForm && user && (
+        <Card className="mb-6 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
+          <CardHeader>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">새 글 작성</h3>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                카테고리
+              </label>
+              <select
+                value={newPostCategory}
+                onChange={(e) => setNewPostCategory(e.target.value as any)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="question">질문</option>
+                <option value="discussion">자유토론</option>
+                <option value="announcement">공지</option>
+                <option value="bug">버그리포트</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                제목
+              </label>
+              <input
+                type="text"
+                value={newPostTitle}
+                onChange={(e) => setNewPostTitle(e.target.value)}
+                placeholder="글의 제목을 입력하세요"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                내용
+              </label>
+              <textarea
+                value={newPostContent}
+                onChange={(e) => setNewPostContent(e.target.value)}
+                placeholder="글의 내용을 입력하세요. 마크다운 형식을 지원합니다."
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={6}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setShowNewPostForm(false);
+                  setNewPostTitle("");
+                  setNewPostContent("");
+                  setNewPostCategory("discussion");
+                }}
+              >
+                취소
+              </Button>
+              <Button
+                onClick={handleCreatePost}
+                disabled={!newPostTitle.trim() || !newPostContent.trim()}
+              >
+                게시하기
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Category tabs */}
+      <div className="mb-6 flex gap-2 overflow-x-auto pb-2">
+        {[
+          { key: "all" as Category, label: "전체" },
+          { key: "question" as Category, label: "질문" },
+          { key: "discussion" as Category, label: "자유토론" },
+          { key: "announcement" as Category, label: "공지" },
+          { key: "bug" as Category, label: "버그리포트" },
+        ].map((cat) => (
+          <button
+            key={cat.key}
+            onClick={() => setSelectedCategory(cat.key)}
+            className={cn(
+              "px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors",
+              selectedCategory === cat.key
+                ? "bg-blue-600 text-white dark:bg-blue-500"
+                : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+            )}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Sort options */}
+      <div className="mb-4 flex gap-2">
+        <button
+          onClick={() => setSortBy("latest")}
+          className={cn(
+            "px-3 py-1 text-sm rounded-lg transition-colors",
+            sortBy === "latest"
+              ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
+              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          )}
+        >
+          최신순
+        </button>
+        <button
+          onClick={() => setSortBy("popular")}
+          className={cn(
+            "px-3 py-1 text-sm rounded-lg transition-colors",
+            sortBy === "popular"
+              ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
+              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          )}
+        >
+          인기순
+        </button>
+      </div>
+
+      {/* Posts list */}
+      {sortedPosts.length === 0 ? (
+        <EmptyState
+          emoji="💭"
+          title="글이 없습니다"
+          description={selectedCategory === "all" ? "첫 번째 글을 작성해보세요!" : `${CATEGORY_CONFIG[selectedCategory].label} 카테고리에 글이 없습니다.`}
+          actionLabel={user ? "글쓰기" : "로그인하기"}
+          onAction={() => (user ? setShowNewPostForm(true) : router.push("/auth/login"))}
+        />
+      ) : (
+        <div className="space-y-3">
+          {sortedPosts.map((post) => (
+            <div
+              key={post.id}
+              className="cursor-pointer"
+              onClick={() => setSelectedPost(post)}
+            >
+            <Card
+              className="hover:shadow-md transition-shadow"
+            >
+              <CardContent className="p-4">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <Badge
+                        variant="info"
+                        className={cn(CATEGORY_CONFIG[post.category].bg, CATEGORY_CONFIG[post.category].color)}
+                      >
+                        {CATEGORY_CONFIG[post.category].label}
+                      </Badge>
+                      {post.category === "announcement" && (
+                        <Badge variant="success">📢</Badge>
+                      )}
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 text-sm sm:text-base">
+                      {post.title}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex-wrap">
+                      <span className="font-medium">{post.authorNickname || post.authorName}</span>
+                      <span className="text-gray-400 dark:text-gray-600">·</span>
+                      <span>{timeAgo(post.createdAt)}</span>
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400 shrink-0">
+                    <div className="flex items-center gap-1">
+                      <span className="text-base">🤍</span>
+                      <span>{post.likes.length}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-base">💬</span>
+                      <span>{postComments.filter((c) => c.postId === post.id).length}</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

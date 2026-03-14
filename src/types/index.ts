@@ -209,3 +209,29 @@ export interface Notification {
   link?: string;
   type?: "info" | "success" | "warning";
 }
+
+// === 토론 포럼 ===
+export interface ForumPost {
+  id: string;
+  hackathonSlug: string;
+  authorId: string;
+  authorName: string;
+  authorNickname?: string;
+  title: string;
+  content: string;
+  category: "question" | "discussion" | "announcement" | "bug";
+  likes: string[]; // user IDs who liked
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ForumComment {
+  id: string;
+  postId: string;
+  authorId: string;
+  authorName: string;
+  authorNickname?: string;
+  content: string;
+  likes: string[]; // user IDs who liked
+  createdAt: string;
+}

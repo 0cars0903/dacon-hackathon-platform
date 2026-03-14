@@ -9,6 +9,7 @@ const quickLinks = [
   { href: "/", label: "홈", emoji: "🏠" },
   { href: "/hackathons", label: "해커톤", emoji: "🏆" },
   { href: "/camp", label: "팀 모집", emoji: "👥" },
+  { href: "/users", label: "참가자", emoji: "👥" },
   { href: "/rankings", label: "랭킹", emoji: "📊" },
   { href: "/profile", label: "내 프로필", emoji: "👤" },
 ];

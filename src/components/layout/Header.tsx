@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useThemeContext } from "./ThemeProvider";
 import { useAuth } from "@/components/features/AuthProvider";
 import { NotificationBell } from "@/components/features/NotificationBell";
+import { SearchModal } from "@/components/features/SearchModal";
 
 const NAV_ITEMS = [
   { href: "/hackathons", label: "해커톤" },
@@ -19,6 +20,7 @@ export function Header() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -53,9 +55,10 @@ export function Header() {
           ))}
 
           <button
-            onClick={() => setSearchOpen(!searchOpen)}
+            onClick={() => setSearchModalOpen(true)}
             className="ml-2 rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-            aria-label="검색"
+            aria-label="검색 (⌘K)"
+            title="검색 (⌘K)"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -249,6 +252,9 @@ export function Header() {
           </div>
         </nav>
       )}
+
+      {/* Search Modal - Cmd+K / Ctrl+K */}
+      <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
     </header>
   );
 }

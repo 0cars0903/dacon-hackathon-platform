@@ -18,6 +18,7 @@ interface HackathonForm {
   maxTeamSize: number;
   allowSolo: boolean;
   metricName: string;
+  createdAt?: string;
 }
 
 const defaultForm: HackathonForm = {
@@ -45,6 +46,8 @@ export default function AdminPage() {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [editProfileModal, setEditProfileModal] = useState<string | null>(null);
   const [editProfileForm, setEditProfileForm] = useState({ name: "", nickname: "", bio: "", skills: "" });
+  const [editingHackathon, setEditingHackathon] = useState<string | null>(null);
+  const [confirmDeleteHackathon, setConfirmDeleteHackathon] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAdmin) {
@@ -77,24 +80,38 @@ export default function AdminPage() {
     setTimeout(() => setToast(""), 3000);
   };
 
-  const handleCreateHackathon = () => {
+  const handleSaveHackathon = () => {
     if (!form.title.trim() || !form.slug.trim()) {
       showToast("제목과 슬러그는 필수입니다.");
       return;
     }
-    if (createdHackathons.some((h) => h.slug === form.slug)) {
+
+    const isEditing = editingHackathon !== null;
+
+    if (!isEditing && createdHackathons.some((h) => h.slug === form.slug)) {
       showToast("이미 존재하는 슬러그입니다.");
       return;
     }
 
-    const updated = [...createdHackathons, { ...form }];
+    let updated: HackathonForm[];
+    if (isEditing) {
+      updated = createdHackathons.map((h) =>
+        h.slug === editingHackathon
+          ? { ...form, createdAt: h.createdAt || new Date().toISOString() }
+          : h
+      );
+    } else {
+      updated = [...createdHackathons, { ...form, createdAt: new Date().toISOString() }];
+    }
+
     setCreatedHackathons(updated);
     localStorage.setItem("dacon_admin_hackathons", JSON.stringify(updated));
 
-    // hackathons.json에는 추가할 수 없으므로 localStorage에 별도 저장
+    // Update dacon_hackathons_extra for consistency
     const existingRaw = localStorage.getItem("dacon_hackathons_extra");
     const existing = existingRaw ? JSON.parse(existingRaw) : [];
-    existing.push({
+    const index = existing.findIndex((h: any) => h.slug === form.slug);
+    const newEntry = {
       slug: form.slug,
       title: form.title,
       status: form.status,
@@ -110,11 +127,66 @@ export default function AdminPage() {
         rules: "",
         faq: "",
       },
-    });
+    };
+
+    if (index >= 0) {
+      existing[index] = newEntry;
+    } else {
+      existing.push(newEntry);
+    }
     localStorage.setItem("dacon_hackathons_extra", JSON.stringify(existing));
 
     setForm(defaultForm);
-    showToast("해커톤이 생성되었습니다!");
+    setEditingHackathon(null);
+    showToast(isEditing ? "해커톤이 수정되었습니다!" : "해커톤이 생성되었습니다!");
+  };
+
+  const handleEditHackathon = (slug: string) => {
+    const hackathon = createdHackathons.find((h) => h.slug === slug);
+    if (hackathon) {
+      setForm(hackathon);
+      setEditingHackathon(slug);
+    }
+  };
+
+  const handleDeleteHackathon = (slug: string) => {
+    const updated = createdHackathons.filter((h) => h.slug !== slug);
+    setCreatedHackathons(updated);
+    localStorage.setItem("dacon_admin_hackathons", JSON.stringify(updated));
+
+    // Also remove from dacon_hackathons_extra
+    const existingRaw = localStorage.getItem("dacon_hackathons_extra");
+    if (existingRaw) {
+      const existing = JSON.parse(existingRaw).filter((h: any) => h.slug !== slug);
+      localStorage.setItem("dacon_hackathons_extra", JSON.stringify(existing));
+    }
+
+    setConfirmDeleteHackathon(null);
+    showToast("해커톤이 삭제되었습니다.");
+  };
+
+  const handleCancelEdit = () => {
+    setForm(defaultForm);
+    setEditingHackathon(null);
+  };
+
+  const handleChangeHackathonStatus = (slug: string, newStatus: "upcoming" | "ongoing" | "ended") => {
+    const updated = createdHackathons.map((h) =>
+      h.slug === slug ? { ...h, status: newStatus } : h
+    );
+    setCreatedHackathons(updated);
+    localStorage.setItem("dacon_admin_hackathons", JSON.stringify(updated));
+
+    // Update dacon_hackathons_extra
+    const existingRaw = localStorage.getItem("dacon_hackathons_extra");
+    if (existingRaw) {
+      const existing = JSON.parse(existingRaw).map((h: any) =>
+        h.slug === slug ? { ...h, status: newStatus } : h
+      );
+      localStorage.setItem("dacon_hackathons_extra", JSON.stringify(existing));
+    }
+
+    showToast("상태가 변경되었습니다.");
   };
 
   const handleDeleteUser = (userId: string) => {
@@ -205,9 +277,11 @@ export default function AdminPage() {
       {/* 해커톤 관리 */}
       {activeTab === "hackathons" && (
         <div className="space-y-6">
-          {/* 생성 폼 */}
+          {/* 생성/수정 폼 */}
           <section className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">새 해커톤 생성</h2>
+            <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+              {editingHackathon ? "해커톤 수정" : "새 해커톤 생성"}
+            </h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-500">제목 *</label>
@@ -258,8 +332,15 @@ export default function AdminPage() {
                 <input type="text" value={form.metricName} onChange={(e) => setForm({ ...form, metricName: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Accuracy" />
               </div>
             </div>
-            <div className="mt-4">
-              <Button onClick={handleCreateHackathon}>해커톤 생성</Button>
+            <div className="mt-4 flex gap-2">
+              <Button onClick={handleSaveHackathon}>
+                {editingHackathon ? "수정 완료" : "해커톤 생성"}
+              </Button>
+              {editingHackathon && (
+                <Button variant="secondary" onClick={handleCancelEdit}>
+                  취소
+                </Button>
+              )}
             </div>
           </section>
 
@@ -270,17 +351,76 @@ export default function AdminPage() {
               <p className="text-sm text-gray-400">아직 생성된 해커톤이 없습니다.</p>
             ) : (
               <div className="space-y-2">
-                {createdHackathons.map((h) => (
-                  <div key={h.slug} className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{h.title}</p>
-                      <p className="text-xs text-gray-400">/{h.slug}</p>
+                {[...createdHackathons]
+                  .sort((a, b) => {
+                    const dateA = new Date(a.createdAt || 0).getTime();
+                    const dateB = new Date(b.createdAt || 0).getTime();
+                    return dateB - dateA;
+                  })
+                  .map((h) => (
+                    <div key={h.slug} className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{h.title}</p>
+                          <Badge variant={h.status === "ongoing" ? "success" : h.status === "upcoming" ? "info" : "muted"} size="sm">
+                            {h.status === "ongoing" ? "진행중" : h.status === "upcoming" ? "예정" : "종료"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-400">/{h.slug}</p>
+                        {h.submissionDeadlineAt && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            마감일: {new Date(h.submissionDeadlineAt).toLocaleDateString("ko-KR")}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={h.status}
+                          onChange={(e) =>
+                            handleChangeHackathonStatus(
+                              h.slug,
+                              e.target.value as "upcoming" | "ongoing" | "ended"
+                            )
+                          }
+                          className="rounded border border-gray-200 px-2 py-1 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                          title="직접 상태 변경"
+                        >
+                          <option value="upcoming">예정</option>
+                          <option value="ongoing">진행중</option>
+                          <option value="ended">종료</option>
+                        </select>
+                        <button
+                          onClick={() => handleEditHackathon(h.slug)}
+                          className="text-xs text-blue-600 hover:underline dark:text-blue-400 font-medium"
+                        >
+                          수정
+                        </button>
+                        {confirmDeleteHackathon === h.slug ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleDeleteHackathon(h.slug)}
+                              className="text-xs font-medium text-red-600 hover:underline dark:text-red-400"
+                            >
+                              확인
+                            </button>
+                            <button
+                              onClick={() => setConfirmDeleteHackathon(null)}
+                              className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            >
+                              취소
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmDeleteHackathon(h.slug)}
+                            className="text-xs text-red-500 hover:underline dark:text-red-400"
+                          >
+                            삭제
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <Badge variant={h.status === "ongoing" ? "success" : h.status === "upcoming" ? "info" : "muted"} size="sm">
-                      {h.status === "ongoing" ? "진행중" : h.status === "upcoming" ? "예정" : "종료"}
-                    </Badge>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </section>

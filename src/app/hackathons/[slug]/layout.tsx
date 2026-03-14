@@ -14,6 +14,7 @@ const SUB_PAGES = [
   { key: "/leaderboard", label: "리더보드", emoji: "🏆" },
   { key: "/submit", label: "제출", emoji: "📤" },
   { key: "/overview", label: "평가·상금·일정", emoji: "📏" },
+  { key: "/discussion", label: "토론", emoji: "💬" },
 ];
 
 export default function HackathonLayout({
