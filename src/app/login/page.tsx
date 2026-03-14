@@ -115,6 +115,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="username"
               className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
               placeholder="email@example.com"
               required
@@ -129,6 +130,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
               className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
               placeholder="비밀번호를 입력하세요"
               required
@@ -159,15 +161,24 @@ export default function LoginPage() {
             </p>
             <button
               onClick={async () => {
-                setEmail("kuma@dacon.io");
-                setPassword("kuma1234");
-                setMode("login");
-                const ok = await login("kuma@dacon.io", "kuma1234");
-                if (ok) router.push("/");
+                setError("");
+                setLoading(true);
+                try {
+                  const ok = await login("kuma@dacon.io", "kuma1234");
+                  if (ok) {
+                    router.push("/");
+                    return;
+                  }
+                  setError("관리자 로그인에 실패했습니다. 다시 시도해주세요.");
+                } catch {
+                  setError("오류가 발생했습니다.");
+                }
+                setLoading(false);
               }}
-              className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+              disabled={loading}
+              className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400 disabled:opacity-50"
             >
-              kuma@dacon.io / kuma1234 로 바로 로그인
+              {loading ? "로그인 중..." : "Admin 계정으로 바로 로그인"}
             </button>
             <p className="mt-1 text-[10px] text-blue-500 dark:text-blue-400">관리자 권한 + 팀 생성 및 프로필이 구성된 계정입니다</p>
           </div>
@@ -177,12 +188,24 @@ export default function LoginPage() {
             </p>
             <button
               onClick={async () => {
-                const ok = await login("demo@dacon.io", "demo1234");
-                if (ok) router.push("/");
+                setError("");
+                setLoading(true);
+                try {
+                  const ok = await login("demo@dacon.io", "demo1234");
+                  if (ok) {
+                    router.push("/");
+                    return;
+                  }
+                  setError("데모 로그인에 실패했습니다. 다시 시도해주세요.");
+                } catch {
+                  setError("오류가 발생했습니다.");
+                }
+                setLoading(false);
               }}
-              className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+              disabled={loading}
+              className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400 disabled:opacity-50"
             >
-              demo@dacon.io / demo1234 로 바로 로그인
+              {loading ? "로그인 중..." : "Demo 계정으로 바로 로그인"}
             </button>
             <p className="mt-1 text-[10px] text-gray-400">일반 사용자 기능 체험용 계정입니다</p>
           </div>
