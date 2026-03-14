@@ -74,10 +74,23 @@ export interface Team {
   hackathonSlug: string;
   name: string;
   isOpen: boolean;
+  joinPolicy: "auto" | "approval"; // 자동 허용 / 확인 후 허용
   memberCount: number;
   lookingFor: string[];
   intro: string;
   contact: { type: string; url: string };
+  createdAt: string;
+  creatorId?: string;
+  members?: TeamMember[];
+}
+
+// === 팀 채팅 메시지 ===
+export interface TeamChatMessage {
+  id: string;
+  teamCode: string;
+  senderId: string;
+  senderName: string;
+  content: string;
   createdAt: string;
 }
 

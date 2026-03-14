@@ -11,12 +11,14 @@ import { formatDate, timeAgo } from "@/lib/utils";
 import type { UserProfile, Team } from "@/types";
 
 export default function PublicUserProfilePage({ params }: { params: { id: string } }) {
-  const { user, getProfile } = useAuth();
+  const { user, getProfile, isLoading } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [userTeams, setUserTeams] = useState<Team[]>([]);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
+    // AuthProvider 초기화(ensureMVPData) 완료 후에만 프로필 조회
+    if (isLoading) return;
     const p = getProfile(params.id);
     if (p) {
       setProfile(p);
@@ -32,7 +34,7 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
     } else {
       setNotFound(true);
     }
-  }, [params.id, getProfile]);
+  }, [params.id, getProfile, isLoading]);
 
   if (notFound) {
     return (

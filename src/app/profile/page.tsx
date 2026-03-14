@@ -271,20 +271,42 @@ export default function ProfilePage() {
 
           {/* 내 팀 */}
           <section>
-            <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">내 팀</h3>
+            <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">참여 중인 팀 ({myTeams.length})</h3>
             {myTeams.length === 0 ? (
               <p className="text-sm text-gray-400">아직 참가한 팀이 없습니다.</p>
             ) : (
-              <div className="space-y-2">
-                {myTeams.map((team: Team) => (
-                  <div key={team.teamCode} className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
-                    <div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{team.name}</span>
-                      <span className="ml-2 text-xs text-gray-400">{team.memberCount}명</span>
+              <div className="space-y-3">
+                {myTeams.map((team: Team & { hackathonSlug?: string; creatorId?: string; members?: { userId: string; role: string }[] }) => {
+                  const myRole = team.members?.find((m) => m.userId === user?.id)?.role || (team.creatorId === user?.id ? "팀장" : "팀원");
+                  const h = team.hackathonSlug ? getHackathonBySlug(team.hackathonSlug) : null;
+                  return (
+                    <div key={team.teamCode} className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-900 dark:text-white">{team.name}</span>
+                            <Badge variant={myRole === "팀장" ? "info" : "muted"} size="sm">{myRole}</Badge>
+                            <Badge variant={team.isOpen ? "success" : "muted"} size="sm">{team.isOpen ? "모집중" : "마감"}</Badge>
+                          </div>
+                          <div className="mt-1 flex items-center gap-3 text-xs text-gray-400">
+                            <span>{team.memberCount}명</span>
+                            {h && (
+                              <Link href={`/hackathons/${team.hackathonSlug}`} className="text-blue-500 hover:underline">
+                                {h.title.length > 25 ? h.title.slice(0, 25) + "…" : h.title}
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+                        <Link
+                          href={`/hackathons/${team.hackathonSlug}/teams`}
+                          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+                        >
+                          팀 페이지
+                        </Link>
+                      </div>
                     </div>
-                    <Badge variant={team.isOpen ? "success" : "muted"} size="sm">{team.isOpen ? "모집중" : "마감"}</Badge>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>

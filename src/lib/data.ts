@@ -8,6 +8,8 @@ import type {
   DirectMessage,
   Conversation,
   FollowRelation,
+  TeamChatMessage,
+  TeamMember,
 } from "@/types";
 import { isWithinTwoWeeks } from "@/lib/utils";
 
@@ -207,42 +209,42 @@ export function logActivity(item: Omit<ActivityFeedItem, "id">) {
 export function getActivityFeed(): ActivityFeedItem[] {
   const seed: ActivityFeedItem[] = [
     {
-      id: "seed-1",
+      id: "activity-seed-1",
       type: "team_created",
       message: "LangChain Wizards 팀이 GenAI 앱 개발 챌린지에 등록했습니다.",
       timestamp: "2026-03-10T14:00:00+09:00",
       hackathonSlug: "genai-app-challenge-2026",
     },
     {
-      id: "seed-2",
+      id: "activity-seed-2",
       type: "team_created",
       message: "ChartMasters 팀이 데이터 시각화 해커톤에 참가했습니다.",
       timestamp: "2026-03-08T10:00:00+09:00",
       hackathonSlug: "data-viz-hackathon-2026",
     },
     {
-      id: "seed-3",
+      id: "activity-seed-3",
       type: "team_created",
       message: "404found 팀이 긴급 인수인계 해커톤에 새로 등록했습니다.",
       timestamp: "2026-03-04T11:00:00+09:00",
       hackathonSlug: "daker-handover-2026-03",
     },
     {
-      id: "seed-4",
+      id: "activity-seed-4",
       type: "submission",
       message: "Team Alpha가 모델 경량화 해커톤에 결과물을 제출했습니다.",
       timestamp: "2026-02-24T21:05:00+09:00",
       hackathonSlug: "aimers-8-model-lite",
     },
     {
-      id: "seed-5",
+      id: "activity-seed-5",
       type: "ranking_update",
       message: "모델 경량화 해커톤 리더보드가 업데이트 되었습니다.",
       timestamp: "2026-02-26T10:00:00+09:00",
       hackathonSlug: "aimers-8-model-lite",
     },
     {
-      id: "seed-6",
+      id: "activity-seed-6",
       type: "submission",
       message: "ChartMasters가 데이터 시각화 해커톤에 대시보드를 제출했습니다.",
       timestamp: "2026-03-12T15:00:00+09:00",
@@ -796,4 +798,212 @@ export function getFollowCounts(userId: string): { followers: number; following:
     followers: getFollowers(userId).length,
     following: getFollowing(userId).length,
   };
+}
+
+// =============================================
+// 팀 참가 정책 (자동 허용 / 확인 후 허용)
+// =============================================
+
+/** 팀 joinPolicy 변경 */
+export function updateTeamJoinPolicy(teamCode: string, policy: "auto" | "approval"): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = localStorage.getItem("dacon_teams");
+    const teams: Team[] = raw ? JSON.parse(raw) : [];
+    const idx = teams.findIndex((t) => t.teamCode === teamCode);
+    if (idx < 0) return false;
+    teams[idx].joinPolicy = policy;
+    localStorage.setItem("dacon_teams", JSON.stringify(teams));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 팀 참가 요청 (joinPolicy에 따라 즉시 참가 또는 승인 대기) */
+export function requestJoinTeam(
+  teamCode: string,
+  userId: string,
+  userName: string,
+  message: string = ""
+): { status: "joined" | "pending" | "error"; error?: string } {
+  if (typeof window === "undefined") return { status: "error", error: "SSR" };
+  try {
+    const raw = localStorage.getItem("dacon_teams");
+    const teams: Team[] = raw ? JSON.parse(raw) : [];
+    const idx = teams.findIndex((t) => t.teamCode === teamCode);
+    if (idx < 0) return { status: "error", error: "팀을 찾을 수 없습니다." };
+
+    const team = teams[idx];
+    // 이미 멤버인지 확인
+    if (team.members?.some((m: TeamMember) => m.userId === userId)) {
+      return { status: "error", error: "이미 팀에 소속되어 있습니다." };
+    }
+
+    if (team.joinPolicy === "auto" || !team.joinPolicy) {
+      // 자동 허용: 즉시 참가
+      if (!team.members) team.members = [];
+      team.members.push({ userId, name: userName, role: "팀원", joinedAt: new Date().toISOString() });
+      team.memberCount = team.members.length;
+      teams[idx] = team;
+      localStorage.setItem("dacon_teams", JSON.stringify(teams));
+      return { status: "joined" };
+    } else {
+      // 확인 후 허용: 참가 요청 생성
+      const REQUESTS_KEY = "dacon_join_requests";
+      const reqRaw = localStorage.getItem(REQUESTS_KEY);
+      const requests: Array<{ id: string; teamCode: string; userId: string; userName: string; message: string; status: string; createdAt: string }> = reqRaw ? JSON.parse(reqRaw) : [];
+      // 중복 요청 확인
+      if (requests.some((r) => r.teamCode === teamCode && r.userId === userId && r.status === "pending")) {
+        return { status: "error", error: "이미 참가 요청을 보냈습니다." };
+      }
+      requests.push({
+        id: `req-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        teamCode,
+        userId,
+        userName,
+        message,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      });
+      localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests));
+      return { status: "pending" };
+    }
+  } catch {
+    return { status: "error", error: "처리 중 오류가 발생했습니다." };
+  }
+}
+
+/** 팀 참가 요청 목록 */
+export function getJoinRequests(teamCode: string): Array<{ id: string; teamCode: string; userId: string; userName: string; message: string; status: string; createdAt: string }> {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem("dacon_join_requests");
+    const all = raw ? JSON.parse(raw) : [];
+    return all.filter((r: { teamCode: string }) => r.teamCode === teamCode);
+  } catch {
+    return [];
+  }
+}
+
+/** 팀 참가 요청 승인/거절 */
+export function handleJoinRequest(requestId: string, action: "accepted" | "rejected"): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = localStorage.getItem("dacon_join_requests");
+    const requests: Array<{ id: string; teamCode: string; userId: string; userName: string; status: string }> = raw ? JSON.parse(raw) : [];
+    const idx = requests.findIndex((r) => r.id === requestId);
+    if (idx < 0) return false;
+
+    const req = requests[idx];
+    requests[idx].status = action;
+    localStorage.setItem("dacon_join_requests", JSON.stringify(requests));
+
+    if (action === "accepted") {
+      // 팀에 멤버 추가
+      const teamsRaw = localStorage.getItem("dacon_teams");
+      const teams: Team[] = teamsRaw ? JSON.parse(teamsRaw) : [];
+      const tIdx = teams.findIndex((t) => t.teamCode === req.teamCode);
+      if (tIdx >= 0) {
+        if (!teams[tIdx].members) teams[tIdx].members = [];
+        teams[tIdx].members!.push({ userId: req.userId, name: req.userName, role: "팀원", joinedAt: new Date().toISOString() });
+        teams[tIdx].memberCount = teams[tIdx].members!.length;
+        localStorage.setItem("dacon_teams", JSON.stringify(teams));
+      }
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// =============================================
+// 팀 탈퇴
+// =============================================
+
+/** 팀 탈퇴 */
+export function leaveTeam(teamCode: string, userId: string): { success: boolean; error?: string } {
+  if (typeof window === "undefined") return { success: false, error: "SSR" };
+  try {
+    const raw = localStorage.getItem("dacon_teams");
+    const teams: Team[] = raw ? JSON.parse(raw) : [];
+    const idx = teams.findIndex((t) => t.teamCode === teamCode);
+    if (idx < 0) return { success: false, error: "팀을 찾을 수 없습니다." };
+
+    const team = teams[idx];
+    if (team.creatorId === userId) {
+      return { success: false, error: "팀장은 탈퇴할 수 없습니다. 먼저 팀장을 위임해주세요." };
+    }
+    if (!team.members?.some((m: TeamMember) => m.userId === userId)) {
+      return { success: false, error: "팀에 소속되어 있지 않습니다." };
+    }
+
+    team.members = team.members!.filter((m: TeamMember) => m.userId !== userId);
+    team.memberCount = team.members.length;
+    teams[idx] = team;
+    localStorage.setItem("dacon_teams", JSON.stringify(teams));
+    return { success: true };
+  } catch {
+    return { success: false, error: "처리 중 오류가 발생했습니다." };
+  }
+}
+
+// =============================================
+// 팀 내부 채팅 (오픈채팅방)
+// =============================================
+
+const TEAM_CHAT_KEY = "dacon_team_chat";
+
+/** 팀 채팅 메시지 전송 */
+export function sendTeamMessage(teamCode: string, senderId: string, senderName: string, content: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = localStorage.getItem(TEAM_CHAT_KEY);
+    const all: TeamChatMessage[] = raw ? JSON.parse(raw) : [];
+    all.push({
+      id: `tcm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      teamCode,
+      senderId,
+      senderName,
+      content,
+      createdAt: new Date().toISOString(),
+    });
+    // 최대 2000개 유지
+    if (all.length > 2000) all.splice(0, all.length - 2000);
+    localStorage.setItem(TEAM_CHAT_KEY, JSON.stringify(all));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 팀 채팅 메시지 가져오기 */
+export function getTeamMessages(teamCode: string): TeamChatMessage[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(TEAM_CHAT_KEY);
+    const all: TeamChatMessage[] = raw ? JSON.parse(raw) : [];
+    return all.filter((m) => m.teamCode === teamCode).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  } catch {
+    return [];
+  }
+}
+
+// =============================================
+// 활동 피드 (권한 기반 필터링)
+// =============================================
+
+/** 유저 권한별 활동 피드 */
+export function getFilteredActivityFeed(userId: string, role: "admin" | "user", joinedHackathons: string[] = []): ActivityFeedItem[] {
+  const allFeed = getActivityFeed();
+  if (role === "admin") {
+    return allFeed; // Admin은 전체 활동 확인 가능
+  }
+  // 일반 유저: 자신이 참여한 대회 관련 + 리더보드 변경 + 공지사항
+  return allFeed.filter((item) => {
+    if (item.type === "ranking_update") return true; // 리더보드 변경
+    if (item.type === "hackathon_created") return true; // 중요 공지 (새 해커톤)
+    if (item.hackathonSlug && joinedHackathons.includes(item.hackathonSlug)) return true; // 참여 대회 관련
+    return false;
+  });
 }
