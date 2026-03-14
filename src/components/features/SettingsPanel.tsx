@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useThemeContext } from "@/components/layout/ThemeProvider";
+import { useAuth } from "@/components/features/AuthProvider";
 import { Button } from "@/components/common/Button";
 import { Tag } from "@/components/common/Tag";
 import type { ColorTheme } from "@/types";
@@ -13,32 +14,40 @@ const COLOR_THEMES: { key: ColorTheme; label: string; color: string }[] = [
 ];
 
 const SUGGESTED_TAGS = [
-  "LLM",
-  "Web",
-  "VibeCoding",
-  "GenAI",
-  "ML Engineer",
-  "Frontend",
-  "Backend",
-  "Designer",
-  "Compression",
-  "Workflow",
-  "Idea",
-  "Handover",
-  "Vercel",
+  "LLM", "Web", "VibeCoding", "GenAI", "ML Engineer",
+  "Frontend", "Backend", "Designer", "Compression",
+  "Workflow", "Idea", "Handover", "Vercel",
 ];
 
-export function SettingsPanel() {
-  const {
-    theme,
-    colorTheme,
-    interestTags,
-    toggleTheme,
-    setColorTheme,
-    setInterestTags,
-  } = useThemeContext();
+interface NotificationPrefs {
+  hackathonDeadline: boolean;
+  teamActivity: boolean;
+  leaderboardUpdate: boolean;
+  forumReply: boolean;
+  systemNotice: boolean;
+}
 
+const NOTIF_KEY = "dacon_notification_prefs";
+
+const defaultNotifPrefs: NotificationPrefs = {
+  hackathonDeadline: true,
+  teamActivity: true,
+  leaderboardUpdate: true,
+  forumReply: true,
+  systemNotice: true,
+};
+
+export function SettingsPanel() {
+  const { theme, colorTheme, interestTags, toggleTheme, setColorTheme, setInterestTags } = useThemeContext();
+  const { user } = useAuth();
   const [customTag, setCustomTag] = useState("");
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>(defaultNotifPrefs);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(NOTIF_KEY);
+    if (stored) setNotifPrefs(JSON.parse(stored));
+  }, []);
 
   const toggleTag = (tag: string) => {
     if (interestTags.includes(tag)) {
@@ -56,13 +65,27 @@ export function SettingsPanel() {
     }
   };
 
+  const toggleNotifPref = (key: keyof NotificationPrefs) => {
+    const updated = { ...notifPrefs, [key]: !notifPrefs[key] };
+    setNotifPrefs(updated);
+    localStorage.setItem(NOTIF_KEY, JSON.stringify(updated));
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const notifItems: { key: keyof NotificationPrefs; label: string; description: string }[] = [
+    { key: "hackathonDeadline", label: "해커톤 마감 알림", description: "참가중인 해커톤의 제출 마감이 임박할 때 알림" },
+    { key: "teamActivity", label: "팀 활동 알림", description: "팀원 변경, 가입 신청, 역할 변경 시 알림" },
+    { key: "leaderboardUpdate", label: "리더보드 업데이트", description: "순위 변동이나 새로운 제출이 있을 때 알림" },
+    { key: "forumReply", label: "토론 답글 알림", description: "내 게시글에 댓글이 달릴 때 알림" },
+    { key: "systemNotice", label: "시스템 공지", description: "플랫폼 업데이트, 새 해커톤 등록 시 알림" },
+  ];
+
   return (
     <div className="space-y-8">
       {/* 테마 */}
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">
-          테마
-        </h3>
+        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">테마</h3>
         <div className="flex items-center gap-4">
           <span className="text-sm text-gray-600 dark:text-gray-400">
             {theme === "dark" ? "다크 모드" : "라이트 모드"}
@@ -71,20 +94,16 @@ export function SettingsPanel() {
             onClick={toggleTheme}
             className="relative h-7 w-12 rounded-full bg-gray-200 transition-colors dark:bg-blue-600"
           >
-            <span
-              className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${
-                theme === "dark" ? "translate-x-5" : "translate-x-0.5"
-              }`}
-            />
+            <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${
+              theme === "dark" ? "translate-x-5" : "translate-x-0.5"
+            }`} />
           </button>
         </div>
       </div>
 
       {/* 컬러 테마 */}
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">
-          컬러 테마
-        </h3>
+        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">컬러 테마</h3>
         <div className="flex gap-3">
           {COLOR_THEMES.map((ct) => (
             <button
@@ -103,45 +122,65 @@ export function SettingsPanel() {
         </div>
       </div>
 
+      {/* 알림 설정 */}
+      {user && (
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">알림 설정</h3>
+            {saved && (
+              <span className="animate-fade-in text-xs text-green-600 dark:text-green-400">저장됨</span>
+            )}
+          </div>
+          <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+            수신할 알림 유형을 선택하세요.
+          </p>
+          <div className="space-y-3">
+            {notifItems.map((item) => (
+              <div
+                key={item.key}
+                className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+              >
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{item.label}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
+                </div>
+                <button
+                  onClick={() => toggleNotifPref(item.key)}
+                  className={`relative h-6 w-10 rounded-full transition-colors ${
+                    notifPrefs[item.key] ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
+                  }`}
+                >
+                  <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                    notifPrefs[item.key] ? "translate-x-4" : "translate-x-0.5"
+                  }`} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 관심 태그 */}
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">
-          관심 태그
-        </h3>
+        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">관심 태그</h3>
         <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">
           관심 태그를 설정하면 맞춤 해커톤과 팀을 추천받을 수 있습니다.
         </p>
 
-        {/* 선택된 태그 */}
         {interestTags.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
             {interestTags.map((tag) => (
-              <Tag
-                key={tag}
-                label={`${tag} ✕`}
-                selected
-                onClick={() => toggleTag(tag)}
-                size="md"
-              />
+              <Tag key={tag} label={`${tag} ✕`} selected onClick={() => toggleTag(tag)} size="md" />
             ))}
           </div>
         )}
 
-        {/* 추천 태그 */}
         <div className="mb-4 flex flex-wrap gap-2">
-          {SUGGESTED_TAGS.filter((t) => !interestTags.includes(t)).map(
-            (tag) => (
-              <Tag
-                key={tag}
-                label={tag}
-                onClick={() => toggleTag(tag)}
-                size="sm"
-              />
-            )
-          )}
+          {SUGGESTED_TAGS.filter((t) => !interestTags.includes(t)).map((tag) => (
+            <Tag key={tag} label={tag} onClick={() => toggleTag(tag)} size="sm" />
+          ))}
         </div>
 
-        {/* 커스텀 태그 입력 */}
         <div className="flex gap-2">
           <input
             type="text"
@@ -151,10 +190,29 @@ export function SettingsPanel() {
             placeholder="직접 입력..."
             className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
           />
-          <Button size="sm" variant="secondary" onClick={addCustomTag}>
-            추가
-          </Button>
+          <Button size="sm" variant="secondary" onClick={addCustomTag}>추가</Button>
         </div>
+      </div>
+
+      {/* 데이터 관리 */}
+      <div>
+        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">데이터 관리</h3>
+        <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">
+          브라우저에 저장된 데이터를 관리합니다. 초기화 시 복구할 수 없습니다.
+        </p>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => {
+            if (confirm("정말 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+              const keys = Object.keys(localStorage).filter((k) => k.startsWith("dacon_"));
+              keys.forEach((k) => localStorage.removeItem(k));
+              window.location.reload();
+            }
+          }}
+        >
+          데이터 초기화
+        </Button>
       </div>
     </div>
   );

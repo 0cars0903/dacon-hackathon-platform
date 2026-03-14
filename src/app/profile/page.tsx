@@ -21,6 +21,7 @@ export default function ProfilePage() {
   const [nicknameError, setNicknameError] = useState("");
   const [nicknameSuccess, setNicknameSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "activity" | "badges">("overview");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -31,6 +32,9 @@ export default function ProfilePage() {
         setEditSkills(p.skills.join(", "));
         setEditNickname(p.nickname || p.name);
       }
+      // 아바타 로드
+      const storedAvatar = localStorage.getItem(`dacon_avatar_${user.id}`);
+      if (storedAvatar) setAvatarUrl(storedAvatar);
       // 내 팀 로드
       const stored = localStorage.getItem("dacon_teams");
       if (stored) {
@@ -113,8 +117,38 @@ export default function ProfilePage() {
       <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
           {/* 아바타 */}
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-3xl font-bold text-white">
-            {profile.name.charAt(0).toUpperCase()}
+          <div className="group relative shrink-0">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={profile.name}
+                className="h-20 w-20 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
+              />
+            ) : (
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-3xl font-bold text-white">
+                {profile.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <label className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/0 text-white/0 transition-all group-hover:bg-black/40 group-hover:text-white/90">
+              <span className="text-xs font-medium">변경</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 2 * 1024 * 1024) { alert("이미지 크기는 2MB 이하여야 합니다."); return; }
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    const result = reader.result as string;
+                    setAvatarUrl(result);
+                    localStorage.setItem(`dacon_avatar_${user.id}`, result);
+                  };
+                  reader.readAsDataURL(file);
+                }}
+              />
+            </label>
           </div>
 
           <div className="flex-1">
