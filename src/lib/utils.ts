@@ -86,6 +86,15 @@ export function getStatusLabel(status: string): string {
 }
 
 /**
+ * 종료된 해커톤이 2주 이내인지 확인
+ */
+export function isWithinTwoWeeks(endDateStr: string): boolean {
+  const endDate = new Date(endDateStr).getTime();
+  const twoWeeksMs = 14 * 24 * 60 * 60 * 1000;
+  return Date.now() - endDate <= twoWeeksMs;
+}
+
+/**
  * 상대적 시간 표시 ("3시간 전", "2일 전")
  */
 export function timeAgo(dateStr: string): string {

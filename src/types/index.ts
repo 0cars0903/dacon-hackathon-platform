@@ -150,7 +150,10 @@ export interface UserPreferences {
 export interface UserProfile {
   id: string;
   name: string;
+  nickname: string;
+  nicknameChangedAt?: string; // ISO date — 마지막 닉네임 변경일
   email: string;
+  role: "user" | "admin";
   avatarUrl?: string;
   bio?: string;
   skills: string[];

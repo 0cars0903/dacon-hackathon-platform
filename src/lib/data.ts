@@ -4,6 +4,7 @@ import type {
   Team,
   Leaderboard,
 } from "@/types";
+import { isWithinTwoWeeks } from "@/lib/utils";
 
 import hackathonsData from "@/data/hackathons.json";
 import hackathonDetailsData from "@/data/hackathon-details.json";
@@ -12,12 +13,23 @@ import leaderboardData from "@/data/leaderboard.json";
 
 // === 해커톤 ===
 
+/** 종료 후 2주 이내 해커톤만 포함 (일반 사용자용) */
 export function getHackathons(): Hackathon[] {
+  const all = hackathonsData as Hackathon[];
+  return all.filter((h) => {
+    if (h.status !== "ended") return true;
+    return isWithinTwoWeeks(h.period.endAt);
+  });
+}
+
+/** 전체 해커톤 (관리자용, 필터 없음) */
+export function getAllHackathonsUnfiltered(): Hackathon[] {
   return hackathonsData as Hackathon[];
 }
 
 export function getHackathonBySlug(slug: string): Hackathon | undefined {
-  return getHackathons().find((h) => h.slug === slug);
+  // 슬러그 조회는 전체에서 (종료 해커톤 상세 접근 허용)
+  return (hackathonsData as Hackathon[]).find((h) => h.slug === slug);
 }
 
 // === 해커톤 상세 ===

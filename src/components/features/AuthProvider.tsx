@@ -9,12 +9,19 @@ import {
   type ReactNode,
 } from "react";
 import type { UserProfile, UserBadge } from "@/types";
+import { getHackathons } from "@/lib/data";
 
 export interface User {
   id: string;
   name: string;
   email: string;
+  role: "user" | "admin";
   avatarUrl?: string;
+}
+
+interface NicknameChangeResult {
+  success: boolean;
+  error?: string;
 }
 
 interface AuthContextType {
@@ -24,9 +31,16 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   getProfile: (userId?: string) => UserProfile | null;
+  getAllProfiles: () => UserProfile[];
   updateProfile: (updates: Partial<UserProfile>) => void;
+  changeNickname: (newNickname: string) => NicknameChangeResult;
   addBadge: (badge: UserBadge) => void;
   joinHackathon: (hackathonSlug: string) => void;
+  // 관리자 기능
+  isAdmin: boolean;
+  deleteUser: (userId: string) => boolean;
+  updateUserRole: (userId: string, role: "user" | "admin") => boolean;
+  getAllUsers: () => Array<{ id: string; name: string; email: string; role: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -41,12 +55,16 @@ const MVP_ACCOUNT = {
   name: "Kuma",
   email: "kuma@dacon.io",
   password: "kuma1234",
+  role: "admin" as const,
 };
 
 const MVP_PROFILE: UserProfile = {
   id: "mvp-user-kuma",
   name: "Kuma",
+  nickname: "Kuma",
+  nicknameChangedAt: "2026-03-01T10:00:00+09:00",
   email: "kuma@dacon.io",
+  role: "admin",
   bio: "데이터 사이언스와 웹 개발에 관심이 많은 개발자입니다. 해커톤을 통해 실력을 키우고 있습니다.",
   skills: ["TypeScript", "React", "Next.js", "Python", "Data Analysis"],
   joinedAt: "2026-03-01T10:00:00+09:00",
@@ -68,7 +86,7 @@ const MVP_PROFILE: UserProfile = {
 function ensureMVPData() {
   // MVP 계정 확보
   const usersRaw = localStorage.getItem(USERS_KEY);
-  const users: Array<{ id: string; name: string; email: string; password: string }> =
+  const users: Array<{ id: string; name: string; email: string; password: string; role?: string }> =
     usersRaw ? JSON.parse(usersRaw) : [];
   if (!users.some((u) => u.email === MVP_ACCOUNT.email)) {
     users.push(MVP_ACCOUNT);
@@ -76,7 +94,7 @@ function ensureMVPData() {
   }
   // Demo 계정도 확보
   if (!users.some((u) => u.email === "demo@dacon.io")) {
-    users.push({ id: "demo-user", name: "Demo User", email: "demo@dacon.io", password: "demo1234" });
+    users.push({ id: "demo-user", name: "Demo User", email: "demo@dacon.io", password: "demo1234", role: "user" });
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
   }
 
@@ -111,11 +129,13 @@ function ensureMVPData() {
   }
 }
 
-function createDefaultProfile(user: { id: string; name: string; email: string }): UserProfile {
+function createDefaultProfile(user: { id: string; name: string; email: string; role?: string }): UserProfile {
   return {
     id: user.id,
     name: user.name,
+    nickname: user.name,
     email: user.email,
+    role: (user.role as "user" | "admin") || "user",
     bio: "",
     skills: [],
     joinedAt: new Date().toISOString(),
@@ -147,12 +167,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     const usersRaw = localStorage.getItem(USERS_KEY);
-    const users: Array<{ id: string; name: string; email: string; password: string }> =
+    const users: Array<{ id: string; name: string; email: string; password: string; role?: string }> =
       usersRaw ? JSON.parse(usersRaw) : [];
 
     const found = users.find((u) => u.email === email && u.password === password);
     if (found) {
-      const userData: User = { id: found.id, name: found.name, email: found.email };
+      const role = (found.role as "user" | "admin") || "user";
+      const userData: User = { id: found.id, name: found.name, email: found.email, role };
       setUser(userData);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
       return true;
@@ -168,7 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (users.some((u) => u.email === email)) return false;
 
-      const newUser = { id: `user-${Date.now()}`, name, email, password };
+      const newUser = { id: `user-${Date.now()}`, name, email, password, role: "user" as const };
       users.push(newUser);
       localStorage.setItem(USERS_KEY, JSON.stringify(users));
 
@@ -178,7 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profiles.push(createDefaultProfile(newUser));
       localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
 
-      const userData: User = { id: newUser.id, name: newUser.name, email: newUser.email };
+      const userData: User = { id: newUser.id, name: newUser.name, email: newUser.email, role: "user" };
       setUser(userData);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
       return true;
@@ -227,6 +248,109 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  const getAllProfiles = useCallback((): UserProfile[] => {
+    const profilesRaw = localStorage.getItem(PROFILES_KEY);
+    return profilesRaw ? JSON.parse(profilesRaw) : [];
+  }, []);
+
+  const changeNickname = useCallback((newNickname: string): NicknameChangeResult => {
+    if (!user) return { success: false, error: "로그인이 필요합니다." };
+    const trimmed = newNickname.trim();
+    if (!trimmed || trimmed.length < 2 || trimmed.length > 20) {
+      return { success: false, error: "닉네임은 2~20자로 입력해주세요." };
+    }
+
+    const profilesRaw = localStorage.getItem(PROFILES_KEY);
+    const profiles: UserProfile[] = profilesRaw ? JSON.parse(profilesRaw) : [];
+    const idx = profiles.findIndex((p) => p.id === user.id);
+    if (idx < 0) return { success: false, error: "프로필을 찾을 수 없습니다." };
+
+    const profile = profiles[idx];
+
+    // 닉네임 중복 체크
+    if (profiles.some((p) => p.id !== user.id && p.nickname === trimmed)) {
+      return { success: false, error: "이미 사용 중인 닉네임입니다." };
+    }
+
+    // 1달 제한 체크
+    if (profile.nicknameChangedAt) {
+      const lastChanged = new Date(profile.nicknameChangedAt);
+      const oneMonthLater = new Date(lastChanged);
+      oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+      if (new Date() < oneMonthLater) {
+        const remainDays = Math.ceil((oneMonthLater.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        return { success: false, error: `닉네임 변경은 월 1회만 가능합니다. (${remainDays}일 후 변경 가능)` };
+      }
+    }
+
+    // 해커톤 참여 중 제한 체크 — ongoing 해커톤에 참가 중이면 변경 불가
+    const hackathons = getHackathons();
+    const participatingOngoing = profile.joinedHackathons.some((slug: string) => {
+      const h = hackathons.find((hh) => hh.slug === slug);
+      return h && h.status === "ongoing";
+    });
+    if (participatingOngoing) {
+      return { success: false, error: "진행 중인 해커톤에 참가하고 있어 닉네임을 변경할 수 없습니다." };
+    }
+
+    // 변경 적용
+    profiles[idx].nickname = trimmed;
+    profiles[idx].nicknameChangedAt = new Date().toISOString();
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+
+    return { success: true };
+  }, [user]);
+
+  // === 관리자 기능 ===
+  const isAdmin = user?.role === "admin";
+
+  const getAllUsers = useCallback((): Array<{ id: string; name: string; email: string; role: string }> => {
+    const usersRaw = localStorage.getItem(USERS_KEY);
+    const users: Array<{ id: string; name: string; email: string; role?: string }> = usersRaw ? JSON.parse(usersRaw) : [];
+    return users.map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role || "user" }));
+  }, []);
+
+  const deleteUser = useCallback((userId: string): boolean => {
+    if (!user || user.role !== "admin") return false;
+    if (userId === user.id) return false; // 자기 자신 삭제 방지
+
+    // 유저 목록에서 제거
+    const usersRaw = localStorage.getItem(USERS_KEY);
+    const users: Array<{ id: string; name: string; email: string; password: string; role?: string }> = usersRaw ? JSON.parse(usersRaw) : [];
+    const filtered = users.filter((u) => u.id !== userId);
+    if (filtered.length === users.length) return false;
+    localStorage.setItem(USERS_KEY, JSON.stringify(filtered));
+
+    // 프로필에서 제거
+    const profilesRaw = localStorage.getItem(PROFILES_KEY);
+    const profiles: UserProfile[] = profilesRaw ? JSON.parse(profilesRaw) : [];
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles.filter((p) => p.id !== userId)));
+
+    return true;
+  }, [user]);
+
+  const updateUserRole = useCallback((userId: string, role: "user" | "admin"): boolean => {
+    if (!user || user.role !== "admin") return false;
+
+    const usersRaw = localStorage.getItem(USERS_KEY);
+    const users: Array<{ id: string; name: string; email: string; password: string; role?: string }> = usersRaw ? JSON.parse(usersRaw) : [];
+    const idx = users.findIndex((u) => u.id === userId);
+    if (idx < 0) return false;
+    users[idx].role = role;
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+    // 프로필 role도 업데이트
+    const profilesRaw = localStorage.getItem(PROFILES_KEY);
+    const profiles: UserProfile[] = profilesRaw ? JSON.parse(profilesRaw) : [];
+    const pIdx = profiles.findIndex((p) => p.id === userId);
+    if (pIdx >= 0) {
+      profiles[pIdx].role = role;
+      localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+    }
+
+    return true;
+  }, [user]);
+
   const joinHackathon = useCallback((hackathonSlug: string) => {
     if (!user) return;
     const profilesRaw = localStorage.getItem(PROFILES_KEY);
@@ -247,7 +371,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, getProfile, updateProfile, addBadge, joinHackathon }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, getProfile, getAllProfiles, updateProfile, changeNickname, addBadge, joinHackathon, isAdmin, deleteUser, updateUserRole, getAllUsers }}>
       {children}
     </AuthContext.Provider>
   );

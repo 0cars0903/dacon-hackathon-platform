@@ -114,6 +114,15 @@ export function Header() {
                   >
                     설정
                   </Link>
+                  {user.role === "admin" && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="block px-4 py-2 text-sm text-purple-600 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20"
+                    >
+                      관리자
+                    </Link>
+                  )}
                   <button
                     onClick={() => { logout(); setUserMenuOpen(false); }}
                     className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"

@@ -11,12 +11,15 @@ import { formatDate, timeAgo } from "@/lib/utils";
 import type { UserProfile, Team } from "@/types";
 
 export default function ProfilePage() {
-  const { user, getProfile, updateProfile } = useAuth();
+  const { user, getProfile, updateProfile, changeNickname } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [myTeams, setMyTeams] = useState<Team[]>([]);
   const [editing, setEditing] = useState(false);
   const [editBio, setEditBio] = useState("");
   const [editSkills, setEditSkills] = useState("");
+  const [editNickname, setEditNickname] = useState("");
+  const [nicknameError, setNicknameError] = useState("");
+  const [nicknameSuccess, setNicknameSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "activity" | "badges">("overview");
 
   useEffect(() => {
@@ -26,6 +29,7 @@ export default function ProfilePage() {
       if (p) {
         setEditBio(p.bio || "");
         setEditSkills(p.skills.join(", "));
+        setEditNickname(p.nickname || p.name);
       }
       // 내 팀 로드
       const stored = localStorage.getItem("dacon_teams");
@@ -60,6 +64,19 @@ export default function ProfilePage() {
     setEditing(false);
   };
 
+  const handleChangeNickname = () => {
+    setNicknameError("");
+    setNicknameSuccess(false);
+    const result = changeNickname(editNickname);
+    if (result.success) {
+      setNicknameSuccess(true);
+      setProfile(getProfile());
+      setTimeout(() => setNicknameSuccess(false), 3000);
+    } else {
+      setNicknameError(result.error || "변경에 실패했습니다.");
+    }
+  };
+
   // 활동 히트맵 데이터 (최근 12주 시뮬레이션)
   const heatmapWeeks = 12;
   const heatmapData = Array.from({ length: heatmapWeeks * 7 }, (_, i) => {
@@ -92,13 +109,25 @@ export default function ProfilePage() {
 
           <div className="flex-1">
             <div className="mb-1 flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{profile.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{profile.nickname || profile.name}</h1>
+              {profile.role === "admin" && <Badge variant="info" size="sm">Admin</Badge>}
               {profile.badges.length >= 3 && <Badge variant="warning" size="sm">Top Contributor</Badge>}
             </div>
             <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">{profile.email}</p>
 
             {editing ? (
               <div className="space-y-3">
+                {/* 닉네임 변경 */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">닉네임</label>
+                  <div className="flex gap-2">
+                    <input type="text" value={editNickname} onChange={(e) => { setEditNickname(e.target.value); setNicknameError(""); setNicknameSuccess(false); }} className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="닉네임 (2~20자)" maxLength={20} />
+                    <Button onClick={handleChangeNickname} size="sm" variant="secondary">닉네임 변경</Button>
+                  </div>
+                  {nicknameError && <p className="mt-1 text-xs text-red-500">{nicknameError}</p>}
+                  {nicknameSuccess && <p className="mt-1 text-xs text-green-500">닉네임이 변경되었습니다.</p>}
+                  <p className="mt-1 text-[10px] text-gray-400">닉네임 변경은 월 1회만 가능하며, 해커톤 진행 중에는 변경할 수 없습니다.</p>
+                </div>
                 <textarea value={editBio} onChange={(e) => setEditBio(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" rows={2} placeholder="자기소개를 입력하세요" />
                 <input type="text" value={editSkills} onChange={(e) => setEditSkills(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="기술 스택 (쉼표 구분)" />
                 <div className="flex gap-2">
