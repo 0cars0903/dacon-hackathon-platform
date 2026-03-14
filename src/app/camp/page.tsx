@@ -3,7 +3,8 @@
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { getTeams, getHackathons } from "@/lib/supabase/data";
+import { getTeams, getHackathons, getJoinRequests } from "@/lib/supabase/data";
+import { createDataClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
@@ -116,33 +117,47 @@ function CampContent() {
 
   const isTeamMember = (team: Team): boolean => {
     if (!user) return false;
-    const stored = localStorage.getItem("dacon_teams");
-    const teams = stored ? JSON.parse(stored) : [];
-    const t = teams.find((tm: { teamCode: string }) => tm.teamCode === team.teamCode);
-    if (t?.members) return t.members.some((m: { userId: string }) => m.userId === user.id);
-    if (t?.creatorId === user.id) return true;
+    // Use Supabase team data directly (members come from team_members join)
+    if (team.creatorId === user.id) return true;
+    if (team.members) return team.members.some((m) => m.userId === user.id);
     return false;
   };
 
   const isTeamCreator = (team: Team): boolean => {
     if (!user) return false;
-    const stored = localStorage.getItem("dacon_teams");
-    const teams = stored ? JSON.parse(stored) : [];
-    const t = teams.find((tm: { teamCode: string }) => tm.teamCode === team.teamCode);
-    return t?.creatorId === user.id;
+    return team.creatorId === user.id;
   };
 
+  // Pending request counts/status loaded from Supabase
+  const [pendingRequests, setPendingRequests] = useState<TeamJoinRequest[]>([]);
+  useEffect(() => {
+    if (!user) return;
+    // Load all pending join requests for teams user created or for user's own requests
+    const loadRequests = async () => {
+      try {
+        const { data } = await createDataClient()
+          .from("team_join_requests")
+          .select("*")
+          .eq("status", "pending");
+        if (data) {
+          setPendingRequests(data.map((r: any) => ({
+            id: r.id, teamCode: r.team_code, userId: r.user_id,
+            userName: r.user_name, message: r.message ?? "",
+            status: r.status, createdAt: r.created_at,
+          })));
+        }
+      } catch { /* ignore */ }
+    };
+    loadRequests();
+  }, [user, staticTeams]);
+
   const getPendingRequestCount = (team: Team): number => {
-    const requestsRaw = localStorage.getItem("dacon_join_requests");
-    const requests = requestsRaw ? JSON.parse(requestsRaw) : [];
-    return requests.filter((r: TeamJoinRequest) => r.teamCode === team.teamCode && r.status === "pending").length;
+    return pendingRequests.filter((r) => r.teamCode === team.teamCode).length;
   };
 
   const hasPendingRequest = (team: Team): boolean => {
     if (!user) return false;
-    const requestsRaw = localStorage.getItem("dacon_join_requests");
-    const requests = requestsRaw ? JSON.parse(requestsRaw) : [];
-    return requests.some((r: TeamJoinRequest) => r.teamCode === team.teamCode && r.userId === user.id && r.status === "pending");
+    return pendingRequests.some((r) => r.teamCode === team.teamCode && r.userId === user.id);
   };
 
   const handleDeleteTeam = (team: Team) => {

@@ -35,9 +35,9 @@ export default function LoginPage() {
           setLoading(false);
           return;
         }
-        const ok = await signup(name, email, password);
-        if (!ok) {
-          setError("이미 가입된 이메일입니다.");
+        const result = await signup(name, email, password);
+        if (!result.ok) {
+          setError(result.error || "회원가입에 실패했습니다.");
           setLoading(false);
           return;
         }
@@ -134,7 +134,7 @@ export default function LoginPage() {
               className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
               placeholder="비밀번호를 입력하세요"
               required
-              minLength={4}
+              minLength={6}
             />
           </div>
 

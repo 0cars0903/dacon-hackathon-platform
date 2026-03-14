@@ -35,7 +35,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  signup: (name: string, email: string, password: string) => Promise<boolean>;
+  signup: (name: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
   getProfile: (userId?: string) => Promise<UserProfile | null>;
   getAllProfiles: () => Promise<UserProfile[]>;
@@ -53,8 +53,22 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-function supabase() {
+/** Auth client — ONLY for auth operations (login, signup, getSession) */
+function authClient() {
   return createClient();
+}
+
+/** Data client — for ALL .from() queries. Never blocks on auth init. */
+function db() {
+  return createDataClient();
+}
+
+/** Race a promise against a timeout. Returns null if timeout wins. */
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
+  return Promise.race([
+    promise,
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), ms)),
+  ]);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -63,10 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 세션 복구 — Supabase Auth 세션 체크
   useEffect(() => {
-    const dataDb = createDataClient(); // profile queries — never blocks
-
     const loadProfile = async (userId: string) => {
-      const { data: profile } = await dataDb
+      const { data: profile } = await db()
         .from("profiles")
         .select("id, name, email, role, avatar_url")
         .eq("id", userId)
@@ -84,14 +96,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const initSession = async () => {
       try {
-        const { data: { session } } = await supabase().auth.getSession();
-        if (session?.user) {
-          // Sync auth token to data client so writes pass RLS
+        // Auth getSession can hang indefinitely — give it 4 seconds max
+        const result = await withTimeout(
+          authClient().auth.getSession(),
+          4000
+        );
+        if (result && result.data?.session?.user) {
           await syncAuthToDataClient();
-          await loadProfile(session.user.id);
+          await loadProfile(result.data.session.user.id);
         }
       } catch {
-        // ignore
+        // ignore — proceed as logged out
       }
       setIsLoading(false);
     };
@@ -99,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initSession();
 
     // Auth 상태 변경 리스너
-    const { data: { subscription } } = supabase().auth.onAuthStateChange(
+    const { data: { subscription } } = authClient().auth.onAuthStateChange(
       async (_event: string, session: any) => {
         if (session?.user) {
           await syncAuthToDataClient();
@@ -114,39 +129,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
-    const { error } = await supabase().auth.signInWithPassword({ email, password });
+    const { error } = await authClient().auth.signInWithPassword({ email, password });
     if (!error) {
-      // Sync auth session to data client immediately after login
       await syncAuthToDataClient();
     }
     return !error;
   }, []);
 
-  const signup = useCallback(async (name: string, email: string, password: string): Promise<boolean> => {
-    const { data, error } = await supabase().auth.signUp({
+  const signup = useCallback(async (name: string, email: string, password: string): Promise<{ ok: boolean; error?: string }> => {
+    const { data, error } = await authClient().auth.signUp({
       email,
       password,
       options: { data: { name, role: "user" } },
     });
-    if (error || !data.user) return false;
+
+    if (error) {
+      // Map Supabase error messages to Korean
+      const msg = error.message?.toLowerCase() ?? "";
+      if (msg.includes("already registered") || msg.includes("already been registered")) {
+        return { ok: false, error: "이미 가입된 이메일입니다." };
+      }
+      if (msg.includes("password") && msg.includes("6")) {
+        return { ok: false, error: "비밀번호는 최소 6자 이상이어야 합니다." };
+      }
+      if (msg.includes("valid email")) {
+        return { ok: false, error: "유효한 이메일 주소를 입력해주세요." };
+      }
+      return { ok: false, error: error.message || "회원가입에 실패했습니다." };
+    }
+
+    if (!data.user) return { ok: false, error: "회원가입에 실패했습니다." };
+
+    // Supabase may return a user with identities=[] if email already exists
+    if (data.user.identities && data.user.identities.length === 0) {
+      return { ok: false, error: "이미 가입된 이메일입니다." };
+    }
+
+    await syncAuthToDataClient();
 
     // 활동 로그 + 환영 알림 (trigger가 profiles를 생성)
-    await logActivity({
-      type: "user_signup",
-      message: `${name}님이 DACON 플랫폼에 가입했습니다.`,
-      timestamp: new Date().toISOString(),
-    });
-    await addNotification(data.user.id, {
-      message: "DACON 플랫폼에 오신 것을 환영합니다! 프로필을 완성하고 해커톤에 참여해보세요.",
-      type: "info",
-      link: "/profile",
-    });
+    try {
+      await logActivity({
+        type: "user_signup",
+        message: `${name}님이 DACON 플랫폼에 가입했습니다.`,
+        timestamp: new Date().toISOString(),
+      });
+      await addNotification(data.user.id, {
+        message: "DACON 플랫폼에 오신 것을 환영합니다! 프로필을 완성하고 해커톤에 참여해보세요.",
+        type: "info",
+        link: "/profile",
+      });
+    } catch {
+      // Non-critical — ignore errors in post-signup logging
+    }
 
-    return true;
+    return { ok: true };
   }, []);
 
   const logout = useCallback(async () => {
-    await supabase().auth.signOut();
+    await authClient().auth.signOut();
     setUser(null);
   }, []);
 
@@ -157,13 +198,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const getAllProfilesCb = useCallback(async (): Promise<UserProfile[]> => {
-    const { data } = await supabase()
+    const { data } = await db()
       .from("profiles")
       .select("*")
       .order("joined_at", { ascending: false });
     if (!data) return [];
 
-    // 간소화된 프로필 리스트 (배지/멤버십 없이)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.map((p: any) => ({
       id: p.id,
@@ -191,8 +231,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateProfileCb = useCallback(async (updates: Partial<UserProfile>) => {
     if (!user) return;
     await patchProfile(user.id, updates);
-
-    // 이름이 변경되면 local state도 업데이트
     if (updates.name) {
       setUser(prev => prev ? { ...prev, name: updates.name! } : prev);
     }
@@ -209,7 +247,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!profile) return { success: false, error: "프로필을 찾을 수 없습니다." };
 
     // 닉네임 중복 체크
-    const { data: dup } = await supabase()
+    const { data: dup } = await db()
       .from("profiles")
       .select("id")
       .eq("nickname", trimmed)
@@ -238,7 +276,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { success: false, error: "진행 중인 해커톤에 참가하고 있어 닉네임을 변경할 수 없습니다." };
     }
 
-    const { error } = await supabase()
+    const { error } = await db()
       .from("profiles")
       .update({ nickname: trimmed, nickname_changed_at: new Date().toISOString() })
       .eq("id", user.id);
@@ -248,8 +286,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const addBadgeCb = useCallback(async (badge: UserBadge) => {
     if (!user) return;
-    // 중복 방지
-    const { data: existing } = await supabase()
+    const { data: existing } = await db()
       .from("badges")
       .select("id")
       .eq("user_id", user.id)
@@ -257,7 +294,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .maybeSingle();
     if (existing) return;
 
-    await supabase().from("badges").insert({
+    await db().from("badges").insert({
       user_id: user.id,
       name: badge.name,
       emoji: badge.emoji,
@@ -268,8 +305,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const joinHackathonCb = useCallback(async (hackathonSlug: string) => {
     if (!user) return;
 
-    // 이미 참여 중인지 확인
-    const { data: existing } = await supabase()
+    const { data: existing } = await db()
       .from("hackathon_participants")
       .select("id")
       .eq("hackathon_slug", hackathonSlug)
@@ -277,27 +313,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .maybeSingle();
     if (existing) return;
 
-    await supabase().from("hackathon_participants").insert({
+    await db().from("hackathon_participants").insert({
       hackathon_slug: hackathonSlug,
       user_id: user.id,
     });
 
-    // stats 업데이트 시도 (RPC 함수 없으면 스킵)
-    const { data: profile } = await supabase()
+    const { data: profile } = await db()
       .from("profiles")
       .select("hackathons_joined")
       .eq("id", user.id)
       .single();
     if (profile) {
       const newCount = (profile.hackathons_joined ?? 0) + 1;
-      await supabase()
+      await db()
         .from("profiles")
         .update({ hackathons_joined: newCount })
         .eq("id", user.id);
 
-      // 첫 참가 배지
       if (newCount === 1) {
-        await supabase().from("badges").insert({
+        await db().from("badges").insert({
           user_id: user.id,
           name: "첫 참가",
           emoji: "🎉",
@@ -306,7 +340,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // 활동 로그
     const hackathons = await getHackathons();
     const h = hackathons.find(hk => hk.slug === hackathonSlug);
     await logActivity({
@@ -321,7 +354,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = user?.role === "admin";
 
   const getAllUsersCb = useCallback(async (): Promise<Array<{ id: string; name: string; email: string; role: string }>> => {
-    const { data } = await supabase()
+    const { data } = await db()
       .from("profiles")
       .select("id, name, email, role")
       .order("joined_at", { ascending: false });
@@ -330,14 +363,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const deleteUserCb = useCallback(async (userId: string): Promise<boolean> => {
     if (!user || user.role !== "admin" || userId === user.id) return false;
-    // Supabase에서 프로필 삭제 (CASCADE로 관련 데이터 모두 삭제)
-    const { error } = await supabase().from("profiles").delete().eq("id", userId);
+    const { error } = await db().from("profiles").delete().eq("id", userId);
     return !error;
   }, [user]);
 
   const updateUserRoleCb = useCallback(async (userId: string, role: "user" | "admin"): Promise<boolean> => {
     if (!user || user.role !== "admin") return false;
-    const { error } = await supabase()
+    const { error } = await db()
       .from("profiles")
       .update({ role })
       .eq("id", userId);
