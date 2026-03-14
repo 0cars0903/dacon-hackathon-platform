@@ -146,10 +146,63 @@ export interface UserPreferences {
   interestTags: string[];
 }
 
+// === 사용자 프로필 (확장) ===
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl?: string;
+  bio?: string;
+  skills: string[];
+  joinedAt: string;
+  // 활동 통계
+  stats: {
+    hackathonsJoined: number;
+    teamsCreated: number;
+    submissions: number;
+    totalScore: number;
+  };
+  // 배지 시스템
+  badges: UserBadge[];
+  // 참가 해커톤
+  joinedHackathons: string[]; // hackathon slugs
+  // 팀 멤버십
+  teamMemberships: string[]; // team codes
+}
+
+export interface UserBadge {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  earnedAt: string;
+}
+
+// === 팀 멤버 ===
+export interface TeamMember {
+  userId: string;
+  name: string;
+  role: string;
+  joinedAt: string;
+}
+
+// === 팀 참가 요청 ===
+export interface TeamJoinRequest {
+  id: string;
+  teamCode: string;
+  userId: string;
+  userName: string;
+  message: string;
+  status: "pending" | "accepted" | "rejected";
+  createdAt: string;
+}
+
 // === 알림 (확장) ===
 export interface Notification {
   id: string;
   message: string;
   read: boolean;
   timestamp: string;
+  link?: string;
+  type?: "info" | "success" | "warning";
 }

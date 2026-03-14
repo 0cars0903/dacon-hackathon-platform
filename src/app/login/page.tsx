@@ -152,31 +152,39 @@ export default function LoginPage() {
         </form>
 
         {/* 데모 계정 안내 */}
-        <div className="mt-6 rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50">
-          <p className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400">
-            데모 계정으로 체험하기
-          </p>
-          <button
-            onClick={async () => {
-              // 데모 계정 자동 생성 및 로그인
-              const demoEmail = "demo@dacon.io";
-              const demoPass = "demo1234";
-              const usersRaw = localStorage.getItem("dacon_users");
-              const users = usersRaw ? JSON.parse(usersRaw) : [];
-              if (!users.some((u: { email: string }) => u.email === demoEmail)) {
-                users.push({ id: "demo-user", name: "Demo User", email: demoEmail, password: demoPass });
-                localStorage.setItem("dacon_users", JSON.stringify(users));
-              }
-              setEmail(demoEmail);
-              setPassword(demoPass);
-              setMode("login");
-              const ok = await login(demoEmail, demoPass);
-              if (ok) router.push("/");
-            }}
-            className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
-          >
-            demo@dacon.io / demo1234 로 바로 로그인
-          </button>
+        <div className="mt-6 space-y-3">
+          <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+            <p className="mb-2 text-xs font-semibold text-blue-700 dark:text-blue-300">
+              MVP 검증용 계정
+            </p>
+            <button
+              onClick={async () => {
+                setEmail("kuma@dacon.io");
+                setPassword("kuma1234");
+                setMode("login");
+                const ok = await login("kuma@dacon.io", "kuma1234");
+                if (ok) router.push("/");
+              }}
+              className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+            >
+              kuma@dacon.io / kuma1234 로 바로 로그인
+            </button>
+            <p className="mt-1 text-[10px] text-blue-500 dark:text-blue-400">팀 생성 및 프로필이 구성된 계정입니다</p>
+          </div>
+          <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50">
+            <p className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+              데모 계정으로 체험하기
+            </p>
+            <button
+              onClick={async () => {
+                const ok = await login("demo@dacon.io", "demo1234");
+                if (ok) router.push("/");
+              }}
+              className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+            >
+              demo@dacon.io / demo1234 로 바로 로그인
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -101,6 +101,13 @@ export function Header() {
                     <p className="text-xs text-gray-500">{user.email}</p>
                   </div>
                   <Link
+                    href="/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"
+                  >
+                    내 프로필
+                  </Link>
+                  <Link
                     href="/settings"
                     onClick={() => setUserMenuOpen(false)}
                     className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"
@@ -199,12 +206,25 @@ export function Header() {
               </Link>
             ))}
             {user && (
-              <button
-                onClick={() => { logout(); setMobileMenuOpen(false); }}
-                className="block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400"
-              >
-                로그아웃
-              </button>
+              <>
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`block rounded-lg px-4 py-3 text-sm font-medium transition-colors min-h-[44px] ${
+                    pathname === "/profile"
+                      ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                      : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  내 프로필
+                </Link>
+                <button
+                  onClick={() => { logout(); setMobileMenuOpen(false); }}
+                  className="block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400"
+                >
+                  로그아웃
+                </button>
+              </>
             )}
             <div className="flex items-center justify-between border-t border-gray-200 pt-2 dark:border-gray-800">
               <span className="text-sm text-gray-500 dark:text-gray-400">
