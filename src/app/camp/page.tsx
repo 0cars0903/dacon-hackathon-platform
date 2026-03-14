@@ -297,6 +297,8 @@ function CampContent() {
                       <>
                         {hasPending ? (
                           <button disabled className="rounded-lg bg-gray-400 px-3 py-1.5 text-sm font-medium text-white cursor-not-allowed">신청 중</button>
+                        ) : team.joinPolicy === "auto" ? (
+                          <button onClick={() => handleJoinTeam(team)} className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700">바로 참가</button>
                         ) : (
                           <button onClick={() => setShowJoinRequestModal(team)} className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700">참가 신청</button>
                         )}
@@ -547,26 +549,28 @@ function JoinRequestForm({ team, onDone }: { team: Team; onDone: () => void }) {
   const { user } = useAuth();
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || submitting) return;
+    setSubmitting(true);
 
-    const requestsRaw = localStorage.getItem("dacon_join_requests");
-    const requests = requestsRaw ? JSON.parse(requestsRaw) : [];
-    const newRequest: TeamJoinRequest = {
-      id: `req-${Date.now()}`,
-      teamCode: team.teamCode,
-      userId: user.id,
-      userName: user.name,
-      message: message.trim(),
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    };
-    requests.push(newRequest);
-    localStorage.setItem("dacon_join_requests", JSON.stringify(requests));
-    setSubmitted(true);
-    setTimeout(() => onDone(), 1500);
+    try {
+      const db = createDataClient();
+      await db.from("team_join_requests").insert({
+        team_code: team.teamCode,
+        user_id: user.id,
+        user_name: user.name,
+        message: message.trim() || null,
+        status: "pending",
+      });
+      setSubmitted(true);
+      setTimeout(() => onDone(), 1500);
+    } catch (err) {
+      console.error("[JoinRequestForm] Failed to submit:", err);
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
