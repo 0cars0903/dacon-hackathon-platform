@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { getHackathons, getTeams } from "@/lib/supabase/data";
+import { getHackathons, getTeams, getProfile } from "@/lib/supabase/data";
 import type { Hackathon, Team, UserProfile } from "@/types";
 import { Card, CardHeader, CardContent, Badge, EmptyState } from "@/components/common";
 
@@ -97,15 +97,22 @@ export function SearchContent() {
       }
     });
 
-    // Search users/profiles from localStorage
+    // Search users/profiles from Supabase
     const profiles: UserProfile[] = [];
     try {
-      const stored = localStorage.getItem("dacon_profiles");
-      if (stored) {
-        profiles.push(...JSON.parse(stored));
+      const { createClient } = await import("@/lib/supabase/client");
+      const { data: profileRows } = await createClient()
+        .from("profiles")
+        .select("id, name, nickname, email, skills, bio")
+        .limit(200);
+      if (profileRows) {
+        profiles.push(...profileRows.map((p: any) => ({
+          id: p.id, name: p.name, nickname: p.nickname ?? "",
+          email: p.email ?? "", skills: p.skills ?? [], bio: p.bio ?? "",
+        } as UserProfile)));
       }
     } catch {
-      // Ignore parse errors
+      // Ignore errors
     }
 
     profiles.forEach((p) => {
