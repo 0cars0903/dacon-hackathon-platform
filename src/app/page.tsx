@@ -1,31 +1,30 @@
 import Link from "next/link";
-import { getHackathons, getActivityFeed } from "@/lib/data";
+import { getHackathons } from "@/lib/data";
 import { Badge } from "@/components/common/Badge";
-import { getDday, getStatusLabel, timeAgo } from "@/lib/utils";
+import { getDday, getStatusLabel } from "@/lib/utils";
 import { RecommendedHackathons } from "@/components/features/RecommendedHackathons";
 import { StatsOverview } from "@/components/features/StatsOverview";
 
 export default function HomePage() {
   const hackathons = getHackathons();
-  const activities = getActivityFeed();
-  const upcoming = hackathons.find(
+  const ongoingCount = hackathons.filter(
     (h) => h.status === "ongoing" || h.status === "upcoming"
-  );
+  ).length;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
       {/* 히어로 배너 */}
       <section className="animate-fade-in-up mb-10 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-8 text-white dark:from-blue-700 dark:via-blue-800 dark:to-blue-900 sm:p-12">
         <div className="relative">
           <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/5 sm:h-48 sm:w-48" />
           <div className="absolute -bottom-12 -right-4 h-24 w-24 rounded-full bg-white/5 sm:h-36 sm:w-36" />
           <h1 className="relative mb-3 text-3xl font-bold sm:text-4xl">
-            긴급 인수인계 해커톤
+            데이터 경진대회 플랫폼
           </h1>
           <p className="relative mb-6 text-lg text-blue-100">
-            명세서만 남기고 사라진 개발자의 문서를 기반으로
+            다양한 해커톤에 참가하고, 팀을 구성하고,
             <br className="hidden sm:block" />
-            바이브 코딩으로 웹서비스를 완성하세요.
+            데이터 기반 솔루션으로 경쟁하세요.
           </p>
           <div className="relative flex flex-wrap items-center gap-4">
             <Link
@@ -34,11 +33,9 @@ export default function HomePage() {
             >
               해커톤 둘러보기
             </Link>
-            {upcoming && (
-              <span className="rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur-sm">
-                {getDday(upcoming.period.submissionDeadlineAt)} 마감
-              </span>
-            )}
+            <span className="rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur-sm">
+              {ongoingCount}개 해커톤 진행중
+            </span>
           </div>
         </div>
       </section>
@@ -49,8 +46,8 @@ export default function HomePage() {
       {/* AI 추천 해커톤 */}
       <RecommendedHackathons />
 
+      {/* 해커톤 카드 + 퀵 네비 */}
       <div className="grid gap-8 lg:grid-cols-3">
-        {/* 해커톤 카드 미리보기 */}
         <section className="lg:col-span-2">
           <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
             해커톤
@@ -103,59 +100,28 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 활동 피드 + 퀵 네비 */}
-        <aside className="space-y-6">
-          <div>
-            <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-              최근 활동
-            </h2>
-            <div className="space-y-3">
-              {activities.map((a, i) => (
-                <div
-                  key={a.id}
-                  className="animate-slide-in-right rounded-lg border border-gray-100 p-3 transition-all hover:border-gray-200 dark:border-gray-800 dark:hover:border-gray-700"
-                  style={{ animationDelay: `${i * 80}ms` }}
-                >
-                  <div className="mb-1 flex items-center gap-2">
-                    <span className="text-xs">
-                      {a.type === "team_created"
-                        ? "👥"
-                        : a.type === "submission"
-                          ? "📤"
-                          : "📊"}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      {timeAgo(a.timestamp)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    {a.message}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <QuickCard
-              href="/hackathons"
-              title="해커톤"
-              description="진행중인 해커톤을 확인하고 참가하세요"
-              emoji="🏆"
-            />
-            <QuickCard
-              href="/camp"
-              title="팀 모집"
-              description="함께할 팀원을 찾거나 팀을 만드세요"
-              emoji="👥"
-            />
-            <QuickCard
-              href="/rankings"
-              title="랭킹"
-              description="해커톤 순위와 점수를 확인하세요"
-              emoji="📊"
-            />
-          </div>
+        <aside className="space-y-3">
+          <h2 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+            바로가기
+          </h2>
+          <QuickCard
+            href="/hackathons"
+            title="해커톤"
+            description="진행중인 해커톤을 확인하고 참가하세요"
+            emoji="🏆"
+          />
+          <QuickCard
+            href="/camp"
+            title="팀 모집"
+            description="함께할 팀원을 찾거나 팀을 만드세요"
+            emoji="👥"
+          />
+          <QuickCard
+            href="/rankings"
+            title="랭킹"
+            description="해커톤 순위와 점수를 확인하세요"
+            emoji="📊"
+          />
         </aside>
       </div>
     </div>

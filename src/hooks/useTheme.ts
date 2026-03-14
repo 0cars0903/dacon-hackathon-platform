@@ -36,18 +36,14 @@ export function useTheme() {
     root.setAttribute("data-color-theme", preferences.colorTheme);
   }, [preferences.colorTheme]);
 
-  // 시스템 테마 감지 (초기 로드 시)
+  // 라이트모드를 기본값으로 강제 (시스템 다크모드 무시)
   useEffect(() => {
     const stored = window.localStorage.getItem("user_preferences");
     if (!stored) {
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      if (prefersDark) {
-        setPreferences((prev) => ({ ...prev, theme: "dark" }));
-      }
+      // 시스템 설정과 관계없이 라이트 모드가 기본
+      document.documentElement.classList.remove("dark");
     }
-  }, [setPreferences]);
+  }, []);
 
   const toggleTheme = useCallback(() => {
     setPreferences((prev) => ({

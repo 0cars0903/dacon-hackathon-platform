@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useThemeContext } from "./ThemeProvider";
+import { useAuth } from "@/components/features/AuthProvider";
 import { NotificationBell } from "@/components/features/NotificationBell";
 
 const NAV_ITEMS = [
@@ -15,24 +16,35 @@ const NAV_ITEMS = [
 
 export function Header() {
   const { theme, toggleTheme } = useThemeContext();
+  const { user, logout } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        {/* 로고 */}
         <Link
           href="/"
           className="flex items-center gap-1 text-xl font-bold text-gray-900 transition-transform hover:scale-105 dark:text-white"
         >
           <span className="text-blue-600 dark:text-blue-400">DACON</span>
-          <span className="text-sm font-normal text-gray-500">Hackathon</span>
+          <span className="text-sm font-normal text-gray-500">Platform</span>
         </Link>
 
-        {/* 데스크탑 네비게이션 */}
         <nav className="hidden items-center gap-1 md:flex">
           {NAV_ITEMS.map((item) => (
             <NavLink key={item.href} href={item.href} active={pathname === item.href || pathname.startsWith(item.href + "/")}>
@@ -40,7 +52,6 @@ export function Header() {
             </NavLink>
           ))}
 
-          {/* 검색 버튼 */}
           <button
             onClick={() => setSearchOpen(!searchOpen)}
             className="ml-2 rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
@@ -51,10 +62,8 @@ export function Header() {
             </svg>
           </button>
 
-          {/* 알림 벨 */}
           <NotificationBell />
 
-          {/* 다크모드 토글 */}
           <button
             onClick={toggleTheme}
             className="rounded-lg p-2 text-gray-500 transition-all hover:bg-gray-100 hover:rotate-12 dark:text-gray-400 dark:hover:bg-gray-800"
@@ -70,27 +79,81 @@ export function Header() {
               </svg>
             )}
           </button>
+
+          {user ? (
+            <div ref={userMenuRef} className="relative ml-2">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900 dark:text-blue-400">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <span className="hidden lg:inline">{user.name}</span>
+                <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {userMenuOpen && (
+                <div className="animate-fade-in absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                  <div className="border-b border-gray-100 px-4 py-2 dark:border-gray-800">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  </div>
+                  <Link
+                    href="/settings"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"
+                  >
+                    설정
+                  </Link>
+                  <button
+                    onClick={() => { logout(); setUserMenuOpen(false); }}
+                    className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                  >
+                    로그아웃
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="ml-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+            >
+              로그인
+            </Link>
+          )}
         </nav>
 
-        {/* 모바일 메뉴 버튼 */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="rounded-lg p-2 text-gray-600 md:hidden dark:text-gray-400"
-          aria-label="메뉴"
-        >
-          {mobileMenuOpen ? (
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+        <div className="flex items-center gap-1 md:hidden">
+          {user ? (
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">
+              {user.name.charAt(0).toUpperCase()}
+            </div>
           ) : (
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <Link href="/login" className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white">
+              로그인
+            </Link>
           )}
-        </button>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="rounded-lg p-2 text-gray-600 dark:text-gray-400"
+            aria-label="메뉴"
+          >
+            {mobileMenuOpen ? (
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* 검색 바 */}
       {searchOpen && (
         <div className="animate-fade-in border-t border-gray-200 bg-white px-4 py-3 dark:border-gray-800 dark:bg-gray-950">
           <div className="mx-auto max-w-6xl">
@@ -118,7 +181,6 @@ export function Header() {
         </div>
       )}
 
-      {/* 모바일 메뉴 */}
       {mobileMenuOpen && (
         <nav className="animate-fade-in border-t border-gray-200 bg-white px-4 py-3 md:hidden dark:border-gray-800 dark:bg-gray-950">
           <div className="space-y-1">
@@ -136,6 +198,14 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
+            {user && (
+              <button
+                onClick={() => { logout(); setMobileMenuOpen(false); }}
+                className="block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400"
+              >
+                로그아웃
+              </button>
+            )}
             <div className="flex items-center justify-between border-t border-gray-200 pt-2 dark:border-gray-800">
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 {theme === "dark" ? "다크 모드" : "라이트 모드"}
