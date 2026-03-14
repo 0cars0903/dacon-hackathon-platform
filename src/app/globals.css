@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* === 다크모드 Tailwind v4 설정 === */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* === 컬러 테마 CSS 변수 === */
+:root {
+  --color-primary: #2563eb;
+  --color-primary-light: #3b82f6;
+  --color-primary-dark: #1d4ed8;
+}
+
+[data-color-theme="purple"] {
+  --color-primary: #7c3aed;
+  --color-primary-light: #8b5cf6;
+  --color-primary-dark: #6d28d9;
+}
+
+[data-color-theme="green"] {
+  --color-primary: #059669;
+  --color-primary-light: #10b981;
+  --color-primary-dark: #047857;
+}
+
+@theme inline {
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+  --color-primary: var(--color-primary);
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-dark: var(--color-primary-dark);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.dark body {
+  background: #0a0a0a;
+  color: #ededed;
+}
