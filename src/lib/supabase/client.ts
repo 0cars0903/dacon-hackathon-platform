@@ -23,6 +23,10 @@ export function createClient(): SupabaseClient<any, "public", any> {
       storageKey: "dacon-auth-token",
       flowType: "pkce",
       detectSessionInUrl: true,
+      // Navigator Lock API gets stuck in production, blocking all Supabase queries.
+      // Bypass with a no-op lock since this is a single-tab MVP app.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      lock: (name: string, acquireTimeout: number, fn: () => Promise<any>) => fn(),
     },
   });
   return client;
