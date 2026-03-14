@@ -5,6 +5,7 @@ import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
+import { getPlatformStats, getAllHackathonsUnfiltered, getAllLeaderboards, getActivityFeed, getTeams } from "@/lib/data";
 import type { UserProfile } from "@/types";
 
 interface HackathonForm {
@@ -518,51 +519,7 @@ export default function AdminPage() {
       )}
 
       {/* 플랫폼 통계 */}
-      {activeTab === "stats" && (
-        <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { label: "총 사용자", value: users.length, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-900/30" },
-              { label: "관리자", value: users.filter((u) => u.role === "admin").length, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-900/30" },
-              { label: "생성 해커톤", value: createdHackathons.length, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-900/30" },
-              { label: "총 배지 발급", value: profiles.reduce((sum, p) => sum + p.badges.length, 0), color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-900/30" },
-            ].map((stat) => (
-              <div key={stat.label} className={`rounded-xl ${stat.bg} p-5 text-center`}>
-                <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* 사용자별 활동 요약 */}
-          <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-            <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">사용자 활동 순위</h3>
-            <div className="space-y-3">
-              {profiles
-                .sort((a, b) => (b.stats.hackathonsJoined + b.stats.submissions) - (a.stats.hackathonsJoined + a.stats.submissions))
-                .slice(0, 10)
-                .map((p, i) => (
-                  <div key={p.id} className="flex items-center gap-3">
-                    <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-                      i === 0 ? "bg-yellow-100 text-yellow-700" :
-                      i === 1 ? "bg-gray-200 text-gray-600" :
-                      i === 2 ? "bg-orange-100 text-orange-600" :
-                      "bg-gray-100 text-gray-400"
-                    }`}>{i + 1}</span>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{p.nickname || p.name}</p>
-                    </div>
-                    <div className="flex gap-3 text-xs text-gray-400">
-                      <span>해커톤 {p.stats.hackathonsJoined}</span>
-                      <span>제출 {p.stats.submissions}</span>
-                      <span>점수 {p.stats.totalScore}</span>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </section>
-        </div>
-      )}
+      {activeTab === "stats" && <AdminAnalytics users={users} profiles={profiles} createdHackathons={createdHackathons} />}
 
       {/* 프로필 수정 모달 */}
       {editProfileModal && (
@@ -594,6 +551,288 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ============================
+   관리자 분석 대시보드 컴포넌트
+   ============================ */
+
+function AdminAnalytics({
+  users,
+  profiles,
+  createdHackathons,
+}: {
+  users: Array<{ id: string; name: string; email: string; role: string }>;
+  profiles: UserProfile[];
+  createdHackathons: HackathonForm[];
+}) {
+  const platformStats = getPlatformStats();
+  const allHackathons = getAllHackathonsUnfiltered();
+  const allLeaderboards = getAllLeaderboards();
+  const allTeams = getTeams();
+  const recentActivity = getActivityFeed();
+
+  // 해커톤별 제출 통계
+  const hackathonSubmissionData = allHackathons.map((h) => {
+    const lb = allLeaderboards.find((l) => l.hackathonSlug === h.slug);
+    const teams = allTeams.filter((t) => t.hackathonSlug === h.slug);
+    return {
+      title: h.title.length > 15 ? h.title.slice(0, 15) + "…" : h.title,
+      slug: h.slug,
+      submissions: lb?.entries.length || 0,
+      teams: teams.length,
+      status: h.status,
+    };
+  }).sort((a, b) => b.submissions - a.submissions);
+
+  const maxSubmissions = Math.max(...hackathonSubmissionData.map((d) => d.submissions), 1);
+
+  // 해커톤 상태 분포
+  const statusDistribution = {
+    ongoing: allHackathons.filter((h) => h.status === "ongoing").length,
+    upcoming: allHackathons.filter((h) => h.status === "upcoming").length,
+    ended: allHackathons.filter((h) => h.status === "ended").length,
+  };
+  const totalHackathons = statusDistribution.ongoing + statusDistribution.upcoming + statusDistribution.ended;
+
+  // 스킬 분포 (상위 10개)
+  const skillCount: Record<string, number> = {};
+  profiles.forEach((p) => p.skills.forEach((s) => { skillCount[s] = (skillCount[s] || 0) + 1; }));
+  const topSkills = Object.entries(skillCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10);
+  const maxSkillCount = topSkills[0]?.[1] || 1;
+
+  // 최근 활동 타입별 집계
+  const activityByType: Record<string, number> = {};
+  recentActivity.forEach((a) => { activityByType[a.type] = (activityByType[a.type] || 0) + 1; });
+  const activityTypeLabels: Record<string, string> = {
+    team_created: "팀 생성/참가",
+    submission: "결과물 제출",
+    ranking_update: "랭킹 변동",
+    hackathon_created: "해커톤 생성",
+    forum_post: "토론 게시",
+    user_signup: "신규 가입",
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* 핵심 지표 카드 */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: "총 사용자", value: users.length, sub: `관리자 ${users.filter((u) => u.role === "admin").length}명`, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-900/20", icon: "👤" },
+          { label: "전체 해커톤", value: platformStats.totalHackathons + createdHackathons.length, sub: `진행중 ${statusDistribution.ongoing}개`, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-900/20", icon: "🏆" },
+          { label: "등록 팀", value: platformStats.totalTeams, sub: `${platformStats.totalMembers}명 참여`, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-900/20", icon: "👥" },
+          { label: "총 제출", value: platformStats.totalSubmissions, sub: `${allLeaderboards.length}개 리더보드`, color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-900/20", icon: "📤" },
+        ].map((stat) => (
+          <div key={stat.label} className={`rounded-xl ${stat.bg} p-5`}>
+            <div className="flex items-center justify-between">
+              <span className="text-2xl">{stat.icon}</span>
+              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+            </div>
+            <p className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">{stat.label}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{stat.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* 해커톤별 제출 차트 */}
+        <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+          <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">해커톤별 제출 현황</h3>
+          <div className="space-y-3">
+            {hackathonSubmissionData.map((d) => (
+              <div key={d.slug}>
+                <div className="mb-1 flex items-center justify-between text-xs">
+                  <span className="text-gray-600 dark:text-gray-400">{d.title}</span>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={d.status === "ongoing" ? "success" : d.status === "upcoming" ? "info" : "muted"} size="sm">
+                      {d.status === "ongoing" ? "진행중" : d.status === "upcoming" ? "예정" : "종료"}
+                    </Badge>
+                    <span className="font-medium text-gray-900 dark:text-white">{d.submissions}</span>
+                  </div>
+                </div>
+                <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800">
+                  <div
+                    className="h-2 rounded-full bg-blue-500 transition-all duration-700"
+                    style={{ width: `${(d.submissions / maxSubmissions) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 해커톤 상태 분포 (도넛형) */}
+        <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+          <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">해커톤 상태 분포</h3>
+          <div className="flex items-center justify-center gap-8">
+            {/* CSS 도넛 차트 */}
+            <div className="relative h-36 w-36">
+              <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
+                <circle cx="18" cy="18" r="15.91549430918954" fill="transparent" stroke="#e5e7eb" strokeWidth="3" className="dark:stroke-gray-700" />
+                {totalHackathons > 0 && (
+                  <>
+                    <circle cx="18" cy="18" r="15.91549430918954" fill="transparent" stroke="#22c55e" strokeWidth="3"
+                      strokeDasharray={`${(statusDistribution.ongoing / totalHackathons) * 100} ${100 - (statusDistribution.ongoing / totalHackathons) * 100}`}
+                      strokeDashoffset="0" />
+                    <circle cx="18" cy="18" r="15.91549430918954" fill="transparent" stroke="#3b82f6" strokeWidth="3"
+                      strokeDasharray={`${(statusDistribution.upcoming / totalHackathons) * 100} ${100 - (statusDistribution.upcoming / totalHackathons) * 100}`}
+                      strokeDashoffset={`${-(statusDistribution.ongoing / totalHackathons) * 100}`} />
+                    <circle cx="18" cy="18" r="15.91549430918954" fill="transparent" stroke="#9ca3af" strokeWidth="3"
+                      strokeDasharray={`${(statusDistribution.ended / totalHackathons) * 100} ${100 - (statusDistribution.ended / totalHackathons) * 100}`}
+                      strokeDashoffset={`${-((statusDistribution.ongoing + statusDistribution.upcoming) / totalHackathons) * 100}`} />
+                  </>
+                )}
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl font-bold text-gray-900 dark:text-white">{totalHackathons}</span>
+                <span className="text-[10px] text-gray-400">전체</span>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 rounded-full bg-green-500" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">진행중</span>
+                <span className="ml-auto font-semibold text-gray-900 dark:text-white">{statusDistribution.ongoing}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 rounded-full bg-blue-500" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">예정</span>
+                <span className="ml-auto font-semibold text-gray-900 dark:text-white">{statusDistribution.upcoming}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 rounded-full bg-gray-400" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">종료</span>
+                <span className="ml-auto font-semibold text-gray-900 dark:text-white">{statusDistribution.ended}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 기술 스택 분포 */}
+        <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+          <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">인기 기술 스택 TOP 10</h3>
+          <div className="space-y-2">
+            {topSkills.map(([skill, count], i) => (
+              <div key={skill} className="flex items-center gap-3">
+                <span className="w-5 text-right text-xs font-medium text-gray-400">{i + 1}</span>
+                <span className="w-24 text-xs text-gray-700 dark:text-gray-300 truncate">{skill}</span>
+                <div className="flex-1">
+                  <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800">
+                    <div
+                      className="h-2 rounded-full bg-purple-500 transition-all duration-500"
+                      style={{ width: `${(count / maxSkillCount) * 100}%` }}
+                    />
+                  </div>
+                </div>
+                <span className="w-8 text-right text-xs font-medium text-gray-600 dark:text-gray-400">{count}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 활동 유형 분포 */}
+        <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+          <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">최근 활동 유형 분포</h3>
+          <div className="space-y-3">
+            {Object.entries(activityByType)
+              .sort((a, b) => b[1] - a[1])
+              .map(([type, count]) => {
+                const maxCount = Math.max(...Object.values(activityByType));
+                return (
+                  <div key={type} className="flex items-center gap-3">
+                    <span className="w-28 text-xs text-gray-600 dark:text-gray-400">
+                      {activityTypeLabels[type] || type}
+                    </span>
+                    <div className="flex-1">
+                      <div className="h-4 rounded bg-gray-100 dark:bg-gray-800">
+                        <div
+                          className="flex h-4 items-center justify-end rounded bg-green-500 px-1 text-[10px] font-bold text-white transition-all duration-500"
+                          style={{ width: `${Math.max((count / maxCount) * 100, 10)}%` }}
+                        >
+                          {count}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            {Object.keys(activityByType).length === 0 && (
+              <p className="text-sm text-gray-400">기록된 활동이 없습니다.</p>
+            )}
+          </div>
+        </section>
+      </div>
+
+      {/* 사용자 활동 순위 */}
+      <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+        <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">사용자 활동 순위 TOP 10</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                <th className="px-3 py-2 text-xs font-medium text-gray-500">#</th>
+                <th className="px-3 py-2 text-xs font-medium text-gray-500">사용자</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">해커톤</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">제출</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">팀</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">배지</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">총점</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+              {profiles
+                .sort((a, b) => (b.stats.hackathonsJoined + b.stats.submissions * 2 + b.stats.totalScore) - (a.stats.hackathonsJoined + a.stats.submissions * 2 + a.stats.totalScore))
+                .slice(0, 10)
+                .map((p, i) => (
+                  <tr key={p.id} className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-3 py-2.5">
+                      <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                        i === 0 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400" :
+                        i === 1 ? "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300" :
+                        i === 2 ? "bg-orange-100 text-orange-600 dark:bg-orange-900/50 dark:text-orange-400" :
+                        "text-gray-400"
+                      }`}>{i + 1}</span>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <p className="font-medium text-gray-900 dark:text-white">{p.nickname || p.name}</p>
+                      <p className="text-[10px] text-gray-400">{p.email}</p>
+                    </td>
+                    <td className="px-3 py-2.5 text-right font-medium text-gray-700 dark:text-gray-300">{p.stats.hackathonsJoined}</td>
+                    <td className="px-3 py-2.5 text-right font-medium text-gray-700 dark:text-gray-300">{p.stats.submissions}</td>
+                    <td className="px-3 py-2.5 text-right font-medium text-gray-700 dark:text-gray-300">{p.stats.teamsCreated}</td>
+                    <td className="px-3 py-2.5 text-right font-medium text-gray-700 dark:text-gray-300">{p.badges.length}</td>
+                    <td className="px-3 py-2.5 text-right font-bold text-blue-600 dark:text-blue-400">{p.stats.totalScore}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* 최근 활동 타임라인 */}
+      <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+        <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">최근 활동 타임라인</h3>
+        <div className="relative space-y-0 pl-4">
+          {recentActivity.slice(0, 15).map((a, i) => (
+            <div key={a.id} className="relative pb-4 last:pb-0">
+              {i < Math.min(recentActivity.length, 15) - 1 && (
+                <div className="absolute bottom-0 left-[-12px] top-3 w-0.5 bg-gray-200 dark:bg-gray-700" />
+              )}
+              <div className="absolute left-[-16px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-blue-500 bg-white dark:bg-gray-900" />
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-xs text-gray-600 dark:text-gray-400">{a.message}</p>
+                <span className="shrink-0 text-[10px] text-gray-400">
+                  {new Date(a.timestamp).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
