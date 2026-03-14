@@ -52,7 +52,17 @@ export default function ProfilePage() {
   }
 
   if (!profile) {
-    return <div className="mx-auto max-w-4xl px-4 py-16 text-center text-gray-400">프로필을 불러오는 중...</div>;
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-16">
+        <EmptyState
+          emoji="👤"
+          title="프로필을 찾을 수 없습니다"
+          description="프로필 데이터를 불러올 수 없습니다. 다시 로그인해주세요."
+          actionLabel="다시 로그인"
+          onAction={() => { window.location.href = "/login"; }}
+        />
+      </div>
+    );
   }
 
   const handleSaveProfile = () => {

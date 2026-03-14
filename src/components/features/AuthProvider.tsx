@@ -109,78 +109,151 @@ const DEMO_PROFILE: UserProfile = {
   teamMemberships: [],
 };
 
+// =============================================
+// 시드 유저 데이터: teams.json & leaderboard.json에 등장하는 모든 유저
+// =============================================
+interface SeedUser {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  skills: string[];
+  bio: string;
+  hackathons: string[];
+  teams: string[];
+  stats: { hackathonsJoined: number; teamsCreated: number; submissions: number; totalScore: number };
+}
+
+const SEED_USERS: SeedUser[] = [
+  // --- Team Alpha (aimers-8-model-lite) ---
+  { id: "user-alpha-1", name: "김서준", email: "seojun@dacon.io", password: "user1234", skills: ["Python", "PyTorch", "ML"], bio: "ML 엔지니어. 모델 경량화 전문.", hackathons: ["aimers-8-model-lite"], teams: ["T-ALPHA"], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 74.21 } },
+  { id: "user-alpha-2", name: "이하은", email: "haeun@dacon.io", password: "user1234", skills: ["Python", "TensorFlow"], bio: "딥러닝 연구자.", hackathons: ["aimers-8-model-lite"], teams: ["T-ALPHA"], stats: { hackathonsJoined: 1, teamsCreated: 0, submissions: 1, totalScore: 74.21 } },
+  { id: "user-alpha-3", name: "박민재", email: "minjae@dacon.io", password: "user1234", skills: ["C++", "ONNX", "vLLM"], bio: "추론 최적화 엔지니어.", hackathons: ["aimers-8-model-lite"], teams: ["T-ALPHA"], stats: { hackathonsJoined: 1, teamsCreated: 0, submissions: 1, totalScore: 74.21 } },
+  // --- PromptRunners (monthly-vibe-coding) ---
+  { id: "user-beta-1", name: "정유진", email: "yujin@dacon.io", password: "user1234", skills: ["React", "UX Design", "Prompt Engineering"], bio: "프론트엔드 + 프롬프트 엔지니어.", hackathons: ["monthly-vibe-coding-2026-02"], teams: ["T-BETA"], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 91.5 } },
+  // --- 404found (daker-handover) ---
+  { id: "user-handover-1", name: "최예린", email: "yerin@dacon.io", password: "user1234", skills: ["Next.js", "TypeScript", "Tailwind"], bio: "풀스택 개발자.", hackathons: ["daker-handover-2026-03"], teams: ["T-HANDOVER-01"], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 0, totalScore: 0 } },
+  { id: "user-handover-2", name: "한도윤", email: "doyun@dacon.io", password: "user1234", skills: ["React", "Figma"], bio: "프론트엔드 개발자 겸 디자이너.", hackathons: ["daker-handover-2026-03"], teams: ["T-HANDOVER-01"], stats: { hackathonsJoined: 1, teamsCreated: 0, submissions: 0, totalScore: 0 } },
+  { id: "user-handover-3", name: "오서연", email: "seoyeon@dacon.io", password: "user1234", skills: ["Node.js", "PostgreSQL"], bio: "백엔드 개발자.", hackathons: ["daker-handover-2026-03"], teams: ["T-HANDOVER-01"], stats: { hackathonsJoined: 1, teamsCreated: 0, submissions: 0, totalScore: 0 } },
+  // --- LGTM (daker-handover) ---
+  { id: "user-lgtm-1", name: "신지호", email: "jiho@dacon.io", password: "user1234", skills: ["PM", "Notion", "Agile"], bio: "프로젝트 매니저. 기획서 전문.", hackathons: ["daker-handover-2026-03"], teams: ["T-HANDOVER-02"], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 0, totalScore: 0 } },
+  { id: "user-lgtm-2", name: "강하린", email: "harin@dacon.io", password: "user1234", skills: ["React", "Vue"], bio: "프론트엔드 개발자.", hackathons: ["daker-handover-2026-03"], teams: ["T-HANDOVER-02"], stats: { hackathonsJoined: 1, teamsCreated: 0, submissions: 0, totalScore: 0 } },
+  { id: "user-lgtm-3", name: "윤태양", email: "taeyang@dacon.io", password: "user1234", skills: ["Spring", "Java"], bio: "백엔드 개발자.", hackathons: ["daker-handover-2026-03"], teams: ["T-HANDOVER-02"], stats: { hackathonsJoined: 1, teamsCreated: 0, submissions: 0, totalScore: 0 } },
+  { id: "user-lgtm-4", name: "임수아", email: "sua@dacon.io", password: "user1234", skills: ["Figma", "UI/UX"], bio: "UI/UX 디자이너.", hackathons: ["daker-handover-2026-03"], teams: ["T-HANDOVER-02"], stats: { hackathonsJoined: 1, teamsCreated: 0, submissions: 0, totalScore: 0 } },
+  { id: "user-lgtm-5", name: "조은우", email: "eunwoo@dacon.io", password: "user1234", skills: ["Docker", "AWS", "DevOps"], bio: "인프라 엔지니어.", hackathons: ["daker-handover-2026-03"], teams: ["T-HANDOVER-02"], stats: { hackathonsJoined: 1, teamsCreated: 0, submissions: 0, totalScore: 0 } },
+  // --- LangChain Wizards (genai-app) ---
+  { id: "user-genai-1", name: "배주원", email: "juwon@dacon.io", password: "user1234", skills: ["LangChain", "Python", "Next.js"], bio: "AI 앱 개발자.", hackathons: ["genai-app-challenge-2026"], teams: ["T-GENAI-01"], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 0, totalScore: 0 } },
+  { id: "user-genai-2", name: "류시현", email: "sihyun@dacon.io", password: "user1234", skills: ["FastAPI", "RAG", "Vector DB"], bio: "MLOps & RAG 전문가.", hackathons: ["genai-app-challenge-2026"], teams: ["T-GENAI-01"], stats: { hackathonsJoined: 1, teamsCreated: 0, submissions: 0, totalScore: 0 } },
+  // --- ChartMasters (data-viz) ---
+  { id: "user-chart-1", name: "송채원", email: "chaewon@dacon.io", password: "user1234", skills: ["D3.js", "React", "Data Viz"], bio: "데이터 시각화 전문 프론트엔드.", hackathons: ["data-viz-hackathon-2026"], teams: ["T-DATAVIZ-01"], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 88.2 } },
+  { id: "user-chart-2", name: "문하율", email: "hayul@dacon.io", password: "user1234", skills: ["Figma", "Illustrator", "CSS"], bio: "비주얼 디자이너.", hackathons: ["data-viz-hackathon-2026"], teams: ["T-DATAVIZ-01"], stats: { hackathonsJoined: 1, teamsCreated: 0, submissions: 1, totalScore: 88.2 } },
+  // --- DataStorytellers (data-viz) ---
+  { id: "user-story-1", name: "양서윤", email: "seoyun@dacon.io", password: "user1234", skills: ["Python", "Plotly", "Storytelling"], bio: "데이터 스토리텔러.", hackathons: ["data-viz-hackathon-2026"], teams: ["T-DATAVIZ-02"], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 82.7 } },
+  // --- 리더보드 전용 팀 (teams.json에 없는 팀들의 대표 유저) ---
+  { id: "user-gamma-1", name: "권지민", email: "jimin@dacon.io", password: "user1234", skills: ["PyTorch", "Quantization"], bio: "모델 최적화 연구.", hackathons: ["aimers-8-model-lite"], teams: [], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 70.13 } },
+  { id: "user-neural-1", name: "고은서", email: "eunseo@dacon.io", password: "user1234", skills: ["TensorRT", "ONNX"], bio: "추론 엔진 전문가.", hackathons: ["aimers-8-model-lite"], teams: [], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 68.45 } },
+  { id: "user-quant-1", name: "장현우", email: "hyunwoo@dacon.io", password: "user1234", skills: ["Python", "GPTQ"], bio: "양자화 연구자.", hackathons: ["aimers-8-model-lite"], teams: [], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 65.80 } },
+  { id: "user-slim-1", name: "이나윤", email: "nayun@dacon.io", password: "user1234", skills: ["Pruning", "Distillation"], bio: "경량화 연구.", hackathons: ["aimers-8-model-lite"], teams: [], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 62.10 } },
+  { id: "user-aiflow-1", name: "김도현", email: "dohyun@dacon.io", password: "user1234", skills: ["LangChain", "Workflow"], bio: "AI 워크플로우 빌더.", hackathons: ["monthly-vibe-coding-2026-02"], teams: [], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 85.3 } },
+  { id: "user-copilot-1", name: "박지윤", email: "jiyun@dacon.io", password: "user1234", skills: ["Copilot", "VSCode"], bio: "개발 도구 전문가.", hackathons: ["monthly-vibe-coding-2026-02"], teams: [], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 79.8 } },
+  { id: "user-vizwiz-1", name: "정승현", email: "seunghyun@dacon.io", password: "user1234", skills: ["Observable", "D3.js"], bio: "시각화 마법사.", hackathons: ["data-viz-hackathon-2026"], teams: [], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 76.4 } },
+  { id: "user-insight-1", name: "한서아", email: "seoa@dacon.io", password: "user1234", skills: ["Pandas", "Tableau"], bio: "데이터 분석가.", hackathons: ["data-viz-hackathon-2026"], teams: [], stats: { hackathonsJoined: 1, teamsCreated: 1, submissions: 1, totalScore: 71.1 } },
+];
+
+// 팀 시드 데이터 (teams.json의 팀에 멤버 정보를 연결)
+const SEED_TEAMS = [
+  { teamCode: "T-KUMA-TEAM", hackathonSlug: "daker-handover-2026-03", name: "Team Admin", isOpen: true, memberCount: 1, lookingFor: ["Frontend", "Designer", "Backend"], intro: "긴급 인수인계 해커톤에서 명세서 기반 웹서비스를 구현하는 팀입니다.", contact: { type: "link", url: "https://open.kakao.com/o/gKumaTeam" }, createdAt: "2026-03-05T11:00:00+09:00", creatorId: "mvp-user-kuma", members: [{ userId: "mvp-user-kuma", name: "Admin", role: "팀장", joinedAt: "2026-03-05T11:00:00+09:00" }] },
+  { teamCode: "T-ALPHA", hackathonSlug: "aimers-8-model-lite", name: "Team Alpha", isOpen: true, memberCount: 3, lookingFor: ["Backend", "ML Engineer"], intro: "추론 최적화/경량화 실험을 함께 진행할 팀원을 찾습니다.", contact: { type: "link", url: "https://open.kakao.com/o/example1" }, createdAt: "2026-02-20T11:00:00+09:00", creatorId: "user-alpha-1", members: [{ userId: "user-alpha-1", name: "김서준", role: "팀장", joinedAt: "2026-02-20T11:00:00+09:00" }, { userId: "user-alpha-2", name: "이하은", role: "팀원", joinedAt: "2026-02-20T14:00:00+09:00" }, { userId: "user-alpha-3", name: "박민재", role: "팀원", joinedAt: "2026-02-21T09:00:00+09:00" }] },
+  { teamCode: "T-BETA", hackathonSlug: "monthly-vibe-coding-2026-02", name: "PromptRunners", isOpen: true, memberCount: 1, lookingFor: ["Frontend", "Designer"], intro: "프롬프트 품질 점수화 + 개선 가이드 UX를 기획합니다.", contact: { type: "link", url: "https://forms.gle/example2" }, createdAt: "2026-02-18T18:30:00+09:00", creatorId: "user-beta-1", members: [{ userId: "user-beta-1", name: "정유진", role: "팀장", joinedAt: "2026-02-18T18:30:00+09:00" }] },
+  { teamCode: "T-HANDOVER-01", hackathonSlug: "daker-handover-2026-03", name: "404found", isOpen: true, memberCount: 3, lookingFor: ["Frontend", "Designer"], intro: "명세서 기반으로 기본 기능을 빠르게 완성하고 UX 확장을 노립니다.", contact: { type: "link", url: "https://open.kakao.com/o/example3" }, createdAt: "2026-03-04T11:00:00+09:00", creatorId: "user-handover-1", members: [{ userId: "user-handover-1", name: "최예린", role: "팀장", joinedAt: "2026-03-04T11:00:00+09:00" }, { userId: "user-handover-2", name: "한도윤", role: "팀원", joinedAt: "2026-03-04T15:00:00+09:00" }, { userId: "user-handover-3", name: "오서연", role: "팀원", joinedAt: "2026-03-05T10:00:00+09:00" }] },
+  { teamCode: "T-HANDOVER-02", hackathonSlug: "daker-handover-2026-03", name: "LGTM", isOpen: false, memberCount: 5, lookingFor: [], intro: "기획서-구현-문서화를 깔끔하게 맞추는 방향으로 진행합니다.", contact: { type: "link", url: "https://forms.gle/example4" }, createdAt: "2026-03-05T09:20:00+09:00", creatorId: "user-lgtm-1", members: [{ userId: "user-lgtm-1", name: "신지호", role: "팀장", joinedAt: "2026-03-05T09:20:00+09:00" }, { userId: "user-lgtm-2", name: "강하린", role: "팀원", joinedAt: "2026-03-05T10:00:00+09:00" }, { userId: "user-lgtm-3", name: "윤태양", role: "팀원", joinedAt: "2026-03-05T11:00:00+09:00" }, { userId: "user-lgtm-4", name: "임수아", role: "팀원", joinedAt: "2026-03-05T12:00:00+09:00" }, { userId: "user-lgtm-5", name: "조은우", role: "팀원", joinedAt: "2026-03-06T09:00:00+09:00" }] },
+  { teamCode: "T-GENAI-01", hackathonSlug: "genai-app-challenge-2026", name: "LangChain Wizards", isOpen: true, memberCount: 2, lookingFor: ["Backend", "ML Engineer", "Frontend"], intro: "LangChain + Next.js로 AI 채팅 서비스를 만들고 있습니다.", contact: { type: "link", url: "https://open.kakao.com/o/example5" }, createdAt: "2026-03-10T14:00:00+09:00", creatorId: "user-genai-1", members: [{ userId: "user-genai-1", name: "배주원", role: "팀장", joinedAt: "2026-03-10T14:00:00+09:00" }, { userId: "user-genai-2", name: "류시현", role: "팀원", joinedAt: "2026-03-10T16:00:00+09:00" }] },
+  { teamCode: "T-DATAVIZ-01", hackathonSlug: "data-viz-hackathon-2026", name: "ChartMasters", isOpen: true, memberCount: 2, lookingFor: ["Designer", "Frontend"], intro: "D3.js와 공공 데이터 API를 활용한 인터랙티브 대시보드를 만듭니다.", contact: { type: "link", url: "https://forms.gle/example6" }, createdAt: "2026-03-08T10:00:00+09:00", creatorId: "user-chart-1", members: [{ userId: "user-chart-1", name: "송채원", role: "팀장", joinedAt: "2026-03-08T10:00:00+09:00" }, { userId: "user-chart-2", name: "문하율", role: "팀원", joinedAt: "2026-03-08T14:00:00+09:00" }] },
+  { teamCode: "T-DATAVIZ-02", hackathonSlug: "data-viz-hackathon-2026", name: "DataStorytellers", isOpen: true, memberCount: 1, lookingFor: ["Backend", "Designer"], intro: "데이터 스토리텔링에 집중합니다.", contact: { type: "link", url: "https://open.kakao.com/o/example7" }, createdAt: "2026-03-09T16:30:00+09:00", creatorId: "user-story-1", members: [{ userId: "user-story-1", name: "양서윤", role: "팀장", joinedAt: "2026-03-09T16:30:00+09:00" }] },
+];
+
 function ensureMVPData() {
-  // --- 유저 계정 확보 (기존 데이터가 있으면 이름/역할도 갱신) ---
+  // --- 유저 계정 확보 ---
   const usersRaw = localStorage.getItem(USERS_KEY);
   const users: Array<{ id: string; name: string; email: string; password: string; role?: string }> =
     usersRaw ? JSON.parse(usersRaw) : [];
 
-  // MVP 계정
-  const mvpIdx = users.findIndex((u) => u.email === MVP_ACCOUNT.email);
-  if (mvpIdx < 0) {
-    users.push(MVP_ACCOUNT);
-  } else {
-    // 기존 계정 이름/역할 동기화
-    users[mvpIdx].name = MVP_ACCOUNT.name;
-    users[mvpIdx].role = MVP_ACCOUNT.role;
-  }
+  // 헬퍼: 유저 upsert
+  const upsertUser = (acct: { id: string; name: string; email: string; password: string; role: string }) => {
+    const idx = users.findIndex((u) => u.id === acct.id);
+    if (idx < 0) {
+      users.push(acct);
+    } else {
+      users[idx].name = acct.name;
+      users[idx].role = acct.role;
+    }
+  };
 
-  // Demo 계정
-  const demoIdx = users.findIndex((u) => u.email === DEMO_ACCOUNT.email);
-  if (demoIdx < 0) {
-    users.push(DEMO_ACCOUNT);
-  } else {
-    users[demoIdx].name = DEMO_ACCOUNT.name;
-    users[demoIdx].role = DEMO_ACCOUNT.role;
-  }
+  upsertUser(MVP_ACCOUNT);
+  upsertUser(DEMO_ACCOUNT);
+  SEED_USERS.forEach((su) => upsertUser({ id: su.id, name: su.name, email: su.email, password: su.password, role: "user" }));
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 
-  // --- 프로필 확보 (기존 데이터가 있으면 이름/닉네임/역할 동기화) ---
+  // --- 프로필 확보 ---
   const profilesRaw = localStorage.getItem(PROFILES_KEY);
   const profiles: UserProfile[] = profilesRaw ? JSON.parse(profilesRaw) : [];
 
-  // MVP 프로필
-  const mvpPIdx = profiles.findIndex((p) => p.id === MVP_PROFILE.id);
-  if (mvpPIdx < 0) {
-    profiles.push(MVP_PROFILE);
-  } else {
-    profiles[mvpPIdx].name = MVP_PROFILE.name;
-    profiles[mvpPIdx].role = MVP_PROFILE.role;
-    if (!profiles[mvpPIdx].nickname) profiles[mvpPIdx].nickname = MVP_PROFILE.nickname;
-  }
+  // 헬퍼: 프로필 upsert
+  const upsertProfile = (p: UserProfile) => {
+    const idx = profiles.findIndex((pp) => pp.id === p.id);
+    if (idx < 0) {
+      profiles.push(p);
+    } else {
+      profiles[idx].name = p.name;
+      profiles[idx].role = p.role;
+      if (!profiles[idx].nickname) profiles[idx].nickname = p.nickname;
+    }
+  };
 
-  // Demo 프로필 (핵심 버그 수정: 이전에는 생성하지 않았음)
-  const demoPIdx = profiles.findIndex((p) => p.id === DEMO_PROFILE.id);
-  if (demoPIdx < 0) {
-    profiles.push(DEMO_PROFILE);
-  } else {
-    profiles[demoPIdx].name = DEMO_PROFILE.name;
-    profiles[demoPIdx].role = DEMO_PROFILE.role;
-    if (!profiles[demoPIdx].nickname) profiles[demoPIdx].nickname = DEMO_PROFILE.nickname;
-  }
+  upsertProfile(MVP_PROFILE);
+  upsertProfile(DEMO_PROFILE);
+
+  // 시드 유저 프로필 생성
+  SEED_USERS.forEach((su) => {
+    const profile: UserProfile = {
+      id: su.id,
+      name: su.name,
+      nickname: su.name,
+      email: su.email,
+      role: "user",
+      bio: su.bio,
+      skills: su.skills,
+      joinedAt: "2026-02-15T10:00:00+09:00",
+      stats: su.stats,
+      badges: [
+        { id: `b-welcome-${su.id}`, name: "환영합니다", emoji: "👋", description: "DACON Platform에 가입했습니다", earnedAt: "2026-02-15T10:00:00+09:00" },
+        ...(su.stats.hackathonsJoined > 0 ? [{ id: `b-join-${su.id}`, name: "첫 참가", emoji: "🎉", description: "첫 해커톤에 참가했습니다", earnedAt: "2026-02-20T10:00:00+09:00" }] : []),
+        ...(su.stats.teamsCreated > 0 ? [{ id: `b-leader-${su.id}`, name: "팀 리더", emoji: "👑", description: "팀을 처음 생성했습니다", earnedAt: "2026-02-20T11:00:00+09:00" }] : []),
+        ...(su.stats.submissions > 0 ? [{ id: `b-submit-${su.id}`, name: "첫 제출", emoji: "📤", description: "첫 결과물을 제출했습니다", earnedAt: "2026-02-25T10:00:00+09:00" }] : []),
+      ],
+      joinedHackathons: su.hackathons,
+      teamMemberships: su.teams,
+    };
+    upsertProfile(profile);
+  });
   localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
 
-  // --- 팀 데이터 확보 ---
+  // --- 팀 데이터 확보 (시드 팀으로 대체, 멤버 정보 포함) ---
   const teamsRaw = localStorage.getItem("dacon_teams");
-  const teams = teamsRaw ? JSON.parse(teamsRaw) : [];
-  if (!teams.some((t: { teamCode: string }) => t.teamCode === "T-KUMA-TEAM")) {
-    teams.push({
-      teamCode: "T-KUMA-TEAM",
-      hackathonSlug: "daker-handover-2026-03",
-      name: "Team Admin",
-      isOpen: true,
-      memberCount: 1,
-      lookingFor: ["Frontend", "Designer", "Backend"],
-      intro: "긴급 인수인계 해커톤에서 명세서 기반 웹서비스를 구현하는 팀입니다. 바이브 코딩으로 빠르게 프로토타입을 만들고 있습니다!",
-      contact: { type: "link", url: "https://open.kakao.com/o/gKumaTeam" },
-      createdAt: "2026-03-05T11:00:00+09:00",
-      creatorId: "mvp-user-kuma",
-      members: [
-        { userId: "mvp-user-kuma", name: "Admin", role: "팀장", joinedAt: "2026-03-05T11:00:00+09:00" },
-      ],
-    });
-    localStorage.setItem("dacon_teams", JSON.stringify(teams));
-  }
+  const teams: Array<{ teamCode: string; [key: string]: unknown }> = teamsRaw ? JSON.parse(teamsRaw) : [];
+  SEED_TEAMS.forEach((st) => {
+    const idx = teams.findIndex((t) => t.teamCode === st.teamCode);
+    if (idx < 0) {
+      teams.push(st);
+    } else {
+      // 기존 팀에 멤버 정보가 없으면 추가
+      if (!teams[idx].members) {
+        teams[idx].members = st.members;
+        teams[idx].creatorId = st.creatorId;
+      }
+    }
+  });
+  localStorage.setItem("dacon_teams", JSON.stringify(teams));
 }
 
 function createDefaultProfile(user: { id: string; name: string; email: string; role?: string }): UserProfile {

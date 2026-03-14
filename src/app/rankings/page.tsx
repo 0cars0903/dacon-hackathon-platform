@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getAllLeaderboards, getHackathons } from "@/lib/data";
+import { getAllLeaderboards, getHackathons, getAllHackathonsUnfiltered } from "@/lib/data";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ScoreChart } from "@/components/features/ScoreChart";
@@ -11,9 +11,17 @@ type SortKey = "rank" | "score";
 
 export default function RankingsPage() {
   const hackathons = getHackathons();
+  const allHackathons = getAllHackathonsUnfiltered();
   const allLeaderboards = getAllLeaderboards();
+
+  // 현재 표시되는 해커톤 + 리더보드 엔트리가 있는 것만 필터
+  const visibleSlugs = new Set(hackathons.map((h) => h.slug));
+  const visibleLeaderboards = allLeaderboards.filter(
+    (lb) => visibleSlugs.has(lb.hackathonSlug) || lb.entries.length > 0
+  );
+
   const [selectedSlug, setSelectedSlug] = useState(
-    allLeaderboards[0]?.hackathonSlug || ""
+    visibleLeaderboards[0]?.hackathonSlug || ""
   );
   const [sortKey, setSortKey] = useState<SortKey>("rank");
   const [sortAsc, setSortAsc] = useState(true);
@@ -52,8 +60,8 @@ export default function RankingsPage() {
 
       {/* 해커톤 선택 */}
       <div className="mb-6 flex flex-wrap gap-2">
-        {allLeaderboards.map((lb) => {
-          const h = hackathons.find((h) => h.slug === lb.hackathonSlug);
+        {visibleLeaderboards.map((lb) => {
+          const h = allHackathons.find((h) => h.slug === lb.hackathonSlug);
           return (
             <button
               key={lb.hackathonSlug}
