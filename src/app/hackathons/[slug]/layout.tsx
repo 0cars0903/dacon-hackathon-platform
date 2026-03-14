@@ -26,7 +26,7 @@ export default function HackathonLayout({
 }) {
   const params = useParams();
   const pathname = usePathname();
-  const slug = (params.slug as string | string[])[0] || (params.slug as string);
+  const slug = Array.isArray(params.slug) ? params.slug[0] : (params.slug as string);
   const [hackathon, setHackathon] = useState<any>(null);
 
   useEffect(() => {
