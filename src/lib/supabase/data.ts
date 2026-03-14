@@ -73,19 +73,19 @@ export async function getAllHackathonDetails(): Promise<HackathonDetail[]> {
 }
 
 export async function getPlatformStats() {
-  const { count: ongoing } = await supabase()
-    .from("hackathons").select("*", { count: "exact", head: true }).eq("status", "ongoing");
-  const { count: upcoming } = await supabase()
-    .from("hackathons").select("*", { count: "exact", head: true }).eq("status", "upcoming");
-  const { count: users } = await supabase()
-    .from("profiles").select("*", { count: "exact", head: true });
-  const { count: teams } = await supabase()
-    .from("teams").select("*", { count: "exact", head: true });
+  const { data: ongoingData } = await supabase()
+    .from("hackathons").select("id").eq("status", "ongoing");
+  const { data: upcomingData } = await supabase()
+    .from("hackathons").select("id").eq("status", "upcoming");
+  const { data: usersData } = await supabase()
+    .from("profiles").select("id");
+  const { data: teamsData } = await supabase()
+    .from("teams").select("code");
   return {
-    ongoingHackathons: ongoing ?? 0,
-    upcomingHackathons: upcoming ?? 0,
-    totalUsers: users ?? 0,
-    totalTeams: teams ?? 0,
+    ongoingHackathons: ongoingData?.length ?? 0,
+    upcomingHackathons: upcomingData?.length ?? 0,
+    totalUsers: usersData?.length ?? 0,
+    totalTeams: teamsData?.length ?? 0,
   };
 }
 
@@ -462,12 +462,12 @@ export async function markMessagesRead(userId: string, partnerId: string): Promi
 }
 
 export async function getUnreadMessageCount(userId: string): Promise<number> {
-  const { count } = await supabase()
+  const { data } = await supabase()
     .from("direct_messages")
-    .select("*", { count: "exact", head: true })
+    .select("id")
     .eq("receiver_id", userId)
     .eq("read", false);
-  return count ?? 0;
+  return data?.length ?? 0;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -529,11 +529,11 @@ export async function getFollowing(userId: string): Promise<FollowRelation[]> {
 }
 
 export async function getFollowCounts(userId: string): Promise<{ followers: number; following: number }> {
-  const { count: followers } = await supabase()
-    .from("follows").select("*", { count: "exact", head: true }).eq("following_id", userId);
-  const { count: following } = await supabase()
-    .from("follows").select("*", { count: "exact", head: true }).eq("follower_id", userId);
-  return { followers: followers ?? 0, following: following ?? 0 };
+  const { data: followersData } = await supabase()
+    .from("follows").select("id").eq("following_id", userId);
+  const { data: followingData } = await supabase()
+    .from("follows").select("id").eq("follower_id", userId);
+  return { followers: followersData?.length ?? 0, following: followingData?.length ?? 0 };
 }
 
 // ============================================================
