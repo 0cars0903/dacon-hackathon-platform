@@ -34,7 +34,7 @@ const defaultForm: HackathonForm = {
 };
 
 export default function AdminPage() {
-  const { user, isAdmin, getAllUsers, getAllProfiles, deleteUser, updateUserRole } = useAuth();
+  const { user, isAdmin, getAllUsers, getAllProfiles, deleteUser, updateUserRole, adminUpdateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<"hackathons" | "users" | "stats">("hackathons");
   const [form, setForm] = useState<HackathonForm>(defaultForm);
   const [createdHackathons, setCreatedHackathons] = useState<HackathonForm[]>([]);
@@ -43,6 +43,8 @@ export default function AdminPage() {
   const [toast, setToast] = useState("");
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [editProfileModal, setEditProfileModal] = useState<string | null>(null);
+  const [editProfileForm, setEditProfileForm] = useState({ name: "", nickname: "", bio: "", skills: "" });
 
   useEffect(() => {
     if (isAdmin) {
@@ -132,6 +134,35 @@ export default function AdminPage() {
       showToast("권한이 변경되었습니다.");
     }
     setEditingUser(null);
+  };
+
+  const openEditProfile = (userId: string) => {
+    const profile = profiles.find((p) => p.id === userId);
+    if (profile) {
+      setEditProfileForm({
+        name: profile.name,
+        nickname: profile.nickname || profile.name,
+        bio: profile.bio || "",
+        skills: profile.skills.join(", "),
+      });
+      setEditProfileModal(userId);
+    }
+  };
+
+  const handleSaveProfile = () => {
+    if (!editProfileModal) return;
+    const success = adminUpdateProfile(editProfileModal, {
+      name: editProfileForm.name,
+      nickname: editProfileForm.nickname,
+      bio: editProfileForm.bio,
+      skills: editProfileForm.skills.split(",").map((s) => s.trim()).filter(Boolean),
+    });
+    if (success) {
+      setUsers(getAllUsers());
+      setProfiles(getAllProfiles());
+      showToast("프로필이 수정되었습니다.");
+    }
+    setEditProfileModal(null);
   };
 
   const tabs = [
@@ -322,6 +353,7 @@ export default function AdminPage() {
                       <td className="px-4 py-3">
                         {u.id !== user?.id ? (
                           <div className="flex items-center gap-2">
+                            <button onClick={() => openEditProfile(u.id)} className="text-xs text-green-600 hover:underline dark:text-green-400">수정</button>
                             <button onClick={() => setEditingUser(u.id)} className="text-xs text-blue-600 hover:underline dark:text-blue-400">권한</button>
                             {confirmDelete === u.id ? (
                               <div className="flex items-center gap-1">
@@ -389,6 +421,37 @@ export default function AdminPage() {
                 ))}
             </div>
           </section>
+        </div>
+      )}
+
+      {/* 프로필 수정 모달 */}
+      {editProfileModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-900">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">사용자 프로필 수정</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-500">이름</label>
+                <input type="text" value={editProfileForm.name} onChange={(e) => setEditProfileForm({ ...editProfileForm, name: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-500">닉네임</label>
+                <input type="text" value={editProfileForm.nickname} onChange={(e) => setEditProfileForm({ ...editProfileForm, nickname: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-500">자기소개</label>
+                <textarea value={editProfileForm.bio} onChange={(e) => setEditProfileForm({ ...editProfileForm, bio: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" rows={2} />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-500">기술 스택 (쉼표 구분)</label>
+                <input type="text" value={editProfileForm.skills} onChange={(e) => setEditProfileForm({ ...editProfileForm, skills: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button variant="secondary" size="sm" onClick={() => setEditProfileModal(null)}>취소</Button>
+              <Button size="sm" onClick={handleSaveProfile}>저장</Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

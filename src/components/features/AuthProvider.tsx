@@ -40,6 +40,7 @@ interface AuthContextType {
   isAdmin: boolean;
   deleteUser: (userId: string) => boolean;
   updateUserRole: (userId: string, role: "user" | "admin") => boolean;
+  adminUpdateProfile: (userId: string, updates: Partial<UserProfile>) => boolean;
   getAllUsers: () => Array<{ id: string; name: string; email: string; role: string }>;
 }
 
@@ -52,20 +53,28 @@ const PROFILES_KEY = "dacon_profiles";
 // MVP 검증용 기본 계정
 const MVP_ACCOUNT = {
   id: "mvp-user-kuma",
-  name: "Kuma",
+  name: "Admin",
   email: "kuma@dacon.io",
   password: "kuma1234",
   role: "admin" as const,
 };
 
+const DEMO_ACCOUNT = {
+  id: "demo-user",
+  name: "User_1",
+  email: "demo@dacon.io",
+  password: "demo1234",
+  role: "user" as const,
+};
+
 const MVP_PROFILE: UserProfile = {
   id: "mvp-user-kuma",
-  name: "Kuma",
-  nickname: "Kuma",
+  name: "Admin",
+  nickname: "Admin",
   nicknameChangedAt: "2026-03-01T10:00:00+09:00",
   email: "kuma@dacon.io",
   role: "admin",
-  bio: "데이터 사이언스와 웹 개발에 관심이 많은 개발자입니다. 해커톤을 통해 실력을 키우고 있습니다.",
+  bio: "DACON Platform 관리자 계정입니다. 해커톤 운영 및 플랫폼 관리를 담당합니다.",
   skills: ["TypeScript", "React", "Next.js", "Python", "Data Analysis"],
   joinedAt: "2026-03-01T10:00:00+09:00",
   stats: {
@@ -83,37 +92,82 @@ const MVP_PROFILE: UserProfile = {
   teamMemberships: ["T-KUMA-TEAM"],
 };
 
+const DEMO_PROFILE: UserProfile = {
+  id: "demo-user",
+  name: "User_1",
+  nickname: "User_1",
+  email: "demo@dacon.io",
+  role: "user",
+  bio: "",
+  skills: [],
+  joinedAt: "2026-03-10T10:00:00+09:00",
+  stats: { hackathonsJoined: 0, teamsCreated: 0, submissions: 0, totalScore: 0 },
+  badges: [
+    { id: "b-welcome-demo", name: "환영합니다", emoji: "👋", description: "DACON Platform에 가입했습니다", earnedAt: "2026-03-10T10:00:00+09:00" },
+  ],
+  joinedHackathons: [],
+  teamMemberships: [],
+};
+
 function ensureMVPData() {
-  // MVP 계정 확보
+  // --- 유저 계정 확보 (기존 데이터가 있으면 이름/역할도 갱신) ---
   const usersRaw = localStorage.getItem(USERS_KEY);
   const users: Array<{ id: string; name: string; email: string; password: string; role?: string }> =
     usersRaw ? JSON.parse(usersRaw) : [];
-  if (!users.some((u) => u.email === MVP_ACCOUNT.email)) {
+
+  // MVP 계정
+  const mvpIdx = users.findIndex((u) => u.email === MVP_ACCOUNT.email);
+  if (mvpIdx < 0) {
     users.push(MVP_ACCOUNT);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  }
-  // Demo 계정도 확보
-  if (!users.some((u) => u.email === "demo@dacon.io")) {
-    users.push({ id: "demo-user", name: "Demo User", email: "demo@dacon.io", password: "demo1234", role: "user" });
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  } else {
+    // 기존 계정 이름/역할 동기화
+    users[mvpIdx].name = MVP_ACCOUNT.name;
+    users[mvpIdx].role = MVP_ACCOUNT.role;
   }
 
-  // MVP 프로필 확보
+  // Demo 계정
+  const demoIdx = users.findIndex((u) => u.email === DEMO_ACCOUNT.email);
+  if (demoIdx < 0) {
+    users.push(DEMO_ACCOUNT);
+  } else {
+    users[demoIdx].name = DEMO_ACCOUNT.name;
+    users[demoIdx].role = DEMO_ACCOUNT.role;
+  }
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+  // --- 프로필 확보 (기존 데이터가 있으면 이름/닉네임/역할 동기화) ---
   const profilesRaw = localStorage.getItem(PROFILES_KEY);
   const profiles: UserProfile[] = profilesRaw ? JSON.parse(profilesRaw) : [];
-  if (!profiles.some((p) => p.id === MVP_PROFILE.id)) {
+
+  // MVP 프로필
+  const mvpPIdx = profiles.findIndex((p) => p.id === MVP_PROFILE.id);
+  if (mvpPIdx < 0) {
     profiles.push(MVP_PROFILE);
-    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+  } else {
+    profiles[mvpPIdx].name = MVP_PROFILE.name;
+    profiles[mvpPIdx].role = MVP_PROFILE.role;
+    if (!profiles[mvpPIdx].nickname) profiles[mvpPIdx].nickname = MVP_PROFILE.nickname;
   }
 
-  // MVP 사용자의 팀 데이터 확보
+  // Demo 프로필 (핵심 버그 수정: 이전에는 생성하지 않았음)
+  const demoPIdx = profiles.findIndex((p) => p.id === DEMO_PROFILE.id);
+  if (demoPIdx < 0) {
+    profiles.push(DEMO_PROFILE);
+  } else {
+    profiles[demoPIdx].name = DEMO_PROFILE.name;
+    profiles[demoPIdx].role = DEMO_PROFILE.role;
+    if (!profiles[demoPIdx].nickname) profiles[demoPIdx].nickname = DEMO_PROFILE.nickname;
+  }
+  localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+
+  // --- 팀 데이터 확보 ---
   const teamsRaw = localStorage.getItem("dacon_teams");
   const teams = teamsRaw ? JSON.parse(teamsRaw) : [];
   if (!teams.some((t: { teamCode: string }) => t.teamCode === "T-KUMA-TEAM")) {
     teams.push({
       teamCode: "T-KUMA-TEAM",
       hackathonSlug: "daker-handover-2026-03",
-      name: "Team Kuma",
+      name: "Team Admin",
       isOpen: true,
       memberCount: 1,
       lookingFor: ["Frontend", "Designer", "Backend"],
@@ -122,7 +176,7 @@ function ensureMVPData() {
       createdAt: "2026-03-05T11:00:00+09:00",
       creatorId: "mvp-user-kuma",
       members: [
-        { userId: "mvp-user-kuma", name: "Kuma", role: "팀장", joinedAt: "2026-03-05T11:00:00+09:00" },
+        { userId: "mvp-user-kuma", name: "Admin", role: "팀장", joinedAt: "2026-03-05T11:00:00+09:00" },
       ],
     });
     localStorage.setItem("dacon_teams", JSON.stringify(teams));
@@ -176,6 +230,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userData: User = { id: found.id, name: found.name, email: found.email, role };
       setUser(userData);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+
+      // 안전장치: 프로필이 없으면 자동 생성
+      const profilesRaw = localStorage.getItem(PROFILES_KEY);
+      const profiles: UserProfile[] = profilesRaw ? JSON.parse(profilesRaw) : [];
+      if (!profiles.some((p) => p.id === found.id)) {
+        profiles.push(createDefaultProfile({ id: found.id, name: found.name, email: found.email, role: found.role }));
+        localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+      }
+
       return true;
     }
     return false;
@@ -351,6 +414,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true;
   }, [user]);
 
+  const adminUpdateProfile = useCallback((userId: string, updates: Partial<UserProfile>): boolean => {
+    if (!user || user.role !== "admin") return false;
+
+    const profilesRaw = localStorage.getItem(PROFILES_KEY);
+    const profiles: UserProfile[] = profilesRaw ? JSON.parse(profilesRaw) : [];
+    const idx = profiles.findIndex((p) => p.id === userId);
+    if (idx < 0) return false;
+
+    profiles[idx] = { ...profiles[idx], ...updates };
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+
+    // users 테이블의 name도 동기화
+    if (updates.name) {
+      const usersRaw = localStorage.getItem(USERS_KEY);
+      const allUsers: Array<{ id: string; name: string; email: string; password: string; role?: string }> = usersRaw ? JSON.parse(usersRaw) : [];
+      const uIdx = allUsers.findIndex((u) => u.id === userId);
+      if (uIdx >= 0) {
+        allUsers[uIdx].name = updates.name;
+        localStorage.setItem(USERS_KEY, JSON.stringify(allUsers));
+      }
+    }
+
+    return true;
+  }, [user]);
+
   const joinHackathon = useCallback((hackathonSlug: string) => {
     if (!user) return;
     const profilesRaw = localStorage.getItem(PROFILES_KEY);
@@ -371,7 +459,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, getProfile, getAllProfiles, updateProfile, changeNickname, addBadge, joinHackathon, isAdmin, deleteUser, updateUserRole, getAllUsers }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, getProfile, getAllProfiles, updateProfile, changeNickname, addBadge, joinHackathon, isAdmin, deleteUser, updateUserRole, adminUpdateProfile, getAllUsers }}>
       {children}
     </AuthContext.Provider>
   );

@@ -155,7 +155,7 @@ export default function LoginPage() {
         <div className="mt-6 space-y-3">
           <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
             <p className="mb-2 text-xs font-semibold text-blue-700 dark:text-blue-300">
-              MVP 검증용 계정
+              Admin 관리자 계정
             </p>
             <button
               onClick={async () => {
@@ -169,11 +169,11 @@ export default function LoginPage() {
             >
               kuma@dacon.io / kuma1234 로 바로 로그인
             </button>
-            <p className="mt-1 text-[10px] text-blue-500 dark:text-blue-400">팀 생성 및 프로필이 구성된 계정입니다</p>
+            <p className="mt-1 text-[10px] text-blue-500 dark:text-blue-400">관리자 권한 + 팀 생성 및 프로필이 구성된 계정입니다</p>
           </div>
           <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50">
             <p className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400">
-              데모 계정으로 체험하기
+              User_1 일반 사용자 계정
             </p>
             <button
               onClick={async () => {
@@ -184,6 +184,7 @@ export default function LoginPage() {
             >
               demo@dacon.io / demo1234 로 바로 로그인
             </button>
+            <p className="mt-1 text-[10px] text-gray-400">일반 사용자 기능 체험용 계정입니다</p>
           </div>
         </div>
       </div>
