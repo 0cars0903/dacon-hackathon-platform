@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/features/AuthProvider";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ActivitySidebar } from "@/components/features/ActivitySidebar";
+import { NavigationSidebar } from "@/components/features/NavigationSidebar";
 import { ServiceWorkerRegistrar } from "@/components/features/ServiceWorkerRegistrar";
 
 export const metadata: Metadata = {
@@ -44,9 +45,9 @@ export default function RootLayout({
         {/* Preconnect to font origin for faster loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Google Fonts: only essential weights, display=swap for FOUT prevention */}
+        {/* Google Fonts: Syne (display) + Noto Sans KR (body) + Space Mono (code) */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Syne:wght@700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Space+Mono:wght@400;700&family=Syne:wght@600;700;800&display=swap"
           rel="stylesheet"
         />
         {/* Preload critical Noto Sans KR for LCP */}
@@ -67,6 +68,7 @@ export default function RootLayout({
             <div className="flex min-h-screen flex-col">
               <Header />
               <div className="flex flex-1">
+                <NavigationSidebar />
                 <main className="flex-1 min-w-0">{children}</main>
                 <ActivitySidebar />
               </div>

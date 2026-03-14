@@ -47,113 +47,58 @@ export default function HomePage() {
       {/* AI 추천 해커톤 */}
       <RecommendedHackathons />
 
-      {/* 해커톤 카드 + 퀵 네비 (content-auto for off-screen rendering) */}
-      <div className="grid gap-8 lg:grid-cols-3">
-        <section className="lg:col-span-2">
-          <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-            해커톤
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {hackathons.length === 0 ? (
-              <p className="col-span-2 py-12 text-center text-gray-500 dark:text-gray-400">
-                등록된 해커톤이 없습니다
-              </p>
-            ) : (
-              hackathons.map((h, i) => (
-                <Link
-                  key={h.slug}
-                  href={`/hackathons/${h.slug}`}
-                  className="animate-fade-in-up group rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700"
-                  style={{ animationDelay: `${i * 100}ms` }}
-                >
-                  <div className="mb-3 flex items-center justify-between">
-                    <Badge
-                      variant={
-                        h.status === "ongoing"
-                          ? "success"
-                          : h.status === "upcoming"
-                            ? "info"
-                            : "muted"
-                      }
+      {/* 해커톤 카드 */}
+      <section>
+        <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
+          해커톤
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {hackathons.length === 0 ? (
+            <p className="col-span-3 py-12 text-center text-gray-500 dark:text-gray-400">
+              등록된 해커톤이 없습니다
+            </p>
+          ) : (
+            hackathons.map((h, i) => (
+              <Link
+                key={h.slug}
+                href={`/hackathons/${h.slug}`}
+                className="animate-fade-in-up group rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <Badge
+                    variant={
+                      h.status === "ongoing"
+                        ? "success"
+                        : h.status === "upcoming"
+                          ? "info"
+                          : "muted"
+                    }
+                  >
+                    {getStatusLabel(h.status)}
+                  </Badge>
+                  <span className="text-xs text-gray-400">
+                    {getDday(h.period.submissionDeadlineAt)}
+                  </span>
+                </div>
+                <h3 className="mb-2 text-sm font-semibold text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
+                  {h.title}
+                </h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {h.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400"
                     >
-                      {getStatusLabel(h.status)}
-                    </Badge>
-                    <span className="text-xs text-gray-400">
-                      {getDday(h.period.submissionDeadlineAt)}
+                      {tag}
                     </span>
-                  </div>
-                  <h3 className="mb-2 text-sm font-semibold text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                    {h.title}
-                  </h3>
-                  <div className="flex flex-wrap gap-1.5">
-                    {h.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </Link>
-              ))
-            )}
-          </div>
-        </section>
-
-        <aside className="space-y-3">
-          <h2 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
-            바로가기
-          </h2>
-          <QuickCard
-            href="/hackathons"
-            title="해커톤"
-            description="진행중인 해커톤을 확인하고 참가하세요"
-            emoji="🏆"
-          />
-          <QuickCard
-            href="/camp"
-            title="팀 모집"
-            description="함께할 팀원을 찾거나 팀을 만드세요"
-            emoji="👥"
-          />
-          <QuickCard
-            href="/rankings"
-            title="랭킹"
-            description="해커톤 순위와 점수를 확인하세요"
-            emoji="📊"
-          />
-        </aside>
-      </div>
+                  ))}
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
+      </section>
     </div>
-  );
-}
-
-function QuickCard({
-  href,
-  title,
-  description,
-  emoji,
-}: {
-  href: string;
-  title: string;
-  description: string;
-  emoji: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-blue-300 hover:shadow-sm hover:-translate-y-0.5 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700"
-    >
-      <span className="text-2xl">{emoji}</span>
-      <div>
-        <h3 className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-          {title}
-        </h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          {description}
-        </p>
-      </div>
-    </Link>
   );
 }

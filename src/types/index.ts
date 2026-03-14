@@ -87,12 +87,35 @@ export interface LeaderboardEntry {
   teamName: string;
   score: number;
   submittedAt: string;
+  metrics?: Record<string, number>;
   scoreBreakdown?: { participant: number; judge: number };
   artifacts?: { webUrl: string; pdfUrl: string; planTitle: string };
 }
 
+export interface MetricColumn {
+  key: string;
+  label: string;
+  unit: string;
+}
+
+export interface LeaderboardRound {
+  roundId: string;
+  name: string;
+  weight: number;
+  description: string;
+  scoreFormula?: string;
+  scoreColumns?: MetricColumn[];
+  status: "pending" | "active" | "completed";
+  entries: LeaderboardEntry[];
+}
+
 export interface Leaderboard {
   hackathonSlug: string;
+  evalType: "metric" | "judge" | "multi-round" | "vote";
+  metricName: string;
+  metricFormula?: string;
+  metricColumns?: MetricColumn[];
+  rounds?: LeaderboardRound[];
   updatedAt: string;
   entries: LeaderboardEntry[];
 }
