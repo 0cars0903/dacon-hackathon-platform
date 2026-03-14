@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    // setup.ts removed — was for localStorage mock, no longer needed with Supabase
   },
   resolve: {
     alias: {
