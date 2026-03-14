@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { getLeaderboard, getHackathonBySlug, getHackathonDetail } from "@/lib/data";
+import { getDynamicLeaderboard } from "@/lib/scoring";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
 import { formatDateTime, timeAgo } from "@/lib/utils";
@@ -12,8 +13,37 @@ export default function HackathonLeaderboardPage() {
   const params = useParams();
   const slug = params.slug as string;
   const hackathon = getHackathonBySlug(slug);
-  const leaderboard = getLeaderboard(slug);
+  const staticLeaderboard = getLeaderboard(slug);
+  const dynamicLb = getDynamicLeaderboard(slug);
   const detail = getHackathonDetail(slug);
+
+  // 동적 리더보드가 있으면 정적 데이터와 병합
+  const leaderboard = (() => {
+    if (!staticLeaderboard && !dynamicLb) return null;
+    if (!dynamicLb) return staticLeaderboard;
+    if (!staticLeaderboard) return dynamicLb;
+
+    // 병합: 동적 엔트리의 teamName이 정적에도 있으면 높은 점수 우선
+    const mergedMap = new Map<string, LeaderboardEntry>();
+    staticLeaderboard.entries.forEach((e: LeaderboardEntry) => mergedMap.set(e.teamName, e));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (dynamicLb.entries || []).forEach((e: any) => {
+      const existing = mergedMap.get(e.teamName);
+      if (!existing || e.score > existing.score) {
+        mergedMap.set(e.teamName, { ...e, rank: 0 });
+      }
+    });
+
+    const sorted = [...mergedMap.values()]
+      .sort((a, b) => b.score - a.score)
+      .map((e, i) => ({ ...e, rank: i + 1 }));
+
+    return {
+      ...staticLeaderboard,
+      entries: sorted,
+      updatedAt: dynamicLb.updatedAt || staticLeaderboard.updatedAt,
+    };
+  })();
   const [activeRound, setActiveRound] = useState<string | null>(null);
 
   // 예정 중인 해커톤은 리더보드 비공개
