@@ -64,12 +64,18 @@ export function ContactModal({
         });
         console.log("[ContactModal] Notification added for:", creatorId);
 
-        // 3) 최근 활동에 기록
+        // 3) 최근 활동에 기록 (메시지 미리보기 포함)
         await logActivity({
-          type: "team_created",
+          type: "contact_message",
           message: `${user.name}님이 ${teamName} 팀에 참여 메시지를 보냈습니다.`,
           timestamp: new Date().toISOString(),
           hackathonSlug: undefined,
+          metadata: {
+            messageContent: message.trim(),
+            senderName: user.name,
+            teamName,
+            teamCode: teamCode || undefined,
+          },
         });
         console.log("[ContactModal] Activity logged");
       } else {

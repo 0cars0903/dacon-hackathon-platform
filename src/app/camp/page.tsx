@@ -80,39 +80,46 @@ function CampContent() {
     return allTeams.filter((t) => t.hackathonSlug === selectedHackathon);
   }, [allTeams, selectedHackathon]);
 
-  const handleTeamCreated = () => {
-    setShowCreateModal(false);
-    const stored = localStorage.getItem("dacon_teams");
-    if (stored) setLocalTeams(JSON.parse(stored));
+  // Supabase에서 팀 데이터 다시 불러오기
+  const refreshTeams = async () => {
+    try {
+      const teams = await getTeams();
+      setStaticTeams(teams);
+    } catch (err) {
+      console.error("[CampPage] Failed to refresh teams:", err);
+    }
   };
 
-  const handleJoinTeam = (team: Team) => {
+  const handleTeamCreated = () => {
+    setShowCreateModal(false);
+    refreshTeams();
+  };
+
+  const handleJoinTeam = async (team: Team) => {
     if (!user) return;
-    const stored = localStorage.getItem("dacon_teams");
-    const teams = stored ? JSON.parse(stored) : [];
-    const idx = teams.findIndex((t: Team) => t.teamCode === team.teamCode);
-    if (idx >= 0) {
-      const t = teams[idx];
-      if (!t.members) t.members = [];
-      if (!t.members.some((m: { userId: string }) => m.userId === user.id)) {
-        t.members.push({ userId: user.id, name: user.name, role: "팀원", joinedAt: new Date().toISOString() });
-        t.memberCount = (t.memberCount || 1) + 1;
-        teams[idx] = t;
-        localStorage.setItem("dacon_teams", JSON.stringify(teams));
-        setLocalTeams([...teams]);
+    try {
+      const db = createDataClient();
+      // 중복 체크
+      const { data: existing } = await db
+        .from("team_members")
+        .select("id")
+        .eq("team_code", team.teamCode)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!existing) {
+        await db.from("team_members").insert({
+          team_code: team.teamCode,
+          user_id: user.id,
+          name: user.name,
+          role: "팀원",
+        });
       }
+      await refreshTeams();
+      setJoinSuccess(team.name);
+      setTimeout(() => setJoinSuccess(null), 2000);
+    } catch (err) {
+      console.error("[CampPage] Failed to join team:", err);
     }
-    const profilesRaw = localStorage.getItem("dacon_profiles");
-    const profiles = profilesRaw ? JSON.parse(profilesRaw) : [];
-    const pIdx = profiles.findIndex((p: { id: string }) => p.id === user.id);
-    if (pIdx >= 0) {
-      if (!profiles[pIdx].teamMemberships.includes(team.teamCode)) {
-        profiles[pIdx].teamMemberships.push(team.teamCode);
-      }
-      localStorage.setItem("dacon_profiles", JSON.stringify(profiles));
-    }
-    setJoinSuccess(team.name);
-    setTimeout(() => setJoinSuccess(null), 2000);
   };
 
   const isTeamMember = (team: Team): boolean => {
@@ -160,62 +167,42 @@ function CampContent() {
     return pendingRequests.some((r) => r.teamCode === team.teamCode && r.userId === user.id);
   };
 
-  const handleDeleteTeam = (team: Team) => {
+  const handleDeleteTeam = async (team: Team) => {
     if (!isTeamCreator(team)) return;
     if (!window.confirm(`"${team.name}" 팀을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
 
-    const stored = localStorage.getItem("dacon_teams");
-    const teams = stored ? JSON.parse(stored) : [];
-    const filtered = teams.filter((t: Team) => t.teamCode !== team.teamCode);
-    localStorage.setItem("dacon_teams", JSON.stringify(filtered));
-    setLocalTeams([...filtered]);
-
-    // 모든 멤버의 프로필에서 팀 제거
-    const profilesRaw = localStorage.getItem("dacon_profiles");
-    const profiles = profilesRaw ? JSON.parse(profilesRaw) : [];
-    profiles.forEach((p: any) => {
-      p.teamMemberships = p.teamMemberships.filter((tc: string) => tc !== team.teamCode);
-    });
-    localStorage.setItem("dacon_profiles", JSON.stringify(profiles));
-
-    setJoinSuccess(`"${team.name}" 팀이 삭제되었습니다.`);
-    setTimeout(() => setJoinSuccess(null), 2000);
+    try {
+      const db = createDataClient();
+      // 멤버 먼저 삭제 (FK 제약)
+      await db.from("team_members").delete().eq("team_code", team.teamCode);
+      await db.from("team_join_requests").delete().eq("team_code", team.teamCode);
+      await db.from("teams").delete().eq("team_code", team.teamCode);
+      await refreshTeams();
+      setJoinSuccess(`"${team.name}" 팀이 삭제되었습니다.`);
+      setTimeout(() => setJoinSuccess(null), 2000);
+    } catch (err) {
+      console.error("[CampPage] Failed to delete team:", err);
+    }
   };
 
-  const handleLeaveTeam = (team: Team) => {
+  const handleLeaveTeam = async (team: Team) => {
     if (!user || isTeamCreator(team)) return;
     if (!window.confirm(`"${team.name}" 팀에서 탈퇴하시겠습니까?`)) return;
 
-    const stored = localStorage.getItem("dacon_teams");
-    const teams = stored ? JSON.parse(stored) : [];
-    const idx = teams.findIndex((t: Team) => t.teamCode === team.teamCode);
-    if (idx >= 0) {
-      const t = teams[idx];
-      if (t.members) {
-        t.members = t.members.filter((m: { userId: string }) => m.userId !== user.id);
-        t.memberCount = Math.max(0, (t.memberCount || 1) - 1);
-        teams[idx] = t;
-        localStorage.setItem("dacon_teams", JSON.stringify(teams));
-        setLocalTeams([...teams]);
-      }
+    try {
+      const db = createDataClient();
+      await db.from("team_members").delete().eq("team_code", team.teamCode).eq("user_id", user.id);
+      await refreshTeams();
+      setJoinSuccess(`"${team.name}" 팀에서 탈퇴했습니다.`);
+      setTimeout(() => setJoinSuccess(null), 2000);
+    } catch (err) {
+      console.error("[CampPage] Failed to leave team:", err);
     }
-
-    const profilesRaw = localStorage.getItem("dacon_profiles");
-    const profiles = profilesRaw ? JSON.parse(profilesRaw) : [];
-    const pIdx = profiles.findIndex((p: { id: string }) => p.id === user.id);
-    if (pIdx >= 0) {
-      profiles[pIdx].teamMemberships = profiles[pIdx].teamMemberships.filter((tc: string) => tc !== team.teamCode);
-      localStorage.setItem("dacon_profiles", JSON.stringify(profiles));
-    }
-
-    setJoinSuccess(`"${team.name}" 팀에서 탈퇴했습니다.`);
-    setTimeout(() => setJoinSuccess(null), 2000);
   };
 
   const handleTeamEdited = () => {
     setEditingTeam(null);
-    const stored = localStorage.getItem("dacon_teams");
-    if (stored) setLocalTeams(JSON.parse(stored));
+    refreshTeams();
   };
 
   return (
@@ -347,11 +334,11 @@ function CampContent() {
       </Modal>
 
       <Modal isOpen={!!showRequestsModal} onClose={() => setShowRequestsModal(null)} title="참가 요청 관리">
-        {showRequestsModal && <RequestsManagementModal team={showRequestsModal} onClose={() => setShowRequestsModal(null)} />}
+        {showRequestsModal && <RequestsManagementModal team={showRequestsModal} onClose={() => setShowRequestsModal(null)} onTeamsRefresh={refreshTeams} />}
       </Modal>
 
       <Modal isOpen={!!showMembersModal} onClose={() => setShowMembersModal(null)} title="팀원 목록">
-        {showMembersModal && <MembersListModal team={showMembersModal} isCreator={isTeamCreator(showMembersModal)} onMemberRemoved={() => { const stored = localStorage.getItem("dacon_teams"); if (stored) setLocalTeams(JSON.parse(stored)); }} />}
+        {showMembersModal && <MembersListModal team={showMembersModal} isCreator={isTeamCreator(showMembersModal)} onMemberRemoved={refreshTeams} />}
       </Modal>
 
       {contactTeam && (
@@ -610,60 +597,67 @@ function JoinRequestForm({ team, onDone }: { team: Team; onDone: () => void }) {
   );
 }
 
-function RequestsManagementModal({ team, onClose }: { team: Team; onClose: () => void }) {
+function RequestsManagementModal({ team, onClose, onTeamsRefresh }: { team: Team; onClose: () => void; onTeamsRefresh: () => Promise<void> }) {
   const [requests, setRequests] = useState<TeamJoinRequest[]>([]);
 
-  useEffect(() => {
-    const requestsRaw = localStorage.getItem("dacon_join_requests");
-    const allRequests = requestsRaw ? JSON.parse(requestsRaw) : [];
-    setRequests(allRequests.filter((r: TeamJoinRequest) => r.teamCode === team.teamCode));
-  }, [team.teamCode]);
-
-  const handleAccept = (request: TeamJoinRequest) => {
-    const requestsRaw = localStorage.getItem("dacon_join_requests");
-    const allRequests = requestsRaw ? JSON.parse(requestsRaw) : [];
-    const idx = allRequests.findIndex((r: TeamJoinRequest) => r.id === request.id);
-    if (idx >= 0) {
-      allRequests[idx].status = "accepted";
-      localStorage.setItem("dacon_join_requests", JSON.stringify(allRequests));
-    }
-
-    // 팀에 멤버 추가
-    const teamsRaw = localStorage.getItem("dacon_teams");
-    const teams = teamsRaw ? JSON.parse(teamsRaw) : [];
-    const teamIdx = teams.findIndex((t: Team) => t.teamCode === team.teamCode);
-    if (teamIdx >= 0) {
-      if (!teams[teamIdx].members) teams[teamIdx].members = [];
-      if (!teams[teamIdx].members.some((m: { userId: string }) => m.userId === request.userId)) {
-        teams[teamIdx].members.push({ userId: request.userId, name: request.userName, role: "팀원", joinedAt: new Date().toISOString() });
-        teams[teamIdx].memberCount = (teams[teamIdx].memberCount || 1) + 1;
+  const loadRequests = async () => {
+    try {
+      const db = createDataClient();
+      const { data } = await db
+        .from("team_join_requests")
+        .select("*")
+        .eq("team_code", team.teamCode);
+      if (data) {
+        setRequests(data.map((r: any) => ({
+          id: r.id, teamCode: r.team_code, userId: r.user_id,
+          userName: r.user_name, message: r.message ?? "",
+          status: r.status, createdAt: r.created_at,
+        })));
       }
-      localStorage.setItem("dacon_teams", JSON.stringify(teams));
-    }
-
-    // 유저 프로필 업데이트
-    const profilesRaw = localStorage.getItem("dacon_profiles");
-    const profiles = profilesRaw ? JSON.parse(profilesRaw) : [];
-    const pIdx = profiles.findIndex((p: { id: string }) => p.id === request.userId);
-    if (pIdx >= 0) {
-      if (!profiles[pIdx].teamMemberships.includes(team.teamCode)) {
-        profiles[pIdx].teamMemberships.push(team.teamCode);
-      }
-      localStorage.setItem("dacon_profiles", JSON.stringify(profiles));
-    }
-
-    setRequests(allRequests.filter((r: TeamJoinRequest) => r.teamCode === team.teamCode));
+    } catch { /* ignore */ }
   };
 
-  const handleReject = (request: TeamJoinRequest) => {
-    const requestsRaw = localStorage.getItem("dacon_join_requests");
-    const allRequests = requestsRaw ? JSON.parse(requestsRaw) : [];
-    const idx = allRequests.findIndex((r: TeamJoinRequest) => r.id === request.id);
-    if (idx >= 0) {
-      allRequests[idx].status = "rejected";
-      localStorage.setItem("dacon_join_requests", JSON.stringify(allRequests));
+  useEffect(() => {
+    loadRequests();
+  }, [team.teamCode]);
+
+  const handleAccept = async (request: TeamJoinRequest) => {
+    try {
+      const db = createDataClient();
+      // 요청 상태 업데이트
+      await db.from("team_join_requests").update({ status: "accepted" }).eq("id", request.id);
+
+      // 팀 멤버 추가 (중복 체크)
+      const { data: existing } = await db
+        .from("team_members")
+        .select("id")
+        .eq("team_code", team.teamCode)
+        .eq("user_id", request.userId)
+        .maybeSingle();
+      if (!existing) {
+        await db.from("team_members").insert({
+          team_code: team.teamCode,
+          user_id: request.userId,
+          name: request.userName,
+          role: "팀원",
+        });
+      }
+
+      await loadRequests();
+      await onTeamsRefresh();
+    } catch (err) {
+      console.error("[RequestsModal] Failed to accept:", err);
     }
-    setRequests(allRequests.filter((r: TeamJoinRequest) => r.teamCode === team.teamCode));
+  };
+
+  const handleReject = async (request: TeamJoinRequest) => {
+    try {
+      const db = createDataClient();
+      await db.from("team_join_requests").update({ status: "rejected" }).eq("id", request.id);
+      await loadRequests();
+    } catch (err) {
+      console.error("[RequestsModal] Failed to reject:", err);
+    }
   };
 
   const pendingRequests = requests.filter((r) => r.status === "pending");
@@ -700,34 +694,22 @@ function RequestsManagementModal({ team, onClose }: { team: Team; onClose: () =>
   );
 }
 
-function MembersListModal({ team, isCreator, onMemberRemoved }: { team: Team; isCreator: boolean; onMemberRemoved: () => void }) {
-  const stored = localStorage.getItem("dacon_teams");
-  const teams = stored ? JSON.parse(stored) : [];
-  const currentTeam = teams.find((t: Team) => t.teamCode === team.teamCode);
-  const members: TeamMember[] = currentTeam?.members || [];
+function MembersListModal({ team, isCreator, onMemberRemoved }: { team: Team; isCreator: boolean; onMemberRemoved: () => Promise<void> }) {
+  const [members, setMembers] = useState<TeamMember[]>(team.members || []);
 
-  const handleRemoveMember = (member: TeamMember) => {
+  const handleRemoveMember = async (member: TeamMember) => {
     if (!isCreator || member.role === "팀장") return;
     if (!window.confirm(`${member.name} 팀원을 제거하시겠습니까?`)) return;
 
-    const stored = localStorage.getItem("dacon_teams");
-    const teams = stored ? JSON.parse(stored) : [];
-    const idx = teams.findIndex((t: Team) => t.teamCode === team.teamCode);
-    if (idx >= 0) {
-      teams[idx].members = teams[idx].members.filter((m: TeamMember) => m.userId !== member.userId);
-      teams[idx].memberCount = Math.max(0, (teams[idx].memberCount || 1) - 1);
-      localStorage.setItem("dacon_teams", JSON.stringify(teams));
+    try {
+      const db = createDataClient();
+      await db.from("team_members").delete().eq("team_code", team.teamCode).eq("user_id", member.userId);
+      // 로컬 상태 즉시 업데이트
+      setMembers((prev) => prev.filter((m) => m.userId !== member.userId));
+      await onMemberRemoved();
+    } catch (err) {
+      console.error("[MembersModal] Failed to remove member:", err);
     }
-
-    const profilesRaw = localStorage.getItem("dacon_profiles");
-    const profiles = profilesRaw ? JSON.parse(profilesRaw) : [];
-    const pIdx = profiles.findIndex((p: { id: string }) => p.id === member.userId);
-    if (pIdx >= 0) {
-      profiles[pIdx].teamMemberships = profiles[pIdx].teamMemberships.filter((tc: string) => tc !== team.teamCode);
-      localStorage.setItem("dacon_profiles", JSON.stringify(profiles));
-    }
-
-    onMemberRemoved();
   };
 
   return (

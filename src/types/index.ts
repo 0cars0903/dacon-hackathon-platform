@@ -144,10 +144,11 @@ export interface Submission {
 // === 활동 피드 (확장) ===
 export interface ActivityFeedItem {
   id: string;
-  type: "team_created" | "submission" | "ranking_update" | "hackathon_created" | "forum_post" | "user_signup";
+  type: "team_created" | "submission" | "ranking_update" | "hackathon_created" | "forum_post" | "user_signup" | "contact_message";
   message: string;
   timestamp: string;
   hackathonSlug?: string;
+  metadata?: Record<string, unknown>;
 }
 
 // === 사용자 설정 (확장) ===

@@ -52,6 +52,12 @@ export default function AdminPage() {
   const [aiGenerating, setAiGenerating] = useState<"banner" | "overview" | null>(null);
   const [generatedBannerUrl, setGeneratedBannerUrl] = useState<string | null>(null);
 
+  // 사용자 관리 정렬/필터
+  const [userSortField, setUserSortField] = useState<"name" | "email" | "role" | "joinedAt">("joinedAt");
+  const [userSortDir, setUserSortDir] = useState<"asc" | "desc">("desc");
+  const [userRoleFilter, setUserRoleFilter] = useState<"all" | "admin" | "user">("all");
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+
   useEffect(() => {
     if (isAdmin) {
       const load = async () => {
@@ -495,25 +501,88 @@ export default function AdminPage() {
       )}
 
       {/* 사용자 관리 */}
-      {activeTab === "users" && (
+      {activeTab === "users" && (() => {
+        // 필터링
+        let filteredUsers = users.filter((u) => {
+          if (userRoleFilter !== "all" && u.role !== userRoleFilter) return false;
+          if (userSearchQuery.trim()) {
+            const q = userSearchQuery.toLowerCase();
+            const profile = profiles.find((p) => p.id === u.id);
+            const nickname = profile?.nickname || "";
+            return u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || nickname.toLowerCase().includes(q);
+          }
+          return true;
+        });
+        // 정렬
+        filteredUsers = [...filteredUsers].sort((a, b) => {
+          let cmp = 0;
+          if (userSortField === "name") {
+            cmp = a.name.localeCompare(b.name, "ko");
+          } else if (userSortField === "email") {
+            cmp = a.email.localeCompare(b.email);
+          } else if (userSortField === "role") {
+            cmp = a.role.localeCompare(b.role);
+          } else if (userSortField === "joinedAt") {
+            const pa = profiles.find((p) => p.id === a.id);
+            const pb = profiles.find((p) => p.id === b.id);
+            cmp = new Date(pa?.joinedAt || 0).getTime() - new Date(pb?.joinedAt || 0).getTime();
+          }
+          return userSortDir === "asc" ? cmp : -cmp;
+        });
+
+        const sortIcon = (field: typeof userSortField) =>
+          userSortField === field ? (userSortDir === "asc" ? " ▲" : " ▼") : "";
+
+        const handleSort = (field: typeof userSortField) => {
+          if (userSortField === field) {
+            setUserSortDir((d) => (d === "asc" ? "desc" : "asc"));
+          } else {
+            setUserSortField(field);
+            setUserSortDir("asc");
+          }
+        };
+
+        return (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">전체 사용자 ({users.length})</h3>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+              전체 사용자 ({filteredUsers.length}{filteredUsers.length !== users.length ? ` / ${users.length}` : ""})
+            </h3>
+            <div className="flex flex-wrap items-center gap-2">
+              {/* 검색 */}
+              <input
+                type="text"
+                value={userSearchQuery}
+                onChange={(e) => setUserSearchQuery(e.target.value)}
+                placeholder="이름, 이메일 검색..."
+                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              />
+              {/* 역할 필터 */}
+              <select
+                value={userRoleFilter}
+                onChange={(e) => setUserRoleFilter(e.target.value as "all" | "admin" | "user")}
+                className="rounded-lg border border-gray-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              >
+                <option value="all">전체 역할</option>
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
+              </select>
+            </div>
           </div>
 
           <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
-                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400">이름</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400">이메일</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400">역할</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none hover:text-blue-600 dark:hover:text-blue-400" onClick={() => handleSort("name")}>이름{sortIcon("name")}</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none hover:text-blue-600 dark:hover:text-blue-400" onClick={() => handleSort("email")}>이메일{sortIcon("email")}</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none hover:text-blue-600 dark:hover:text-blue-400" onClick={() => handleSort("role")}>역할{sortIcon("role")}</th>
                   <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400">통계</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400">관리</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none hover:text-blue-600 dark:hover:text-blue-400" onClick={() => handleSort("joinedAt")}>관리{sortIcon("joinedAt")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950">
-                {users.map((u) => {
+                {filteredUsers.map((u) => {
                   const profile = profiles.find((p) => p.id === u.id);
                   return (
                     <tr key={u.id} className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-900">
@@ -582,7 +651,8 @@ export default function AdminPage() {
             </table>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* 플랫폼 통계 */}
       {activeTab === "stats" && <AdminAnalytics users={users} profiles={profiles} createdHackathons={createdHackathons} />}
@@ -703,6 +773,7 @@ function AdminAnalytics({
     hackathon_created: "해커톤 생성",
     forum_post: "토론 게시",
     user_signup: "신규 가입",
+    contact_message: "연락 메시지",
   };
 
   return (
@@ -902,25 +973,58 @@ function AdminAnalytics({
       </section>
 
       {/* 최근 활동 타임라인 */}
-      <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-        <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">최근 활동 타임라인</h3>
-        <div className="relative space-y-0 pl-4">
-          {recentActivity.slice(0, 15).map((a, i) => (
+      <AdminActivityTimeline recentActivity={recentActivity} />
+    </div>
+  );
+}
+
+function AdminActivityTimeline({ recentActivity }: { recentActivity: ActivityFeedItem[] }) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  return (
+    <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+      <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">최근 활동 타임라인</h3>
+      <div className="relative space-y-0 pl-4">
+        {recentActivity.slice(0, 15).map((a, i) => {
+          const hasPreview = a.type === "contact_message" && !!a.metadata?.messageContent;
+          return (
             <div key={a.id} className="relative pb-4 last:pb-0">
               {i < Math.min(recentActivity.length, 15) - 1 && (
                 <div className="absolute bottom-0 left-[-12px] top-3 w-0.5 bg-gray-200 dark:bg-gray-700" />
               )}
-              <div className="absolute left-[-16px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-blue-500 bg-white dark:bg-gray-900" />
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-xs text-gray-600 dark:text-gray-400">{a.message}</p>
+              <div className={`absolute left-[-16px] top-1.5 h-2.5 w-2.5 rounded-full border-2 ${
+                a.type === "contact_message" ? "border-purple-500" : "border-blue-500"
+              } bg-white dark:bg-gray-900`} />
+              <div
+                className={`flex items-start justify-between gap-2 ${hasPreview ? "cursor-pointer" : ""}`}
+                onClick={() => hasPreview && setExpandedId((prev) => (prev === a.id ? null : a.id))}
+              >
+                <div className="flex-1">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {a.message}
+                    {hasPreview && (
+                      <span className="ml-1 text-[10px] text-purple-500 dark:text-purple-400">
+                        {expandedId === a.id ? "[접기]" : "[미리보기]"}
+                      </span>
+                    )}
+                  </p>
+                  {hasPreview && expandedId === a.id && (
+                    <div className="mt-1.5 rounded-lg bg-purple-50 p-2 dark:bg-purple-900/20">
+                      <p className="text-[10px] font-medium text-purple-600 dark:text-purple-400 mb-0.5">메시지 내용</p>
+                      <p className="whitespace-pre-wrap text-xs text-gray-700 dark:text-gray-300">
+                        {String(a.metadata?.messageContent || "")}
+                      </p>
+                    </div>
+                  )}
+                </div>
                 <span className="shrink-0 text-[10px] text-gray-400">
                   {new Date(a.timestamp).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}
                 </span>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
-    </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }

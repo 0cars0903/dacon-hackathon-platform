@@ -11,6 +11,7 @@ export function ActivitySidebar() {
   const [activities, setActivities] = useState<ActivityFeedItem[]>([]);
   const [stats, setStats] = useState({ ongoingHackathons: 0, upcomingHackathons: 0, totalUsers: 0, totalTeams: 0 });
   const [refreshKey, setRefreshKey] = useState(0);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -44,8 +45,16 @@ export function ActivitySidebar() {
       case "hackathon_created": return "🎯";
       case "forum_post": return "💬";
       case "user_signup": return "🎉";
+      case "contact_message": return "✉️";
       default: return "📌";
     }
+  };
+
+  const hasMessagePreview = (a: ActivityFeedItem): boolean =>
+    a.type === "contact_message" && !!a.metadata?.messageContent;
+
+  const toggleExpand = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
   };
 
   return (
@@ -70,18 +79,38 @@ export function ActivitySidebar() {
           {activities.slice(0, 10).map((a, i) => (
             <div
               key={a.id}
-              className="animate-slide-in-right rounded-lg border border-gray-100 p-3 transition-all hover:border-gray-200 dark:border-gray-800 dark:hover:border-gray-700"
+              className={`animate-slide-in-right rounded-lg border p-3 transition-all ${
+                hasMessagePreview(a)
+                  ? "cursor-pointer border-blue-100 hover:border-blue-300 dark:border-blue-900/40 dark:hover:border-blue-700"
+                  : "border-gray-100 hover:border-gray-200 dark:border-gray-800 dark:hover:border-gray-700"
+              }`}
               style={{ animationDelay: `${i * 80}ms` }}
+              onClick={() => hasMessagePreview(a) && toggleExpand(a.id)}
             >
               <div className="mb-1 flex items-center gap-2">
                 <span className="text-xs">{typeEmoji(a.type)}</span>
                 <span className="text-xs text-gray-400">
                   {timeAgo(a.timestamp)}
                 </span>
+                {hasMessagePreview(a) && (
+                  <span className="ml-auto text-[10px] text-blue-500 dark:text-blue-400">
+                    {expandedId === a.id ? "접기 ▲" : "미리보기 ▼"}
+                  </span>
+                )}
               </div>
               <p className="text-xs leading-relaxed text-gray-600 dark:text-gray-400">
                 {a.message}
               </p>
+
+              {/* 메시지 미리보기 확장 영역 */}
+              {hasMessagePreview(a) && expandedId === a.id && (
+                <div className="mt-2 rounded-lg bg-blue-50 p-2.5 dark:bg-blue-900/20">
+                  <p className="mb-1 text-[10px] font-medium text-blue-600 dark:text-blue-400">메시지 내용</p>
+                  <p className="whitespace-pre-wrap text-xs leading-relaxed text-gray-700 dark:text-gray-300">
+                    {String(a.metadata?.messageContent || "")}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
           {activities.length === 0 && (

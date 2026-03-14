@@ -574,6 +574,7 @@ export async function logActivity(item: Omit<ActivityFeedItem, "id">): Promise<v
     type: item.type, message: item.message,
     hackathon_slug: item.hackathonSlug ?? null,
     actor_id: actorId,
+    metadata: item.metadata ?? null,
   });
 }
 
@@ -586,6 +587,7 @@ export async function getActivityFeed(): Promise<ActivityFeedItem[]> {
   return (data ?? []).map((a: any) => ({
     id: a.id, type: a.type as ActivityFeedItem["type"], message: a.message,
     timestamp: a.created_at, hackathonSlug: a.hackathon_slug ?? undefined,
+    metadata: a.metadata ?? undefined,
   }));
 }
 
@@ -613,6 +615,7 @@ export async function getFilteredActivityFeed(
   return (data ?? []).map((a: any) => ({
     id: a.id, type: a.type as ActivityFeedItem["type"], message: a.message,
     timestamp: a.created_at, hackathonSlug: a.hackathon_slug ?? undefined,
+    metadata: a.metadata ?? undefined,
   }));
 }
 
