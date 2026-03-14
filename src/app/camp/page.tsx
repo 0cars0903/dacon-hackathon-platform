@@ -269,7 +269,7 @@ function CampContent() {
                     {isMember && !isCreator && (
                       <>
                         <button onClick={() => setShowMembersModal(team)} className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700">팀원 보기</button>
-                        <button onClick={() => setContactTeam({ name: team.name, url: team.contact.url })} className="rounded-lg border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20">오픈채팅방 열기</button>
+                        <Link href={`/hackathons/${team.hackathonSlug}/teams`} className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700">팀 채팅</Link>
                         <button onClick={() => handleLeaveTeam(team)} className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">팀 탈퇴</button>
                       </>
                     )}
@@ -330,13 +330,12 @@ function CampContent() {
 
 function CreateTeamForm({ onDone, hackathons }: { onDone: () => void; hackathons: { slug: string; title: string }[] }) {
   const { user } = useAuth();
-  const [formData, setFormData] = useState({ name: "", hackathonSlug: hackathons[0]?.slug || "", intro: "", lookingFor: "", contactUrl: "" });
+  const [formData, setFormData] = useState({ name: "", hackathonSlug: hackathons[0]?.slug || "", intro: "", lookingFor: "", contactUrl: "", joinPolicy: "auto" as "auto" | "approval" });
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (!formData.contactUrl.trim()) { setError("연락처 URL을 입력해주세요 (카카오톡 오픈채팅방 링크 권장)"); return; }
 
     const existing = JSON.parse(localStorage.getItem("dacon_teams") || "[]");
     const newTeam = {
@@ -344,10 +343,11 @@ function CreateTeamForm({ onDone, hackathons }: { onDone: () => void; hackathons
       hackathonSlug: formData.hackathonSlug,
       name: formData.name,
       isOpen: true,
+      joinPolicy: formData.joinPolicy,
       memberCount: 1,
       lookingFor: formData.lookingFor.split(",").map((s) => s.trim()).filter(Boolean),
       intro: formData.intro,
-      contact: { type: "link", url: formData.contactUrl },
+      contact: { type: "link", url: formData.contactUrl || "" },
       createdAt: new Date().toISOString(),
       creatorId: user.id,
       members: [{ userId: user.id, name: user.name, role: "팀장", joinedAt: new Date().toISOString() }],
@@ -402,9 +402,24 @@ function CreateTeamForm({ onDone, hackathons }: { onDone: () => void; hackathons
         <input type="text" value={formData.lookingFor} onChange={(e) => setFormData({ ...formData, lookingFor: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Frontend, Designer, ML Engineer" />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">오픈카톡방 링크 <span className="text-red-500">*</span></label>
-        <input type="url" required value={formData.contactUrl} onChange={(e) => setFormData({ ...formData, contactUrl: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="https://open.kakao.com/o/..." />
-        <p className="mt-1 text-xs text-gray-400">카카오톡 오픈채팅방 링크를 입력하면 팀원이 바로 참여할 수 있습니다.</p>
+        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">참가 허용 방식</label>
+        <div className="flex gap-4 mt-1">
+          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <input type="radio" name="joinPolicy" value="auto" checked={formData.joinPolicy === "auto"} onChange={() => setFormData({ ...formData, joinPolicy: "auto" })} className="text-blue-600" />
+            자동 허용
+            <span className="text-xs text-gray-400">(누구나 바로 참가)</span>
+          </label>
+          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <input type="radio" name="joinPolicy" value="approval" checked={formData.joinPolicy === "approval"} onChange={() => setFormData({ ...formData, joinPolicy: "approval" })} className="text-blue-600" />
+            확인 후 허용
+            <span className="text-xs text-gray-400">(팀장 승인 필요)</span>
+          </label>
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">연락처 링크 (선택)</label>
+        <input type="url" value={formData.contactUrl} onChange={(e) => setFormData({ ...formData, contactUrl: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="https://..." />
+        <p className="mt-1 text-xs text-gray-400">팀 내부 채팅은 팀 참가 후 자동으로 이용할 수 있습니다. 외부 연락처가 있으면 추가로 입력하세요.</p>
       </div>
       {error && <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">{error}</div>}
       <div className="flex justify-end gap-2 pt-2">
@@ -423,12 +438,12 @@ function EditTeamForm({ team, onDone, hackathons }: { team: Team; onDone: () => 
     lookingFor: team.lookingFor.join(", "),
     contactUrl: team.contact.url,
     isOpen: team.isOpen,
+    joinPolicy: (team as Team).joinPolicy || "auto" as "auto" | "approval",
   });
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.contactUrl.trim()) { setError("연락처 URL을 입력해주세요"); return; }
 
     const stored = localStorage.getItem("dacon_teams");
     const teams = stored ? JSON.parse(stored) : [];
@@ -439,6 +454,7 @@ function EditTeamForm({ team, onDone, hackathons }: { team: Team; onDone: () => 
       teams[idx].lookingFor = formData.lookingFor.split(",").map((s) => s.trim()).filter(Boolean);
       teams[idx].contact.url = formData.contactUrl;
       teams[idx].isOpen = formData.isOpen;
+      teams[idx].joinPolicy = formData.joinPolicy;
       localStorage.setItem("dacon_teams", JSON.stringify(teams));
     }
     onDone();
@@ -459,8 +475,22 @@ function EditTeamForm({ team, onDone, hackathons }: { team: Team; onDone: () => 
         <input type="text" value={formData.lookingFor} onChange={(e) => setFormData({ ...formData, lookingFor: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">오픈카톡방 링크</label>
-        <input type="url" required value={formData.contactUrl} onChange={(e) => setFormData({ ...formData, contactUrl: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">참가 허용 방식</label>
+        <div className="flex gap-4 mt-1">
+          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <input type="radio" name="editJoinPolicy" value="auto" checked={formData.joinPolicy === "auto"} onChange={() => setFormData({ ...formData, joinPolicy: "auto" })} className="text-blue-600" />
+            자동 허용
+          </label>
+          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <input type="radio" name="editJoinPolicy" value="approval" checked={formData.joinPolicy === "approval"} onChange={() => setFormData({ ...formData, joinPolicy: "approval" })} className="text-blue-600" />
+            확인 후 허용
+          </label>
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">연락처 링크 (선택)</label>
+        <input type="url" value={formData.contactUrl} onChange={(e) => setFormData({ ...formData, contactUrl: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="https://..." />
+        <p className="mt-1 text-xs text-gray-400">팀 내부 채팅은 자동 제공됩니다. 외부 연락처가 있으면 추가로 입력하세요.</p>
       </div>
       <div className="flex items-center gap-2">
         <input type="checkbox" id="isOpen" checked={formData.isOpen} onChange={(e) => setFormData({ ...formData, isOpen: e.target.checked })} className="rounded border-gray-300" />
