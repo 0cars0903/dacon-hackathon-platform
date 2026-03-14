@@ -100,8 +100,8 @@ export function SearchContent() {
     // Search users/profiles from Supabase
     const profiles: UserProfile[] = [];
     try {
-      const { createClient } = await import("@/lib/supabase/client");
-      const { data: profileRows } = await createClient()
+      const { createDataClient } = await import("@/lib/supabase/client");
+      const { data: profileRows } = await createDataClient()
         .from("profiles")
         .select("id, name, nickname, email, skills, bio")
         .limit(200);

@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import type { UserProfile, UserBadge } from "@/types";
-import { createClient } from "@/lib/supabase/client";
+import { createClient, createDataClient, syncAuthToDataClient } from "@/lib/supabase/client";
 import {
   getProfile as fetchProfile,
   updateProfile as patchProfile,
@@ -63,25 +63,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 세션 복구 — Supabase Auth 세션 체크
   useEffect(() => {
+    const dataDb = createDataClient(); // profile queries — never blocks
+
+    const loadProfile = async (userId: string) => {
+      const { data: profile } = await dataDb
+        .from("profiles")
+        .select("id, name, email, role, avatar_url")
+        .eq("id", userId)
+        .single();
+      if (profile) {
+        setUser({
+          id: profile.id,
+          name: profile.name,
+          email: profile.email,
+          role: profile.role as "user" | "admin",
+          avatarUrl: profile.avatar_url ?? undefined,
+        });
+      }
+    };
+
     const initSession = async () => {
       try {
         const { data: { session } } = await supabase().auth.getSession();
         if (session?.user) {
-          const { data: profile } = await supabase()
-            .from("profiles")
-            .select("id, name, email, role, avatar_url")
-            .eq("id", session.user.id)
-            .single();
-
-          if (profile) {
-            setUser({
-              id: profile.id,
-              name: profile.name,
-              email: profile.email,
-              role: profile.role as "user" | "admin",
-              avatarUrl: profile.avatar_url ?? undefined,
-            });
-          }
+          // Sync auth token to data client so writes pass RLS
+          await syncAuthToDataClient();
+          await loadProfile(session.user.id);
         }
       } catch {
         // ignore
@@ -95,21 +102,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase().auth.onAuthStateChange(
       async (_event: string, session: any) => {
         if (session?.user) {
-          const { data: profile } = await supabase()
-            .from("profiles")
-            .select("id, name, email, role, avatar_url")
-            .eq("id", session.user.id)
-            .single();
-
-          if (profile) {
-            setUser({
-              id: profile.id,
-              name: profile.name,
-              email: profile.email,
-              role: profile.role as "user" | "admin",
-              avatarUrl: profile.avatar_url ?? undefined,
-            });
-          }
+          await syncAuthToDataClient();
+          await loadProfile(session.user.id);
         } else {
           setUser(null);
         }
@@ -121,6 +115,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     const { error } = await supabase().auth.signInWithPassword({ email, password });
+    if (!error) {
+      // Sync auth session to data client immediately after login
+      await syncAuthToDataClient();
+    }
     return !error;
   }, []);
 

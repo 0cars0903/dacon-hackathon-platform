@@ -1,7 +1,7 @@
 // ============================================================
 // Supabase Data Layer — localStorage 함수 1:1 대체
 // ============================================================
-import { createClient } from "./client";
+import { createClient, createDataClient } from "./client";
 import type {
   Hackathon, HackathonDetail, Team, TeamMember, TeamChatMessage,
   Leaderboard, ActivityFeedItem, DirectMessage, Conversation,
@@ -10,7 +10,19 @@ import type {
   TeamJoinRequest,
 } from "@/types";
 
+/**
+ * Data client — NO auth init blocking. Used for all .from() queries.
+ * Initializes instantly because persistSession=false.
+ */
 function supabase() {
+  return createDataClient();
+}
+
+/**
+ * Auth client — used ONLY when we need auth.getUser() or auth.getSession().
+ * WARNING: may block if auth init hasn't completed yet.
+ */
+function authSupabase() {
   return createClient();
 }
 
@@ -550,11 +562,18 @@ export async function getFollowCounts(userId: string): Promise<{ followers: numb
 // ACTIVITY FEED
 // ============================================================
 export async function logActivity(item: Omit<ActivityFeedItem, "id">): Promise<void> {
-  const { data: { user } } = await supabase().auth.getUser();
+  // Use auth client to get current user, then data client for insert
+  let actorId: string | null = null;
+  try {
+    const { data: { user } } = await authSupabase().auth.getUser();
+    actorId = user?.id ?? null;
+  } catch {
+    // Ignore auth errors — log activity without actor
+  }
   await supabase().from("activity_feed").insert({
     type: item.type, message: item.message,
     hackathon_slug: item.hackathonSlug ?? null,
-    actor_id: user?.id ?? null,
+    actor_id: actorId,
   });
 }
 

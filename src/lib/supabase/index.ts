@@ -1,3 +1,3 @@
 // Barrel export for Supabase modules
-export { createClient } from "./client";
+export { createClient, createDataClient, syncAuthToDataClient } from "./client";
 export * from "./data";
