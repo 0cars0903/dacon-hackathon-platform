@@ -7,6 +7,7 @@ import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
 import { getHackathonBySlug } from "@/lib/data";
+import { FollowStats } from "@/components/features/FollowButton";
 import { formatDate, timeAgo } from "@/lib/utils";
 import type { UserProfile, Team } from "@/types";
 
@@ -193,6 +194,9 @@ export default function ProfilePage() {
                     ))}
                   </div>
                 )}
+                <div className="mb-2">
+                  <FollowStats userId={user.id} />
+                </div>
                 <div className="flex items-center gap-4">
                   <button onClick={() => setEditing(true)} className="text-sm text-blue-600 hover:underline dark:text-blue-400">
                     프로필 수정

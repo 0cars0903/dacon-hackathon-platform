@@ -4,6 +4,10 @@ import type {
   Team,
   Leaderboard,
   ActivityFeedItem,
+  TeamInvitation,
+  DirectMessage,
+  Conversation,
+  FollowRelation,
 } from "@/types";
 import { isWithinTwoWeeks } from "@/lib/utils";
 
@@ -345,4 +349,451 @@ export function markAllNotificationsRead(userId: string) {
   } catch {
     // ignore
   }
+}
+
+// =============================================
+// 팀 초대 시스템
+// =============================================
+
+const INVITATIONS_KEY = "dacon_invitations";
+
+/** 6자리 초대 코드 생성 */
+function generateInviteCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+/** 팀 초대 생성 (특정 사용자 대상 또는 공개 초대) */
+export function createTeamInvitation(
+  teamCode: string,
+  teamName: string,
+  hackathonSlug: string,
+  inviterId: string,
+  inviterName: string,
+  invitee?: { id: string; name: string }
+): TeamInvitation | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(INVITATIONS_KEY);
+    const all: TeamInvitation[] = raw ? JSON.parse(raw) : [];
+
+    // 같은 팀에 같은 사용자 대상 pending 초대가 있으면 중복 방지
+    if (invitee) {
+      const existing = all.find(
+        (inv) => inv.teamCode === teamCode && inv.inviteeId === invitee.id && inv.status === "pending"
+      );
+      if (existing) return null;
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000); // 48시간
+
+    const invitation: TeamInvitation = {
+      id: `inv-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      teamCode,
+      teamName,
+      hackathonSlug,
+      inviteCode: generateInviteCode(),
+      inviterId,
+      inviterName,
+      inviteeId: invitee?.id,
+      inviteeName: invitee?.name,
+      status: "pending",
+      createdAt: now.toISOString(),
+      expiresAt: expiresAt.toISOString(),
+    };
+
+    all.unshift(invitation);
+    localStorage.setItem(INVITATIONS_KEY, JSON.stringify(all));
+    return invitation;
+  } catch {
+    return null;
+  }
+}
+
+/** 초대 코드로 초대 조회 */
+export function getInvitationByCode(inviteCode: string): TeamInvitation | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(INVITATIONS_KEY);
+    const all: TeamInvitation[] = raw ? JSON.parse(raw) : [];
+    const inv = all.find((i) => i.inviteCode === inviteCode);
+    if (!inv) return null;
+
+    // 만료 체크
+    if (new Date() > new Date(inv.expiresAt) && inv.status === "pending") {
+      inv.status = "expired";
+      localStorage.setItem(INVITATIONS_KEY, JSON.stringify(all));
+    }
+    return inv;
+  } catch {
+    return null;
+  }
+}
+
+/** 사용자에게 온 초대 목록 */
+export function getInvitationsForUser(userId: string): TeamInvitation[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(INVITATIONS_KEY);
+    const all: TeamInvitation[] = raw ? JSON.parse(raw) : [];
+    const now = new Date();
+
+    return all
+      .filter((inv) => inv.inviteeId === userId || (!inv.inviteeId && inv.inviterId !== userId))
+      .map((inv) => {
+        if (inv.status === "pending" && now > new Date(inv.expiresAt)) {
+          inv.status = "expired";
+        }
+        return inv;
+      })
+      .filter((inv) => inv.inviteeId === userId); // 공개 초대는 코드로만 접근
+  } catch {
+    return [];
+  }
+}
+
+/** 팀에서 보낸 초대 목록 */
+export function getInvitationsByTeam(teamCode: string): TeamInvitation[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(INVITATIONS_KEY);
+    const all: TeamInvitation[] = raw ? JSON.parse(raw) : [];
+    return all.filter((inv) => inv.teamCode === teamCode);
+  } catch {
+    return [];
+  }
+}
+
+/** 초대 수락 */
+export function acceptInvitation(invitationId: string, userId: string, userName: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = localStorage.getItem(INVITATIONS_KEY);
+    const all: TeamInvitation[] = raw ? JSON.parse(raw) : [];
+    const idx = all.findIndex((i) => i.id === invitationId);
+    if (idx < 0 || all[idx].status !== "pending") return false;
+
+    // 만료 체크
+    if (new Date() > new Date(all[idx].expiresAt)) {
+      all[idx].status = "expired";
+      localStorage.setItem(INVITATIONS_KEY, JSON.stringify(all));
+      return false;
+    }
+
+    all[idx].status = "accepted";
+    localStorage.setItem(INVITATIONS_KEY, JSON.stringify(all));
+
+    // 팀에 멤버 추가
+    const teamsRaw = localStorage.getItem("dacon_teams");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const teams: any[] = teamsRaw ? JSON.parse(teamsRaw) : [];
+    const teamIdx = teams.findIndex((t) => t.teamCode === all[idx].teamCode);
+    if (teamIdx >= 0) {
+      if (!teams[teamIdx].members) teams[teamIdx].members = [];
+      const alreadyMember = teams[teamIdx].members.some((m: { userId: string }) => m.userId === userId);
+      if (!alreadyMember) {
+        teams[teamIdx].members.push({
+          userId,
+          name: userName,
+          role: "팀원",
+          joinedAt: new Date().toISOString(),
+        });
+        teams[teamIdx].memberCount = teams[teamIdx].members.length;
+        localStorage.setItem("dacon_teams", JSON.stringify(teams));
+      }
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 초대 거절 */
+export function rejectInvitation(invitationId: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = localStorage.getItem(INVITATIONS_KEY);
+    const all: TeamInvitation[] = raw ? JSON.parse(raw) : [];
+    const idx = all.findIndex((i) => i.id === invitationId);
+    if (idx < 0 || all[idx].status !== "pending") return false;
+
+    all[idx].status = "rejected";
+    localStorage.setItem(INVITATIONS_KEY, JSON.stringify(all));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 초대 코드로 참가 (공개 초대) */
+export function joinByInviteCode(inviteCode: string, userId: string, userName: string): { success: boolean; error?: string } {
+  if (typeof window === "undefined") return { success: false, error: "서버 오류" };
+  try {
+    const raw = localStorage.getItem(INVITATIONS_KEY);
+    const all: TeamInvitation[] = raw ? JSON.parse(raw) : [];
+    const inv = all.find((i) => i.inviteCode === inviteCode && i.status === "pending");
+
+    if (!inv) return { success: false, error: "유효하지 않은 초대 코드입니다." };
+    if (new Date() > new Date(inv.expiresAt)) {
+      inv.status = "expired";
+      localStorage.setItem(INVITATIONS_KEY, JSON.stringify(all));
+      return { success: false, error: "만료된 초대 코드입니다." };
+    }
+    if (inv.inviterId === userId) return { success: false, error: "자신의 초대에 참가할 수 없습니다." };
+
+    // 팀에 멤버 추가
+    const teamsRaw = localStorage.getItem("dacon_teams");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const teams: any[] = teamsRaw ? JSON.parse(teamsRaw) : [];
+    const teamIdx = teams.findIndex((t) => t.teamCode === inv.teamCode);
+    if (teamIdx < 0) return { success: false, error: "팀을 찾을 수 없습니다." };
+
+    if (!teams[teamIdx].members) teams[teamIdx].members = [];
+    const alreadyMember = teams[teamIdx].members.some((m: { userId: string }) => m.userId === userId);
+    if (alreadyMember) return { success: false, error: "이미 팀 멤버입니다." };
+
+    teams[teamIdx].members.push({
+      userId,
+      name: userName,
+      role: "팀원",
+      joinedAt: new Date().toISOString(),
+    });
+    teams[teamIdx].memberCount = teams[teamIdx].members.length;
+    localStorage.setItem("dacon_teams", JSON.stringify(teams));
+
+    // 공개 초대는 여러 명이 사용 가능하므로 status는 변경하지 않음
+    // 단, 특정 사용자 대상이면 수락 처리
+    if (inv.inviteeId === userId) {
+      inv.status = "accepted";
+      localStorage.setItem(INVITATIONS_KEY, JSON.stringify(all));
+    }
+
+    return { success: true };
+  } catch {
+    return { success: false, error: "오류가 발생했습니다." };
+  }
+}
+
+// =============================================
+// 다이렉트 메시지 (DM) 시스템
+// =============================================
+
+const MESSAGES_KEY = "dacon_messages";
+
+/** 메시지 전송 */
+export function sendMessage(
+  senderId: string,
+  senderName: string,
+  receiverId: string,
+  receiverName: string,
+  content: string
+): DirectMessage | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(MESSAGES_KEY);
+    const all: DirectMessage[] = raw ? JSON.parse(raw) : [];
+
+    const msg: DirectMessage = {
+      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      senderId,
+      senderName,
+      receiverId,
+      receiverName,
+      content,
+      read: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    all.push(msg);
+    // 최대 1000개 유지
+    if (all.length > 1000) all.splice(0, all.length - 1000);
+    localStorage.setItem(MESSAGES_KEY, JSON.stringify(all));
+    return msg;
+  } catch {
+    return null;
+  }
+}
+
+/** 두 사용자 간 대화 내역 조회 */
+export function getConversation(userId: string, partnerId: string): DirectMessage[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(MESSAGES_KEY);
+    const all: DirectMessage[] = raw ? JSON.parse(raw) : [];
+    return all
+      .filter(
+        (m) =>
+          (m.senderId === userId && m.receiverId === partnerId) ||
+          (m.senderId === partnerId && m.receiverId === userId)
+      )
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  } catch {
+    return [];
+  }
+}
+
+/** 사용자의 대화 목록 (최근 메시지 기준 정렬) */
+export function getConversationList(userId: string): Conversation[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(MESSAGES_KEY);
+    const all: DirectMessage[] = raw ? JSON.parse(raw) : [];
+
+    const myMessages = all.filter((m) => m.senderId === userId || m.receiverId === userId);
+    const partnerMap = new Map<string, { partnerName: string; messages: DirectMessage[] }>();
+
+    myMessages.forEach((m) => {
+      const partnerId = m.senderId === userId ? m.receiverId : m.senderId;
+      const partnerName = m.senderId === userId ? m.receiverName : m.senderName;
+      if (!partnerMap.has(partnerId)) {
+        partnerMap.set(partnerId, { partnerName, messages: [] });
+      }
+      partnerMap.get(partnerId)!.messages.push(m);
+    });
+
+    const conversations: Conversation[] = [];
+    partnerMap.forEach((data, partnerId) => {
+      const sorted = data.messages.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      const lastMsg = sorted[0];
+      const unreadCount = data.messages.filter((m) => m.receiverId === userId && !m.read).length;
+      conversations.push({
+        partnerId,
+        partnerName: data.partnerName,
+        lastMessage: lastMsg.content,
+        lastMessageAt: lastMsg.createdAt,
+        unreadCount,
+      });
+    });
+
+    return conversations.sort(
+      (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+    );
+  } catch {
+    return [];
+  }
+}
+
+/** 특정 대화의 메시지를 읽음 처리 */
+export function markMessagesRead(userId: string, partnerId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem(MESSAGES_KEY);
+    const all: DirectMessage[] = raw ? JSON.parse(raw) : [];
+    let changed = false;
+    all.forEach((m) => {
+      if (m.senderId === partnerId && m.receiverId === userId && !m.read) {
+        m.read = true;
+        changed = true;
+      }
+    });
+    if (changed) localStorage.setItem(MESSAGES_KEY, JSON.stringify(all));
+  } catch {
+    // ignore
+  }
+}
+
+/** 전체 읽지 않은 메시지 수 */
+export function getUnreadMessageCount(userId: string): number {
+  if (typeof window === "undefined") return 0;
+  try {
+    const raw = localStorage.getItem(MESSAGES_KEY);
+    const all: DirectMessage[] = raw ? JSON.parse(raw) : [];
+    return all.filter((m) => m.receiverId === userId && !m.read).length;
+  } catch {
+    return 0;
+  }
+}
+
+// =============================================
+// 팔로우/팔로잉 시스템
+// =============================================
+
+const FOLLOWS_KEY = "dacon_follows";
+
+/** 팔로우 */
+export function followUser(followerId: string, followingId: string): boolean {
+  if (typeof window === "undefined") return false;
+  if (followerId === followingId) return false;
+  try {
+    const raw = localStorage.getItem(FOLLOWS_KEY);
+    const all: FollowRelation[] = raw ? JSON.parse(raw) : [];
+
+    // 이미 팔로우 중이면 무시
+    if (all.some((f) => f.followerId === followerId && f.followingId === followingId)) return false;
+
+    all.push({ followerId, followingId, createdAt: new Date().toISOString() });
+    localStorage.setItem(FOLLOWS_KEY, JSON.stringify(all));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 언팔로우 */
+export function unfollowUser(followerId: string, followingId: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = localStorage.getItem(FOLLOWS_KEY);
+    const all: FollowRelation[] = raw ? JSON.parse(raw) : [];
+    const filtered = all.filter(
+      (f) => !(f.followerId === followerId && f.followingId === followingId)
+    );
+    if (filtered.length === all.length) return false;
+    localStorage.setItem(FOLLOWS_KEY, JSON.stringify(filtered));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 팔로우 여부 확인 */
+export function isFollowing(followerId: string, followingId: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = localStorage.getItem(FOLLOWS_KEY);
+    const all: FollowRelation[] = raw ? JSON.parse(raw) : [];
+    return all.some((f) => f.followerId === followerId && f.followingId === followingId);
+  } catch {
+    return false;
+  }
+}
+
+/** 팔로워 목록 (나를 팔로우하는 사람들) */
+export function getFollowers(userId: string): FollowRelation[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(FOLLOWS_KEY);
+    const all: FollowRelation[] = raw ? JSON.parse(raw) : [];
+    return all.filter((f) => f.followingId === userId);
+  } catch {
+    return [];
+  }
+}
+
+/** 팔로잉 목록 (내가 팔로우하는 사람들) */
+export function getFollowing(userId: string): FollowRelation[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(FOLLOWS_KEY);
+    const all: FollowRelation[] = raw ? JSON.parse(raw) : [];
+    return all.filter((f) => f.followerId === userId);
+  } catch {
+    return [];
+  }
+}
+
+/** 팔로워/팔로잉 수 */
+export function getFollowCounts(userId: string): { followers: number; following: number } {
+  return {
+    followers: getFollowers(userId).length,
+    following: getFollowing(userId).length,
+  };
 }

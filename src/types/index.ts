@@ -210,6 +210,49 @@ export interface Notification {
   type?: "info" | "success" | "warning";
 }
 
+// === 팀 초대 ===
+export interface TeamInvitation {
+  id: string;
+  teamCode: string;
+  teamName: string;
+  hackathonSlug: string;
+  inviteCode: string; // 6자리 고유 코드
+  inviterId: string;
+  inviterName: string;
+  inviteeId?: string; // 특정 사용자 대상 초대 (없으면 공개 초대)
+  inviteeName?: string;
+  status: "pending" | "accepted" | "rejected" | "expired";
+  createdAt: string;
+  expiresAt: string; // 48시간 유효
+}
+
+// === 다이렉트 메시지 ===
+export interface DirectMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  receiverId: string;
+  receiverName: string;
+  content: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface Conversation {
+  partnerId: string;
+  partnerName: string;
+  lastMessage: string;
+  lastMessageAt: string;
+  unreadCount: number;
+}
+
+// === 팔로우 시스템 ===
+export interface FollowRelation {
+  followerId: string;
+  followingId: string;
+  createdAt: string;
+}
+
 // === 토론 포럼 ===
 export interface ForumPost {
   id: string;

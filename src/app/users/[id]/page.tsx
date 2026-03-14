@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
+import { FollowButton, FollowStats } from "@/components/features/FollowButton";
 import { getHackathonBySlug } from "@/lib/data";
 import { formatDate, timeAgo } from "@/lib/utils";
 import type { UserProfile, Team } from "@/types";
@@ -89,12 +90,25 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
                 ))}
               </div>
             )}
-            <div className="flex items-center gap-4 text-xs text-gray-400">
+            <div className="mb-3 flex items-center gap-4">
+              <FollowStats userId={profile.id} />
+            </div>
+            <div className="flex items-center gap-3 text-xs text-gray-400">
               <span>가입일: {formatDate(profile.joinedAt)}</span>
-              {isOwnProfile && (
+              {isOwnProfile ? (
                 <Link href="/profile" className="text-blue-600 hover:underline dark:text-blue-400">
                   이것은 나의 프로필입니다
                 </Link>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <FollowButton targetUserId={profile.id} targetUserName={profile.name} size="sm" />
+                  <Link
+                    href={`/messages?partner=${profile.id}`}
+                    className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                  >
+                    메시지
+                  </Link>
+                </div>
               )}
             </div>
           </div>

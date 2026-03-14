@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { Modal } from "@/components/common/Modal";
 import { Tag } from "@/components/common/Tag";
 import { ContactModal } from "@/components/features/ContactModal";
+import { TeamInviteModal } from "@/components/features/TeamInviteModal";
 import { timeAgo } from "@/lib/utils";
 import type { Team, TeamJoinRequest, TeamMember } from "@/types";
 
@@ -38,6 +39,7 @@ function CampContent() {
   const [showJoinRequestModal, setShowJoinRequestModal] = useState<Team | null>(null);
   const [showRequestsModal, setShowRequestsModal] = useState<Team | null>(null);
   const [showMembersModal, setShowMembersModal] = useState<Team | null>(null);
+  const [showInviteModal, setShowInviteModal] = useState<Team | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("dacon_teams");
@@ -255,6 +257,7 @@ function CampContent() {
                   <div className="flex flex-wrap gap-2">
                     {isCreator && (
                       <>
+                        <button onClick={() => setShowInviteModal(team)} className="rounded-lg bg-teal-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-teal-700">초대</button>
                         <button onClick={() => setShowRequestsModal(team)} className="relative rounded-lg bg-purple-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-purple-700">
                           참가 요청 {pendingCount > 0 && <span className="absolute -right-2 -top-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full">{pendingCount}</span>}
                         </button>
@@ -310,6 +313,16 @@ function CampContent() {
 
       {contactTeam && (
         <ContactModal isOpen={true} onClose={() => setContactTeam(null)} teamName={contactTeam.name} contactUrl={contactTeam.url} />
+      )}
+
+      {showInviteModal && (
+        <TeamInviteModal
+          isOpen={true}
+          onClose={() => setShowInviteModal(null)}
+          teamCode={showInviteModal.teamCode}
+          teamName={showInviteModal.name}
+          hackathonSlug={showInviteModal.hackathonSlug}
+        />
       )}
     </div>
   );

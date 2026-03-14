@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/hackathons", label: "해커톤" },
   { href: "/camp", label: "팀 모집" },
   { href: "/rankings", label: "랭킹" },
+  { href: "/messages", label: "메시지" },
   { href: "/settings", label: "설정" },
 ];
 
