@@ -35,7 +35,7 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
+    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80" style={{ contain: "layout style" }}>
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link
           href="/"
@@ -189,7 +189,7 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`block rounded-lg px-4 py-3 text-sm font-medium transition-colors min-h-[44px] ${
                   pathname === item.href || pathname.startsWith(item.href + "/")
                     ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
                     : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"

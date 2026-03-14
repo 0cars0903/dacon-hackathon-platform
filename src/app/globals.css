@@ -115,3 +115,58 @@ main {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* === 성능 최적화 === */
+
+/* Respect user's motion preference (CWV: CLS 개선) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Content containment for off-screen sections (LCP 개선) */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* GPU-accelerated animations (INP 개선) */
+.animate-fade-in-up,
+.animate-fade-in,
+.animate-slide-in-right {
+  will-change: opacity, transform;
+}
+
+/* Touch target minimum sizes (모바일 INP 개선) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Optimize font rendering */
+body {
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent layout shift from scrollbar appearance */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Skeleton loading for CLS prevention */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+.dark .skeleton {
+  background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+  background-size: 200% 100%;
+}

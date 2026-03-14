@@ -13,8 +13,8 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
-      {/* 히어로 배너 */}
-      <section className="animate-fade-in-up mb-10 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-8 text-white dark:from-blue-700 dark:via-blue-800 dark:to-blue-900 sm:p-12">
+      {/* 히어로 배너 - min-h for CLS prevention */}
+      <section className="animate-fade-in-up mb-10 min-h-[280px] overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-8 text-white dark:from-blue-700 dark:via-blue-800 dark:to-blue-900 sm:min-h-[320px] sm:p-12">
         <div className="relative">
           <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/5 sm:h-48 sm:w-48" />
           <div className="absolute -bottom-12 -right-4 h-24 w-24 rounded-full bg-white/5 sm:h-36 sm:w-36" />
@@ -47,7 +47,7 @@ export default function HomePage() {
       {/* AI 추천 해커톤 */}
       <RecommendedHackathons />
 
-      {/* 해커톤 카드 + 퀵 네비 */}
+      {/* 해커톤 카드 + 퀵 네비 (content-auto for off-screen rendering) */}
       <div className="grid gap-8 lg:grid-cols-3">
         <section className="lg:col-span-2">
           <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">

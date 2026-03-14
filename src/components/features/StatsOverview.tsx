@@ -43,7 +43,7 @@ export function StatsOverview() {
   ];
 
   return (
-    <section className="mb-8">
+    <section className="mb-8 min-h-[104px]">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {STATS.map((stat, i) => (
           <div
