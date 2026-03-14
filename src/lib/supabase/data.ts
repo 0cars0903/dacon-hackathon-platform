@@ -64,8 +64,8 @@ export async function getAllHackathonDetails(): Promise<HackathonDetail[]> {
     .select("slug, sections");
   if (!data) return [];
   const { data: hacks } = await supabase().from("hackathons").select("slug, title");
-  const titleMap = Object.fromEntries((hacks ?? []).map(h => [h.slug, h.title]));
-  return data.map(d => ({
+  const titleMap = Object.fromEntries((hacks ?? []).map((h: any) => [h.slug, h.title]));
+  return data.map((d: any) => ({
     slug: d.slug,
     title: titleMap[d.slug] ?? d.slug,
     sections: d.sections as HackathonDetail["sections"],
@@ -201,7 +201,7 @@ export async function getJoinRequests(teamCode: string): Promise<TeamJoinRequest
     .eq("team_code", teamCode)
     .eq("status", "pending")
     .order("created_at", { ascending: true });
-  return (data ?? []).map(r => ({
+  return (data ?? []).map((r: any) => ({
     id: r.id, teamCode: r.team_code, userId: r.user_id,
     userName: r.user_name, message: r.message ?? "",
     status: r.status as TeamJoinRequest["status"], createdAt: r.created_at,
@@ -287,7 +287,7 @@ export async function getTeamMessages(teamCode: string): Promise<TeamChatMessage
     .eq("team_code", teamCode)
     .order("created_at", { ascending: true })
     .limit(200);
-  return (data ?? []).map(m => ({
+  return (data ?? []).map((m: any) => ({
     id: m.id, teamCode: m.team_code, senderId: m.sender_id,
     senderName: m.sender_name, content: m.content, createdAt: m.created_at,
   }));
@@ -439,7 +439,7 @@ export async function getConversationList(userId: string): Promise<Conversation[
     const partnerName = m.sender_id === userId ? m.receiver_name : m.sender_name;
     if (!convMap.has(partnerId)) {
       const unread = data.filter(
-        d => d.sender_id === partnerId && d.receiver_id === userId && !d.read
+        (d: any) => d.sender_id === partnerId && d.receiver_id === userId && !d.read
       ).length;
       convMap.set(partnerId, {
         partnerId, partnerName, lastMessage: m.content,
@@ -513,7 +513,7 @@ export async function getFollowers(userId: string): Promise<FollowRelation[]> {
     .from("follows")
     .select("*")
     .eq("following_id", userId);
-  return (data ?? []).map(f => ({
+  return (data ?? []).map((f: any) => ({
     followerId: f.follower_id, followingId: f.following_id, createdAt: f.created_at,
   }));
 }
@@ -523,7 +523,7 @@ export async function getFollowing(userId: string): Promise<FollowRelation[]> {
     .from("follows")
     .select("*")
     .eq("follower_id", userId);
-  return (data ?? []).map(f => ({
+  return (data ?? []).map((f: any) => ({
     followerId: f.follower_id, followingId: f.following_id, createdAt: f.created_at,
   }));
 }
@@ -554,7 +554,7 @@ export async function getActivityFeed(): Promise<ActivityFeedItem[]> {
     .select("*")
     .order("created_at", { ascending: false })
     .limit(100);
-  return (data ?? []).map(a => ({
+  return (data ?? []).map((a: any) => ({
     id: a.id, type: a.type as ActivityFeedItem["type"], message: a.message,
     timestamp: a.created_at, hackathonSlug: a.hackathon_slug ?? undefined,
   }));
@@ -581,7 +581,7 @@ export async function getFilteredActivityFeed(
   }
 
   const { data } = await query;
-  return (data ?? []).map(a => ({
+  return (data ?? []).map((a: any) => ({
     id: a.id, type: a.type as ActivityFeedItem["type"], message: a.message,
     timestamp: a.created_at, hackathonSlug: a.hackathon_slug ?? undefined,
   }));
@@ -606,7 +606,7 @@ export async function getNotifications(userId: string) {
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(50);
-  return (data ?? []).map(n => ({
+  return (data ?? []).map((n: any) => ({
     id: n.id, message: n.message, read: n.read,
     timestamp: n.created_at, link: n.link, type: n.type,
   }));
@@ -638,7 +638,7 @@ export async function getForumComments(postId: string): Promise<ForumComment[]> 
     .select("*")
     .eq("post_id", postId)
     .order("created_at", { ascending: true });
-  return (data ?? []).map(c => ({
+  return (data ?? []).map((c: any) => ({
     id: c.id, postId: c.post_id, authorId: c.author_id,
     authorName: c.author_name, authorNickname: c.author_nickname,
     content: c.content, likes: c.likes ?? [], createdAt: c.created_at,
@@ -678,7 +678,7 @@ export async function getLeaderboard(hackathonSlug: string): Promise<Leaderboard
 
 export async function getAllLeaderboards(): Promise<Leaderboard[]> {
   const { data } = await supabase().from("leaderboards").select("*");
-  return (data ?? []).map(d => ({
+  return (data ?? []).map((d: any) => ({
     hackathonSlug: d.hackathon_slug,
     evalType: d.eval_type as Leaderboard["evalType"],
     metricName: d.metric_name ?? "", metricFormula: d.metric_formula ?? undefined,
@@ -750,12 +750,12 @@ export async function getProfile(userId: string): Promise<UserProfile | undefine
       submissions: p.submissions_count,
       totalScore: p.total_score,
     },
-    badges: (badges ?? []).map(b => ({
+    badges: (badges ?? []).map((b: any) => ({
       id: b.id, name: b.name, emoji: b.emoji,
       description: b.description, earnedAt: b.earned_at,
     })),
-    joinedHackathons: (hp ?? []).map(h => h.hackathon_slug),
-    teamMemberships: (tm ?? []).map(t => t.team_code),
+    joinedHackathons: (hp ?? []).map((h: any) => h.hackathon_slug),
+    teamMemberships: (tm ?? []).map((t: any) => t.team_code),
   };
 }
 

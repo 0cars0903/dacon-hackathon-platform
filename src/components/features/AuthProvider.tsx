@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Auth 상태 변경 리스너
     const { data: { subscription } } = supabase().auth.onAuthStateChange(
-      async (_event, session) => {
+      async (_event: string, session: any) => {
         if (session?.user) {
           const { data: profile } = await supabase()
             .from("profiles")
@@ -166,7 +166,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!data) return [];
 
     // 간소화된 프로필 리스트 (배지/멤버십 없이)
-    return data.map(p => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return data.map((p: any) => ({
       id: p.id,
       name: p.name,
       nickname: p.nickname,
@@ -326,7 +327,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from("profiles")
       .select("id, name, email, role")
       .order("joined_at", { ascending: false });
-    return (data ?? []).map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role }));
+    return (data ?? []).map((u: any) => ({ id: u.id, name: u.name, email: u.email, role: u.role }));
   }, []);
 
   const deleteUserCb = useCallback(async (userId: string): Promise<boolean> => {

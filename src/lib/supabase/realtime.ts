@@ -32,7 +32,7 @@ export function useTeamChat(teamCode: string | null) {
         .limit(200);
 
       setMessages(
-        (data ?? []).map(m => ({
+        (data ?? []).map((m: any) => ({
           id: m.id,
           teamCode: m.team_code,
           senderId: m.sender_id,
@@ -59,7 +59,7 @@ export function useTeamChat(teamCode: string | null) {
           table: "team_chat_messages",
           filter: `team_code=eq.${teamCode}`,
         },
-        (payload) => {
+        (payload: any) => {
           const m = payload.new as Record<string, string>;
           setMessages(prev => [
             ...prev,
@@ -120,7 +120,7 @@ export function useDirectMessages(userId: string | null, partnerId: string | nul
         .limit(200);
 
       setMessages(
-        (data ?? []).map(m => ({
+        (data ?? []).map((m: any) => ({
           id: m.id,
           senderId: m.sender_id,
           senderName: m.sender_name,
@@ -156,7 +156,7 @@ export function useDirectMessages(userId: string | null, partnerId: string | nul
           schema: "public",
           table: "direct_messages",
         },
-        (payload) => {
+        (payload: any) => {
           const m = payload.new as Record<string, unknown>;
           // 이 대화에 관련된 메시지만 추가
           const isRelevant =
@@ -232,7 +232,7 @@ export function useNotifications(userId: string | null) {
         .order("created_at", { ascending: false })
         .limit(50);
 
-      const mapped = (data ?? []).map(n => ({
+      const mapped = (data ?? []).map((n: any) => ({
         id: n.id,
         message: n.message,
         read: n.read,
@@ -241,7 +241,7 @@ export function useNotifications(userId: string | null) {
         type: n.type ?? undefined,
       }));
       setNotifications(mapped);
-      setUnreadCount(mapped.filter(n => !n.read).length);
+      setUnreadCount(mapped.filter((n: any) => !n.read).length);
     };
     load();
 
@@ -256,7 +256,7 @@ export function useNotifications(userId: string | null) {
           table: "notifications",
           filter: `user_id=eq.${userId}`,
         },
-        (payload) => {
+        (payload: any) => {
           const n = payload.new as Record<string, unknown>;
           const newNotif = {
             id: n.id as string,
@@ -280,7 +280,7 @@ export function useNotifications(userId: string | null) {
   const markRead = useCallback(async (notificationId: string) => {
     await supabase().from("notifications").update({ read: true }).eq("id", notificationId);
     setNotifications(prev =>
-      prev.map(n => (n.id === notificationId ? { ...n, read: true } : n))
+      prev.map((n: any) => (n.id === notificationId ? { ...n, read: true } : n))
     );
     setUnreadCount(prev => Math.max(0, prev - 1));
   }, []);
@@ -292,7 +292,7 @@ export function useNotifications(userId: string | null) {
       .update({ read: true })
       .eq("user_id", userId)
       .eq("read", false);
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setNotifications(prev => prev.map((n: any) => ({ ...n, read: true })));
     setUnreadCount(0);
   }, [userId]);
 
