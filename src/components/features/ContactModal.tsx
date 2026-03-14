@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/components/features/AuthProvider";
 import { Button } from "@/components/common/Button";
+import { sendMessage, addNotification, logActivity } from "@/lib/supabase/data";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -9,16 +11,25 @@ interface ContactModalProps {
   teamName: string;
   contactUrl: string;
   contactType?: string;
+  creatorId?: string;
+  creatorName?: string;
+  teamCode?: string;
 }
 
-export function ContactModal({ isOpen, onClose, teamName, contactUrl }: ContactModalProps) {
+export function ContactModal({
+  isOpen, onClose, teamName, contactUrl,
+  creatorId, creatorName, teamCode,
+}: ContactModalProps) {
+  const { user } = useAuth();
   const [copied, setCopied] = useState(false);
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
 
   if (!isOpen) return null;
 
-  const isKakao = contactUrl.includes("kakao");
+  const hasExternalLink = !!contactUrl && contactUrl.trim() !== "";
+  const isKakao = hasExternalLink && contactUrl.includes("kakao");
   const linkLabel = isKakao ? "카카오톡 오픈채팅방" : "외부 링크";
   const linkEmoji = isKakao ? "💬" : "🔗";
 
@@ -29,21 +40,62 @@ export function ContactModal({ isOpen, onClose, teamName, contactUrl }: ContactM
     });
   };
 
-  const handleSendMessage = () => {
-    const messages = JSON.parse(localStorage.getItem("dacon_messages") || "[]");
-    messages.push({
-      id: Date.now().toString(),
-      teamName,
-      message,
-      sentAt: new Date().toISOString(),
-    });
-    localStorage.setItem("dacon_messages", JSON.stringify(messages));
-    setSent(true);
-    setTimeout(() => {
-      setSent(false);
-      setMessage("");
-      onClose();
-    }, 1500);
+  const handleSendMessage = async () => {
+    if (!message.trim() || sending) return;
+    setSending(true);
+
+    try {
+      // 1) Supabase DM 전송
+      if (user && creatorId && creatorName) {
+        const dm = await sendMessage(
+          user.id,
+          user.name,
+          creatorId,
+          creatorName,
+          `[${teamName}] ${message}`
+        );
+        console.log("[ContactModal] DM sent:", !!dm);
+
+        // 2) 팀장에게 알림 추가
+        await addNotification(creatorId, {
+          message: `${user.name}님이 "${teamName}" 팀에 연락 메시지를 보냈습니다.`,
+          link: "/messages",
+          type: "info",
+        });
+        console.log("[ContactModal] Notification added for:", creatorId);
+
+        // 3) 최근 활동에 기록
+        await logActivity({
+          type: "team_created",
+          message: `${user.name}님이 ${teamName} 팀에 참여 메시지를 보냈습니다.`,
+          timestamp: new Date().toISOString(),
+          hackathonSlug: undefined,
+        });
+        console.log("[ContactModal] Activity logged");
+      } else {
+        // 로그인하지 않은 경우 localStorage 폴백
+        const messages = JSON.parse(localStorage.getItem("dacon_messages") || "[]");
+        messages.push({
+          id: Date.now().toString(),
+          teamName,
+          message,
+          sentAt: new Date().toISOString(),
+        });
+        localStorage.setItem("dacon_messages", JSON.stringify(messages));
+        console.log("[ContactModal] Saved to localStorage (no auth)");
+      }
+
+      setSent(true);
+      setTimeout(() => {
+        setSent(false);
+        setMessage("");
+        setSending(false);
+        onClose();
+      }, 1500);
+    } catch (err) {
+      console.error("[ContactModal] Error sending message:", err);
+      setSending(false);
+    }
   };
 
   return (
@@ -56,7 +108,7 @@ export function ContactModal({ isOpen, onClose, teamName, contactUrl }: ContactM
           <div className="py-8 text-center">
             <p className="mb-2 text-3xl">✅</p>
             <p className="font-semibold text-gray-900 dark:text-white">메시지를 전송했습니다!</p>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{teamName}에게 연락이 전달됩니다.</p>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{teamName} 팀장에게 연락이 전달됩니다.</p>
           </div>
         ) : (
           <>
@@ -69,45 +121,59 @@ export function ContactModal({ isOpen, onClose, teamName, contactUrl }: ContactM
               </button>
             </div>
 
-            {/* 오픈채팅방 링크 영역 */}
-            <div className="mb-5 rounded-xl border-2 border-blue-100 bg-blue-50/50 p-4 dark:border-blue-900/40 dark:bg-blue-900/20">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="text-lg">{linkEmoji}</span>
-                <span className="text-sm font-semibold text-gray-900 dark:text-white">{linkLabel}</span>
-              </div>
-              <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
-                {isKakao
-                  ? "팀장이 등록한 카카오톡 오픈채팅방에 참여하여 팀원들과 소통할 수 있습니다."
-                  : "팀장이 등록한 외부 링크를 통해 팀에 참여할 수 있습니다."}
-              </p>
+            {/* 오픈채팅방 링크 영역 — 링크가 존재할 때만 표시 */}
+            {hasExternalLink ? (
+              <div className="mb-5 rounded-xl border-2 border-blue-100 bg-blue-50/50 p-4 dark:border-blue-900/40 dark:bg-blue-900/20">
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="text-lg">{linkEmoji}</span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white">{linkLabel}</span>
+                </div>
+                <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+                  {isKakao
+                    ? "팀장이 등록한 카카오톡 오픈채팅방에 참여하여 팀원들과 소통할 수 있습니다."
+                    : "팀장이 등록한 외부 링크를 통해 팀에 참여할 수 있습니다."}
+                </p>
 
-              <div className="flex gap-2">
-                <a
-                  href={contactUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-                >
-                  {isKakao ? "💬 오픈채팅방 참여" : "🔗 링크 열기"}
-                </a>
-                <button
-                  onClick={handleCopyLink}
-                  className="rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-                >
-                  {copied ? "✓ 복사됨" : "📋 복사"}
-                </button>
+                <div className="flex gap-2">
+                  <a
+                    href={contactUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                  >
+                    {isKakao ? "💬 오픈채팅방 참여" : "🔗 링크 열기"}
+                  </a>
+                  <button
+                    onClick={handleCopyLink}
+                    className="rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                  >
+                    {copied ? "✓ 복사됨" : "📋 복사"}
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="mb-5 rounded-xl border-2 border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="text-lg">🔗</span>
+                  <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">외부 링크 없음</span>
+                </div>
+                <p className="text-xs text-gray-400 dark:text-gray-500">
+                  팀장이 아직 외부 연락처 링크를 등록하지 않았습니다. 아래 메시지를 통해 연락해주세요.
+                </p>
+              </div>
+            )}
 
             {/* 구분선 */}
-            <div className="relative my-5">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+            {hasExternalLink && (
+              <div className="relative my-5">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-white px-2 text-gray-400 dark:bg-gray-900">또는 메시지 보내기</span>
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="bg-white px-2 text-gray-400 dark:bg-gray-900">또는 메시지 보내기</span>
-              </div>
-            </div>
+            )}
 
             {/* 메시지 폼 */}
             <div className="mb-4">
@@ -124,8 +190,8 @@ export function ContactModal({ isOpen, onClose, teamName, contactUrl }: ContactM
               <Button onClick={onClose} className="flex-1 !bg-gray-100 !text-gray-700 hover:!bg-gray-200 dark:!bg-gray-800 dark:!text-gray-300">
                 닫기
               </Button>
-              <Button onClick={handleSendMessage} disabled={!message.trim()} className="flex-1">
-                메시지 보내기
+              <Button onClick={handleSendMessage} disabled={!message.trim() || sending} className="flex-1">
+                {sending ? "전송 중..." : "메시지 보내기"}
               </Button>
             </div>
           </>

@@ -51,7 +51,7 @@ function CampContent() {
   const [selectedHackathon, setSelectedHackathon] = useState(hackathonFilter);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [localTeams, setLocalTeams] = useState<Team[]>([]);
-  const [contactTeam, setContactTeam] = useState<{ name: string; url: string } | null>(null);
+  const [contactTeam, setContactTeam] = useState<{ name: string; url: string; creatorId?: string; creatorName?: string; teamCode?: string } | null>(null);
   const [joinSuccess, setJoinSuccess] = useState<string | null>(null);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [showJoinRequestModal, setShowJoinRequestModal] = useState<Team | null>(null);
@@ -298,7 +298,17 @@ function CampContent() {
                         ) : (
                           <button onClick={() => setShowJoinRequestModal(team)} className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700">참가 신청</button>
                         )}
-                        <button onClick={() => setContactTeam({ name: team.name, url: team.contact.url })} className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700">연락하기</button>
+                        <button onClick={() => {
+                          // creatorName 을 팀 멤버에서 찾기
+                          const leader = team.members?.find((m) => m.role === "팀장");
+                          setContactTeam({
+                            name: team.name,
+                            url: team.contact.url,
+                            creatorId: team.creatorId,
+                            creatorName: leader?.name || "팀장",
+                            teamCode: team.teamCode,
+                          });
+                        }} className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700">연락하기</button>
                       </>
                     )}
                   </div>
@@ -330,7 +340,15 @@ function CampContent() {
       </Modal>
 
       {contactTeam && (
-        <ContactModal isOpen={true} onClose={() => setContactTeam(null)} teamName={contactTeam.name} contactUrl={contactTeam.url} />
+        <ContactModal
+          isOpen={true}
+          onClose={() => setContactTeam(null)}
+          teamName={contactTeam.name}
+          contactUrl={contactTeam.url}
+          creatorId={contactTeam.creatorId}
+          creatorName={contactTeam.creatorName}
+          teamCode={contactTeam.teamCode}
+        />
       )}
 
       {showInviteModal && (
