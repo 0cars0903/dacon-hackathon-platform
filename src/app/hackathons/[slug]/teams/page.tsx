@@ -1,17 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getTeamsByHackathon } from "@/lib/data";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
+import { ContactModal } from "@/components/features/ContactModal";
 import { timeAgo } from "@/lib/utils";
 
 export default function HackathonTeamsPage() {
   const params = useParams();
   const slug = params.slug as string;
   const teams = getTeamsByHackathon(slug);
+  const [contactTeam, setContactTeam] = useState<{
+    name: string;
+    url: string;
+  } | null>(null);
 
   return (
     <div className="space-y-4">
@@ -66,19 +72,31 @@ export default function HackathonTeamsPage() {
                   </div>
                 )}
                 {team.isOpen && (
-                  <a
-                    href={team.contact.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+                  <button
+                    onClick={() =>
+                      setContactTeam({
+                        name: team.name,
+                        url: team.contact.url,
+                      })
+                    }
+                    className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
                   >
-                    연락하기 →
-                  </a>
+                    연락하기
+                  </button>
                 )}
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {contactTeam && (
+        <ContactModal
+          isOpen={true}
+          onClose={() => setContactTeam(null)}
+          teamName={contactTeam.name}
+          contactUrl={contactTeam.url}
+        />
       )}
     </div>
   );

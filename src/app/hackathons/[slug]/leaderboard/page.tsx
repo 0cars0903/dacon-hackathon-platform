@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { getLeaderboard } from "@/lib/data";
+import { getLeaderboard, getHackathonBySlug } from "@/lib/data";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
 import { formatDateTime, timeAgo } from "@/lib/utils";
@@ -9,7 +9,19 @@ import { formatDateTime, timeAgo } from "@/lib/utils";
 export default function HackathonLeaderboardPage() {
   const params = useParams();
   const slug = params.slug as string;
+  const hackathon = getHackathonBySlug(slug);
   const leaderboard = getLeaderboard(slug);
+
+  // 예정 중인 해커톤은 리더보드 비공개
+  if (hackathon?.status === "upcoming") {
+    return (
+      <EmptyState
+        emoji="⏳"
+        title="리더보드가 아직 공개되지 않았습니다"
+        description="해커톤이 시작되면 리더보드가 공개됩니다."
+      />
+    );
+  }
 
   if (!leaderboard || leaderboard.entries.length === 0) {
     return (
@@ -23,9 +35,17 @@ export default function HackathonLeaderboardPage() {
 
   return (
     <div>
-      <p className="mb-4 text-xs text-gray-400">
-        업데이트: {formatDateTime(leaderboard.updatedAt)}
-      </p>
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-xs text-gray-400">
+          업데이트: {formatDateTime(leaderboard.updatedAt)}
+        </p>
+        {hackathon?.status === "ended" && (
+          <Badge variant="muted" size="sm">최종 결과</Badge>
+        )}
+        {hackathon?.status === "ongoing" && (
+          <Badge variant="success" size="sm">실시간</Badge>
+        )}
+      </div>
       <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
         <table className="w-full">
           <thead>

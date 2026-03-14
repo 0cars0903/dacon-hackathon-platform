@@ -46,7 +46,7 @@ export default function RankingsPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
+      <h1 className="font-display mb-6 text-2xl font-bold text-gray-900 dark:text-white" style={{ fontWeight: 700 }}>
         랭킹
       </h1>
 
@@ -89,7 +89,7 @@ export default function RankingsPage() {
             <p className="text-xs text-gray-500 dark:text-gray-400">평균 점수</p>
             <p className="text-2xl font-bold text-green-600 dark:text-green-400">{avgScore}</p>
           </div>
-          <ScoreChart title="점수 분포" />
+          <ScoreChart title="점수 분포" scores={sorted.map((e) => e.score)} />
         </div>
       )}
 

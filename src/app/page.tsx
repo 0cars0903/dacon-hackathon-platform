@@ -18,9 +18,10 @@ export default function HomePage() {
         <div className="relative">
           <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/5 sm:h-48 sm:w-48" />
           <div className="absolute -bottom-12 -right-4 h-24 w-24 rounded-full bg-white/5 sm:h-36 sm:w-36" />
-          <h1 className="relative mb-3 text-3xl font-bold sm:text-4xl">
-            데이터 경진대회 플랫폼
+          <h1 className="font-display relative mb-3 text-3xl font-bold sm:text-4xl" style={{ fontWeight: 800, letterSpacing: '-1px' }}>
+            DACON PLATFORM
           </h1>
+          <p className="relative mb-1 text-xl font-medium text-white/90">데이터 경진대회 플랫폼</p>
           <p className="relative mb-6 text-lg text-blue-100">
             다양한 해커톤에 참가하고, 팀을 구성하고,
             <br className="hidden sm:block" />

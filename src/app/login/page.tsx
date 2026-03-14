@@ -54,7 +54,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* 로고 */}
         <div className="mb-8 text-center">
-          <Link href="/" className="inline-block text-2xl font-bold text-gray-900 dark:text-white">
+          <Link href="/" className="font-display inline-block text-2xl font-bold text-gray-900 dark:text-white" style={{ fontWeight: 800 }}>
             <span className="text-blue-600 dark:text-blue-400">DACON</span>{" "}
             <span className="text-gray-500">Platform</span>
           </Link>

@@ -1,200 +1,375 @@
-{
-  "slug": "aimers-8-model-lite",
-  "title": "Aimers 8기 : 모델 경량화 온라인 해커톤",
-  "sections": {
-    "overview": {
-      "summary": "제한된 평가 환경에서 모델의 성능과 추론 속도를 함께 최적화합니다.",
-      "teamPolicy": {
-        "allowSolo": true,
-        "maxTeamSize": 5
-      }
-    },
-    "info": {
-      "notice": [
-        "제출 마감 이후 추가 제출은 불가합니다.",
-        "평가 환경은 고정이며, 제출물은 별도 설치 없이 실행 가능해야 합니다."
-      ],
-      "links": {
-        "rules": "https://example.com/public/rules/aimers8",
-        "faq": "https://example.com/public/faq/aimers8"
-      }
-    },
-    "eval": {
-      "metricName": "FinalScore",
-      "description": "성능과 속도를 종합한 점수(세부 산식은 규정 참고).",
-      "limits": {
-        "maxRuntimeSec": 1200,
-        "maxSubmissionsPerDay": 5
-      }
-    },
-    "schedule": {
-      "timezone": "Asia/Seoul",
-      "milestones": [
-        {
-          "name": "리더보드 제출 마감",
-          "at": "2026-02-25T10:00:00+09:00"
-        },
-        {
-          "name": "대회 종료",
-          "at": "2026-02-26T10:00:00+09:00"
+[
+  {
+    "slug": "aimers-8-model-lite",
+    "title": "Aimers 8기 : 모델 경량화 온라인 해커톤",
+    "sections": {
+      "overview": {
+        "summary": "제한된 평가 환경에서 모델의 성능과 추론 속도를 함께 최적화합니다. 참가자들은 LLM 경량화 기법(Quantization, Pruning, Distillation 등)을 활용하여 추론 성능과 속도의 균형을 맞추는 최적의 솔루션을 개발합니다.",
+        "teamPolicy": {
+          "allowSolo": true,
+          "maxTeamSize": 5
         }
-      ]
-    },
-    "prize": {
-      "items": [
-        {
-          "place": "1st",
-          "amountKRW": 3000000
-        },
-        {
-          "place": "2nd",
-          "amountKRW": 1500000
-        },
-        {
-          "place": "3rd",
-          "amountKRW": 800000
+      },
+      "info": {
+        "notice": [
+          "제출 마감 이후 추가 제출은 불가합니다.",
+          "평가 환경은 고정이며, 제출물은 별도 설치 없이 실행 가능해야 합니다.",
+          "GPU 환경은 T4 1장 기준이며, VRAM 16GB를 초과하는 모델은 실행이 제한됩니다.",
+          "외부 데이터 사용 시 출처를 명시해야 합니다."
+        ],
+        "links": {
+          "rules": "https://example.com/public/rules/aimers8",
+          "faq": "https://example.com/public/faq/aimers8"
         }
-      ]
-    },
-    "teams": {
-      "campEnabled": true,
-      "listUrl": "/camp?hackathon=aimers-8-model-lite"
-    },
-    "submit": {
-      "allowedArtifactTypes": [
-        "zip"
-      ],
-      "submissionUrl": "/hackathons/aimers-8-model-lite#submit",
-      "guide": [
-        "제출물은 규정에 맞는 단일 zip 파일로 업로드합니다.",
-        "업로드 후 '제출' 버튼을 눌러야 리더보드에 반영됩니다."
-      ]
-    },
-    "leaderboard": {
-      "publicLeaderboardUrl": "/hackathons/aimers-8-model-lite#leaderboard",
-      "note": "Public 리더보드는 제출 마감 시점 기준으로 고정될 수 있습니다(규정 참고)."
+      },
+      "eval": {
+        "metricName": "FinalScore",
+        "description": "성능과 속도를 종합한 점수. FinalScore = 0.6 × Accuracy + 0.4 × (1 / AvgLatency) 형태로 산출됩니다.",
+        "scoreDisplay": {
+          "label": "평가 비중",
+          "breakdown": [
+            { "key": "accuracy", "label": "정확도", "weightPercent": 60 },
+            { "key": "speed", "label": "추론속도", "weightPercent": 40 }
+          ]
+        },
+        "limits": {
+          "maxRuntimeSec": 1200,
+          "maxSubmissionsPerDay": 5
+        }
+      },
+      "schedule": {
+        "timezone": "Asia/Seoul",
+        "milestones": [
+          { "name": "대회 시작", "at": "2026-02-10T10:00:00+09:00" },
+          { "name": "리더보드 제출 마감", "at": "2026-02-25T10:00:00+09:00" },
+          { "name": "대회 종료", "at": "2026-02-26T10:00:00+09:00" }
+        ]
+      },
+      "prize": {
+        "items": [
+          { "place": "1위", "amountKRW": 3000000 },
+          { "place": "2위", "amountKRW": 1500000 },
+          { "place": "3위", "amountKRW": 800000 }
+        ]
+      },
+      "teams": {
+        "campEnabled": true,
+        "listUrl": "/camp?hackathon=aimers-8-model-lite"
+      },
+      "submit": {
+        "allowedArtifactTypes": ["zip"],
+        "submissionUrl": "/hackathons/aimers-8-model-lite/submit",
+        "guide": [
+          "제출물은 규정에 맞는 단일 zip 파일로 업로드합니다.",
+          "업로드 후 '제출' 버튼을 눌러야 리더보드에 반영됩니다.",
+          "제출 파일 내 inference.py가 진입점이 됩니다."
+        ],
+        "submissionItems": [
+          { "key": "model", "title": "모델 파일 (zip)", "format": "zip" }
+        ]
+      },
+      "leaderboard": {
+        "publicLeaderboardUrl": "/hackathons/aimers-8-model-lite/leaderboard",
+        "note": "Public 리더보드는 제출 마감 시점 기준으로 고정될 수 있습니다."
+      }
     }
   },
-  "extraDetails": [
-    {
-      "slug": "daker-handover-2026-03",
-      "title": "긴급 인수인계 해커톤: 명세서만 보고 구현하라",
-      "sections": {
-        "overview": {
-          "summary": "기능 명세서만 남기고 사라진 개발자의 문서를 기반으로 바이브 코딩을 통해 웹서비스를 구현·배포하는 해커톤입니다.",
-          "teamPolicy": {
-            "allowSolo": true,
-            "maxTeamSize": 5
-          }
-        },
-        "info": {
-          "notice": [
-            "예시 자료 외 데이터는 제공되지 않습니다.",
-            "더미 데이터/로컬 저장소(localStorage 등)를 활용해 구현하세요.",
-            "배포 URL은 외부에서 접속 가능해야하며 심사 기간동안 접근 가능해야합니다.",
-            "외부 API/외부 DB를 쓰는 경우에도 심사자가 별도 키 없이 확인 가능해야 합니다. (키가 필요한 기능은 평가에서 확인이 제한될 수 있음)"
-          ],
-          "links": {
-            "rules": "https://example.com/public/rules/daker-handover-202603",
-            "faq": "https://example.com/public/faq/daker-handover-202603"
-          }
-        },
-        "eval": {
-          "metricName": "FinalScore",
-          "description": "참가팀/심사위원 투표 점수를 가중치로 합산한 최종 점수",
-          "scoreSource": "vote",
-          "scoreDisplay": {
-            "label": "투표 점수",
-            "breakdown": [
-              {
-                "key": "participant",
-                "label": "참가자",
-                "weightPercent": 30
-              },
-              {
-                "key": "judge",
-                "label": "심사위원",
-                "weightPercent": 70
-              }
-            ]
-          }
-        },
-        "schedule": {
-          "timezone": "Asia/Seoul",
-          "milestones": [
-            {
-              "name": "접수/기획서 제출 기간",
-              "at": "2026-03-04T10:00:00+09:00"
-            },
-            {
-              "name": "접수/기획서 제출 마감",
-              "at": "2026-03-30T10:00:00+09:00"
-            },
-            {
-              "name": "최종 웹링크 제출 마감",
-              "at": "2026-04-06T10:00:00+09:00"
-            },
-            {
-              "name": "최종 솔루션 PDF 제출 마감",
-              "at": "2026-04-13T10:00:00+09:00"
-            },
-            {
-              "name": "1차 투표평가 시작",
-              "at": "2026-04-13T12:00:00+09:00"
-            },
-            {
-              "name": "1차 투표평가 마감",
-              "at": "2026-04-17T10:00:00+09:00"
-            },
-            {
-              "name": "2차 내부평가 종료",
-              "at": "2026-04-24T23:59:00+09:00"
-            },
-            {
-              "name": "최종 결과 발표",
-              "at": "2026-04-27T10:00:00+09:00"
-            }
-          ]
-        },
-        "teams": {
-          "campEnabled": true,
-          "listUrl": "/camp?hackathon=daker-handover-2026-03"
-        },
-        "submit": {
-          "allowedArtifactTypes": [
-            "text",
-            "url",
-            "pdf"
-          ],
-          "submissionUrl": "/hackathons/daker-handover-2026-03#submit",
-          "guide": [
-            "기획서 → 웹링크 → PDF를 단계별로 제출합니다.",
-            "배포 URL은 외부에서 접속 가능해야 하며 심사 기간 동안 접근 가능해야 합니다.",
-            "PPT는 PDF로 변환하여 제출합니다."
-          ],
-          "submissionItems": [
-            {
-              "key": "plan",
-              "title": "기획서(1차 제출)",
-              "format": "text_or_url"
-            },
-            {
-              "key": "web",
-              "title": "최종 웹링크 제출",
-              "format": "url"
-            },
-            {
-              "key": "pdf",
-              "title": "최종 솔루션 PDF 제출",
-              "format": "pdf_url"
-            }
-          ]
-        },
-        "leaderboard": {
-          "publicLeaderboardUrl": "/hackathons/daker-handover-2026-03#leaderboard",
-          "note": "아이디어 해커톤의 점수(score)는 투표 결과를 기반으로 표시됩니다."
+  {
+    "slug": "monthly-vibe-coding-2026-02",
+    "title": "월간 해커톤 : 바이브 코딩 개선 AI 아이디어 공모전 (2026.02)",
+    "sections": {
+      "overview": {
+        "summary": "AI 기반 코드 생성(Vibe Coding) 워크플로우의 개선 아이디어를 제안하는 공모전입니다. 프롬프트 최적화, 코드 리뷰 자동화, 페어 프로그래밍 에이전트 등 다양한 아이디어를 접수하고 있습니다.",
+        "teamPolicy": {
+          "allowSolo": true,
+          "maxTeamSize": 3
         }
+      },
+      "info": {
+        "notice": [
+          "아이디어 기획서는 PDF 또는 Notion 링크로 제출합니다.",
+          "기획서 분량은 10페이지 이내로 제한됩니다.",
+          "프로토타입이 있으면 가산점이 부여됩니다.",
+          "타인의 아이디어를 표절할 경우 실격 처리됩니다."
+        ],
+        "links": {
+          "rules": "https://example.com/public/rules/vibe202602",
+          "faq": "https://example.com/public/faq/vibe202602"
+        }
+      },
+      "eval": {
+        "metricName": "심사위원 평가",
+        "description": "창의성, 실현 가능성, 기술 완성도를 종합하여 심사위원이 평가합니다.",
+        "scoreDisplay": {
+          "label": "평가 비중",
+          "breakdown": [
+            { "key": "creativity", "label": "창의성", "weightPercent": 40 },
+            { "key": "feasibility", "label": "실현가능성", "weightPercent": 35 },
+            { "key": "completeness", "label": "완성도", "weightPercent": 25 }
+          ]
+        }
+      },
+      "schedule": {
+        "timezone": "Asia/Seoul",
+        "milestones": [
+          { "name": "접수 시작", "at": "2026-02-15T10:00:00+09:00" },
+          { "name": "제출 마감", "at": "2026-03-03T10:00:00+09:00" },
+          { "name": "심사 기간", "at": "2026-03-04T10:00:00+09:00" },
+          { "name": "결과 발표", "at": "2026-03-09T10:00:00+09:00" }
+        ]
+      },
+      "prize": {
+        "items": [
+          { "place": "대상", "amountKRW": 2000000 },
+          { "place": "우수상", "amountKRW": 1000000 },
+          { "place": "장려상", "amountKRW": 500000 }
+        ]
+      },
+      "teams": {
+        "campEnabled": true,
+        "listUrl": "/camp?hackathon=monthly-vibe-coding-2026-02"
+      },
+      "submit": {
+        "allowedArtifactTypes": ["pdf", "url"],
+        "submissionUrl": "/hackathons/monthly-vibe-coding-2026-02/submit",
+        "guide": [
+          "기획서를 PDF로 작성하여 업로드합니다.",
+          "프로토타입이 있다면 URL을 함께 제출합니다.",
+          "제출 후 수정이 필요하면 마감 전까지 재제출 가능합니다."
+        ],
+        "submissionItems": [
+          { "key": "plan", "title": "아이디어 기획서 (PDF)", "format": "pdf" },
+          { "key": "prototype", "title": "프로토타입 URL (선택)", "format": "url" }
+        ]
+      },
+      "leaderboard": {
+        "publicLeaderboardUrl": "/hackathons/monthly-vibe-coding-2026-02/leaderboard",
+        "note": "심사위원 평가 기반 순위이며, 제출 마감 후 공개됩니다."
       }
     }
-  ]
-}
+  },
+  {
+    "slug": "daker-handover-2026-03",
+    "title": "긴급 인수인계 해커톤: 명세서만 보고 구현하라",
+    "sections": {
+      "overview": {
+        "summary": "기능 명세서만 남기고 사라진 개발자의 문서를 기반으로 바이브 코딩을 통해 웹서비스를 구현·배포하는 해커톤입니다. 참가자는 주어진 명세서를 분석하고 AI 도구를 활용하여 실제 동작하는 웹 서비스를 Vercel에 배포해야 합니다.",
+        "teamPolicy": {
+          "allowSolo": true,
+          "maxTeamSize": 5
+        }
+      },
+      "info": {
+        "notice": [
+          "예시 자료 외 데이터는 제공되지 않습니다.",
+          "더미 데이터/로컬 저장소(localStorage 등)를 활용해 구현하세요.",
+          "배포 URL은 외부에서 접속 가능해야하며 심사 기간동안 접근 가능해야합니다.",
+          "외부 API/외부 DB를 쓰는 경우에도 심사자가 별도 키 없이 확인 가능해야 합니다."
+        ],
+        "links": {
+          "rules": "https://example.com/public/rules/daker-handover-202603",
+          "faq": "https://example.com/public/faq/daker-handover-202603"
+        }
+      },
+      "eval": {
+        "metricName": "FinalScore",
+        "description": "참가팀/심사위원 투표 점수를 가중치로 합산한 최종 점수",
+        "scoreSource": "vote",
+        "scoreDisplay": {
+          "label": "투표 점수",
+          "breakdown": [
+            { "key": "participant", "label": "참가자", "weightPercent": 30 },
+            { "key": "judge", "label": "심사위원", "weightPercent": 70 }
+          ]
+        }
+      },
+      "schedule": {
+        "timezone": "Asia/Seoul",
+        "milestones": [
+          { "name": "접수/기획서 제출 기간", "at": "2026-03-04T10:00:00+09:00" },
+          { "name": "접수/기획서 제출 마감", "at": "2026-03-30T10:00:00+09:00" },
+          { "name": "최종 웹링크 제출 마감", "at": "2026-04-06T10:00:00+09:00" },
+          { "name": "최종 솔루션 PDF 제출 마감", "at": "2026-04-13T10:00:00+09:00" },
+          { "name": "1차 투표평가 시작", "at": "2026-04-13T12:00:00+09:00" },
+          { "name": "1차 투표평가 마감", "at": "2026-04-17T10:00:00+09:00" },
+          { "name": "2차 내부평가 종료", "at": "2026-04-24T23:59:00+09:00" },
+          { "name": "최종 결과 발표", "at": "2026-04-27T10:00:00+09:00" }
+        ]
+      },
+      "teams": {
+        "campEnabled": true,
+        "listUrl": "/camp?hackathon=daker-handover-2026-03"
+      },
+      "submit": {
+        "allowedArtifactTypes": ["text", "url", "pdf"],
+        "submissionUrl": "/hackathons/daker-handover-2026-03/submit",
+        "guide": [
+          "기획서 → 웹링크 → PDF를 단계별로 제출합니다.",
+          "배포 URL은 외부에서 접속 가능해야 하며 심사 기간 동안 접근 가능해야 합니다.",
+          "PPT는 PDF로 변환하여 제출합니다."
+        ],
+        "submissionItems": [
+          { "key": "plan", "title": "기획서(1차 제출)", "format": "text_or_url" },
+          { "key": "web", "title": "최종 웹링크 제출", "format": "url" },
+          { "key": "pdf", "title": "최종 솔루션 PDF 제출", "format": "pdf_url" }
+        ]
+      },
+      "leaderboard": {
+        "publicLeaderboardUrl": "/hackathons/daker-handover-2026-03/leaderboard",
+        "note": "투표 기간 전에는 리더보드가 비공개입니다."
+      }
+    }
+  },
+  {
+    "slug": "genai-app-challenge-2026",
+    "title": "GenAI 앱 개발 챌린지 2026",
+    "sections": {
+      "overview": {
+        "summary": "생성형 AI(GenAI) 기술을 활용한 실용적인 웹/모바일 애플리케이션을 개발하는 챌린지입니다. LangChain, OpenAI API, Claude API 등 다양한 LLM 프레임워크를 자유롭게 활용하여 혁신적인 AI 앱을 만들어보세요.",
+        "teamPolicy": {
+          "allowSolo": true,
+          "maxTeamSize": 4
+        }
+      },
+      "info": {
+        "notice": [
+          "LLM API 비용은 참가팀이 부담합니다.",
+          "데모 영상(3분 이내)을 필수로 제출해야 합니다.",
+          "오픈소스 라이브러리 사용 시 라이선스를 준수해야 합니다.",
+          "제출된 앱은 심사 기간 동안 접근 가능해야 합니다."
+        ],
+        "links": {
+          "rules": "https://example.com/public/rules/genai-app-2026",
+          "faq": "https://example.com/public/faq/genai-app-2026"
+        }
+      },
+      "eval": {
+        "metricName": "종합 평가",
+        "description": "기술 완성도, 창의성, UX, 실용성을 종합하여 심사합니다.",
+        "scoreDisplay": {
+          "label": "평가 비중",
+          "breakdown": [
+            { "key": "tech", "label": "기술완성도", "weightPercent": 30 },
+            { "key": "creativity", "label": "창의성", "weightPercent": 25 },
+            { "key": "ux", "label": "UX/UI", "weightPercent": 25 },
+            { "key": "practicality", "label": "실용성", "weightPercent": 20 }
+          ]
+        }
+      },
+      "schedule": {
+        "timezone": "Asia/Seoul",
+        "milestones": [
+          { "name": "참가 접수 시작", "at": "2026-03-20T10:00:00+09:00" },
+          { "name": "제출 마감", "at": "2026-04-15T10:00:00+09:00" },
+          { "name": "1차 심사", "at": "2026-04-20T10:00:00+09:00" },
+          { "name": "최종 발표 및 시상", "at": "2026-04-30T10:00:00+09:00" }
+        ]
+      },
+      "prize": {
+        "items": [
+          { "place": "대상", "amountKRW": 5000000 },
+          { "place": "최우수상", "amountKRW": 3000000 },
+          { "place": "우수상", "amountKRW": 1000000 }
+        ]
+      },
+      "teams": {
+        "campEnabled": true,
+        "listUrl": "/camp?hackathon=genai-app-challenge-2026"
+      },
+      "submit": {
+        "allowedArtifactTypes": ["url", "zip", "pdf"],
+        "submissionUrl": "/hackathons/genai-app-challenge-2026/submit",
+        "guide": [
+          "앱 배포 URL과 소스코드(zip)를 함께 제출합니다.",
+          "데모 영상 URL(YouTube 또는 Vimeo)을 필수로 첨부합니다.",
+          "README에 실행 방법과 사용 기술 스택을 명시해야 합니다."
+        ],
+        "submissionItems": [
+          { "key": "app", "title": "앱 배포 URL", "format": "url" },
+          { "key": "source", "title": "소스코드 (zip)", "format": "zip" },
+          { "key": "demo", "title": "데모 영상 URL", "format": "url" },
+          { "key": "doc", "title": "기술 문서 (PDF)", "format": "pdf" }
+        ]
+      },
+      "leaderboard": {
+        "publicLeaderboardUrl": "/hackathons/genai-app-challenge-2026/leaderboard",
+        "note": "심사 완료 후 결과가 공개됩니다."
+      }
+    }
+  },
+  {
+    "slug": "data-viz-hackathon-2026",
+    "title": "데이터 시각화 해커톤: 공공 데이터로 인사이트 뽑기",
+    "sections": {
+      "overview": {
+        "summary": "공공 데이터 포털의 데이터를 활용하여 인터랙티브 시각화 대시보드를 제작하는 해커톤입니다. D3.js, Chart.js, Plotly 등 자유로운 시각화 라이브러리를 사용하여 데이터에서 의미 있는 인사이트를 도출합니다.",
+        "teamPolicy": {
+          "allowSolo": true,
+          "maxTeamSize": 3
+        }
+      },
+      "info": {
+        "notice": [
+          "공공 데이터 포털(data.go.kr) 데이터를 1개 이상 사용해야 합니다.",
+          "시각화는 웹 브라우저에서 접근 가능해야 합니다.",
+          "데이터 출처를 시각화에 명시해야 합니다.",
+          "대시보드에 최소 3개 이상의 차트/그래프가 포함되어야 합니다."
+        ],
+        "links": {
+          "rules": "https://example.com/public/rules/data-viz-2026",
+          "faq": "https://example.com/public/faq/data-viz-2026"
+        }
+      },
+      "eval": {
+        "metricName": "시각화 평가",
+        "description": "데이터 분석 깊이, 시각화 품질, 인사이트 전달력, 인터랙티비티를 평가합니다.",
+        "scoreDisplay": {
+          "label": "평가 비중",
+          "breakdown": [
+            { "key": "analysis", "label": "데이터분석", "weightPercent": 30 },
+            { "key": "visualization", "label": "시각화품질", "weightPercent": 30 },
+            { "key": "insight", "label": "인사이트", "weightPercent": 25 },
+            { "key": "interactivity", "label": "인터랙티비티", "weightPercent": 15 }
+          ]
+        }
+      },
+      "schedule": {
+        "timezone": "Asia/Seoul",
+        "milestones": [
+          { "name": "참가 접수 시작", "at": "2026-03-01T10:00:00+09:00" },
+          { "name": "제출 마감", "at": "2026-03-20T10:00:00+09:00" },
+          { "name": "심사 기간", "at": "2026-03-21T10:00:00+09:00" },
+          { "name": "결과 발표", "at": "2026-03-25T10:00:00+09:00" }
+        ]
+      },
+      "prize": {
+        "items": [
+          { "place": "1위", "amountKRW": 2000000 },
+          { "place": "2위", "amountKRW": 1000000 },
+          { "place": "3위", "amountKRW": 500000 }
+        ]
+      },
+      "teams": {
+        "campEnabled": true,
+        "listUrl": "/camp?hackathon=data-viz-hackathon-2026"
+      },
+      "submit": {
+        "allowedArtifactTypes": ["url", "zip"],
+        "submissionUrl": "/hackathons/data-viz-hackathon-2026/submit",
+        "guide": [
+          "대시보드 배포 URL을 제출합니다.",
+          "소스코드를 zip으로 함께 제출합니다.",
+          "사용한 데이터셋 목록과 출처를 README에 명시합니다."
+        ],
+        "submissionItems": [
+          { "key": "dashboard", "title": "대시보드 URL", "format": "url" },
+          { "key": "source", "title": "소스코드 (zip)", "format": "zip" }
+        ]
+      },
+      "leaderboard": {
+        "publicLeaderboardUrl": "/hackathons/data-viz-hackathon-2026/leaderboard",
+        "note": "심사 완료 후 순위가 공개됩니다."
+      }
+    }
+  }
+]

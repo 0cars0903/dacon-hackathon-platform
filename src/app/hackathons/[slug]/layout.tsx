@@ -53,7 +53,7 @@ export default function HackathonLayout({
           ← 해커톤 목록
         </Link>
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="font-display text-2xl font-bold text-gray-900 dark:text-white" style={{ fontWeight: 700 }}>
             {hackathon.title}
           </h1>
           <Badge

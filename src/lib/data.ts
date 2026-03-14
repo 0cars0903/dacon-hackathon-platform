@@ -3,7 +3,6 @@ import type {
   HackathonDetail,
   Team,
   Leaderboard,
-  LeaderboardEntry,
 } from "@/types";
 
 import hackathonsData from "@/data/hackathons.json";
@@ -26,34 +25,12 @@ export function getHackathonBySlug(slug: string): Hackathon | undefined {
 export function getHackathonDetail(
   slug: string
 ): HackathonDetail | undefined {
-  const main = hackathonDetailsData as Record<string, unknown>;
-
-  if (main.slug === slug) {
-    return main as unknown as HackathonDetail;
-  }
-
-  const extras = (main as Record<string, unknown>)
-    .extraDetails as Array<Record<string, unknown>> | undefined;
-  if (extras) {
-    const found = extras.find(
-      (d: Record<string, unknown>) => d.slug === slug
-    );
-    if (found) return found as unknown as HackathonDetail;
-  }
-
-  return undefined;
+  const details = hackathonDetailsData as unknown as HackathonDetail[];
+  return details.find((d) => d.slug === slug);
 }
 
 export function getAllHackathonDetails(): HackathonDetail[] {
-  const main = hackathonDetailsData as Record<string, unknown>;
-  const result: HackathonDetail[] = [main as unknown as HackathonDetail];
-
-  const extras = main.extraDetails as Array<Record<string, unknown>> | undefined;
-  if (extras) {
-    extras.forEach((d) => result.push(d as unknown as HackathonDetail));
-  }
-
-  return result;
+  return hackathonDetailsData as unknown as HackathonDetail[];
 }
 
 // === 팀 ===
@@ -69,45 +46,38 @@ export function getTeamsByHackathon(hackathonSlug: string): Team[] {
 // === 리더보드 ===
 
 export function getLeaderboard(hackathonSlug: string): Leaderboard | undefined {
-  const main = leaderboardData as Record<string, unknown>;
-
-  if (main.hackathonSlug === hackathonSlug) {
-    return {
-      hackathonSlug: main.hackathonSlug as string,
-      updatedAt: main.updatedAt as string,
-      entries: main.entries as LeaderboardEntry[],
-    };
-  }
-
-  const extras = main.extraLeaderboards as Array<Record<string, unknown>> | undefined;
-  if (extras) {
-    const found = extras.find(
-      (lb: Record<string, unknown>) => lb.hackathonSlug === hackathonSlug
-    );
-    if (found) {
-      return found as unknown as Leaderboard;
-    }
-  }
-
-  return undefined;
+  const leaderboards = leaderboardData as unknown as Leaderboard[];
+  return leaderboards.find((lb) => lb.hackathonSlug === hackathonSlug);
 }
 
 export function getAllLeaderboards(): Leaderboard[] {
-  const main = leaderboardData as Record<string, unknown>;
-  const result: Leaderboard[] = [
-    {
-      hackathonSlug: main.hackathonSlug as string,
-      updatedAt: main.updatedAt as string,
-      entries: main.entries as LeaderboardEntry[],
-    },
-  ];
+  return leaderboardData as unknown as Leaderboard[];
+}
 
-  const extras = main.extraLeaderboards as Array<Record<string, unknown>> | undefined;
-  if (extras) {
-    extras.forEach((lb) => result.push(lb as unknown as Leaderboard));
-  }
+// === 통계 (실제 데이터 기반) ===
 
-  return result;
+export function getPlatformStats() {
+  const hackathons = getHackathons();
+  const teams = getTeams();
+  const leaderboards = getAllLeaderboards();
+
+  const ongoingCount = hackathons.filter((h) => h.status === "ongoing").length;
+  const upcomingCount = hackathons.filter((h) => h.status === "upcoming").length;
+  const totalTeams = teams.length;
+  const totalMembers = teams.reduce((sum, t) => sum + t.memberCount, 0);
+  const totalSubmissions = leaderboards.reduce(
+    (sum, lb) => sum + lb.entries.length,
+    0
+  );
+
+  return {
+    ongoingHackathons: ongoingCount,
+    upcomingHackathons: upcomingCount,
+    totalHackathons: hackathons.length,
+    totalTeams,
+    totalMembers,
+    totalSubmissions,
+  };
 }
 
 // === 추천 로직 (확장 기능) ===
@@ -191,10 +161,10 @@ export function getActivityFeed() {
     },
     {
       id: "6",
-      type: "team_created" as const,
-      message: "LGTM 팀이 긴급 인수인계 해커톤에 참가했습니다.",
-      timestamp: "2026-03-05T09:20:00+09:00",
-      hackathonSlug: "daker-handover-2026-03",
+      type: "submission" as const,
+      message: "ChartMasters가 데이터 시각화 해커톤에 대시보드를 제출했습니다.",
+      timestamp: "2026-03-12T15:00:00+09:00",
+      hackathonSlug: "data-viz-hackathon-2026",
     },
   ];
 }

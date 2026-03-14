@@ -41,7 +41,7 @@ export function Header() {
           href="/"
           className="flex items-center gap-1 text-xl font-bold text-gray-900 transition-transform hover:scale-105 dark:text-white"
         >
-          <span className="text-blue-600 dark:text-blue-400">DACON</span>
+          <span className="font-display text-blue-600 dark:text-blue-400" style={{ fontWeight: 800, letterSpacing: '-0.5px' }}>DACON</span>
           <span className="text-sm font-normal text-gray-500">Platform</span>
         </Link>
 

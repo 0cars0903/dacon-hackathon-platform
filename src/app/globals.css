@@ -28,13 +28,21 @@
   --color-primary: var(--color-primary);
   --color-primary-light: var(--color-primary-light);
   --color-primary-dark: var(--color-primary-dark);
+  --font-body: 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+  --font-display: 'Syne', 'Noto Sans KR', system-ui, sans-serif;
+  --font-code: 'Space Mono', 'Nanum Gothic Coding', ui-monospace, monospace;
 }
 
 body {
   background: var(--color-background);
   color: var(--color-foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
 }
+
+/* 폰트 유틸리티 클래스 */
+.font-body { font-family: var(--font-body); }
+.font-display { font-family: var(--font-display); }
+.font-code { font-family: var(--font-code); }
 
 .dark body {
   background: #0a0a0a;

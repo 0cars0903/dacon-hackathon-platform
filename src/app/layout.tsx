@@ -19,8 +19,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
+      <head>
+        {/* Google Fonts: Syne (Display) + Noto Sans KR (Body) + Space Mono (Code) */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Space+Mono:wght@400;700&family=Syne:wght@600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
-        className="min-h-screen bg-gray-50 font-sans antialiased dark:bg-gray-950"
+        className="min-h-screen bg-gray-50 font-body antialiased dark:bg-gray-950"
       >
         <AuthProvider>
           <ThemeProvider>
