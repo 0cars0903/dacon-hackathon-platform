@@ -96,10 +96,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const initSession = async () => {
       try {
-        // Auth getSession can hang indefinitely — give it 4 seconds max
+        // Auth getSession — autoRefreshToken이 활성화되어 있으므로 토큰 갱신 시간 확보
         const result = await withTimeout(
           authClient().auth.getSession(),
-          4000
+          6000
         );
         if (result && result.data?.session?.user) {
           await syncAuthToDataClient();

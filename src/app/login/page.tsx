@@ -26,27 +26,31 @@ export default function LoginPage() {
         const ok = await login(email, password);
         if (!ok) {
           setError("이메일 또는 비밀번호가 일치하지 않습니다.");
-          setLoading(false);
           return;
         }
       } else {
         if (!name.trim()) {
           setError("이름을 입력해주세요.");
-          setLoading(false);
           return;
         }
         const result = await signup(name, email, password);
         if (!result.ok) {
           setError(result.error || "회원가입에 실패했습니다.");
-          setLoading(false);
           return;
         }
       }
       router.push("/");
+      // Fallback: router.push 간헐적 실패 대비
+      setTimeout(() => {
+        if (window.location.pathname === "/login") {
+          router.replace("/");
+        }
+      }, 1500);
     } catch {
       setError("오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -167,13 +171,20 @@ export default function LoginPage() {
                   const ok = await login("kuma@dacon.io", "kuma1234");
                   if (ok) {
                     router.push("/");
+                    // Fallback: router.push가 간헐적으로 실패하는 경우 대비
+                    setTimeout(() => {
+                      if (window.location.pathname === "/login") {
+                        router.replace("/");
+                      }
+                    }, 1500);
                     return;
                   }
                   setError("관리자 로그인에 실패했습니다. 다시 시도해주세요.");
                 } catch {
                   setError("오류가 발생했습니다.");
+                } finally {
+                  setLoading(false);
                 }
-                setLoading(false);
               }}
               disabled={loading}
               className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400 disabled:opacity-50"
@@ -194,13 +205,19 @@ export default function LoginPage() {
                   const ok = await login("demo@dacon.io", "demo1234");
                   if (ok) {
                     router.push("/");
+                    setTimeout(() => {
+                      if (window.location.pathname === "/login") {
+                        router.replace("/");
+                      }
+                    }, 1500);
                     return;
                   }
                   setError("데모 로그인에 실패했습니다. 다시 시도해주세요.");
                 } catch {
                   setError("오류가 발생했습니다.");
+                } finally {
+                  setLoading(false);
                 }
-                setLoading(false);
               }}
               disabled={loading}
               className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400 disabled:opacity-50"

@@ -96,16 +96,25 @@ export async function getPlatformStats() {
     .from("hackathons").select("slug").eq("status", "ongoing");
   const { data: upcomingData, error: e2 } = await supabase()
     .from("hackathons").select("slug").eq("status", "upcoming");
+  const { data: allHackathonData } = await supabase()
+    .from("hackathons").select("slug");
   const { data: usersData, error: e3 } = await supabase()
     .from("profiles").select("id");
   const { data: teamsData, error: e4 } = await supabase()
     .from("teams").select("team_code");
+  const { data: membersData } = await supabase()
+    .from("team_members").select("id");
+  const { data: submissionsData } = await supabase()
+    .from("submissions").select("id");
   if (e1 || e2 || e3 || e4) logSupabaseError("getPlatformStats", { e1, e2, e3, e4 });
   return {
     ongoingHackathons: ongoingData?.length ?? 0,
     upcomingHackathons: upcomingData?.length ?? 0,
     totalUsers: usersData?.length ?? 0,
     totalTeams: teamsData?.length ?? 0,
+    totalHackathons: allHackathonData?.length ?? 0,
+    totalMembers: membersData?.length ?? 0,
+    totalSubmissions: submissionsData?.length ?? 0,
   };
 }
 
