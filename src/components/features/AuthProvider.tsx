@@ -96,7 +96,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const initSession = async () => {
       try {
-        // 1차: getSession() 시도 (타임아웃 4초)
+        // 1차: localStorage에서 직접 토큰 확인 (GoTrueClient 초기화 우회)
+        // authClient의 getSession/setSession은 내부 초기화에 블로킹되므로
+        // data client(persistSession:false)를 통해 즉시 세션을 복원한다.
+        const stored = localStorage.getItem("dacon-auth-token");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            const accessToken = parsed?.access_token;
+            const refreshToken = parsed?.refresh_token;
+            const userId = parsed?.user?.id;
+            const expiresAt = parsed?.expires_at;
+
+            if (accessToken && refreshToken && userId && expiresAt && expiresAt * 1000 > Date.now()) {
+              // data client에 세션 설정 — 즉시 완료, 초기화 차단 없음
+              await db().auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken,
+              });
+              await loadProfile(userId);
+
+              // auth client에도 세션 설정 (백그라운드, 실패 무시)
+              authClient().auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken,
+              }).catch(() => {});
+
+              setIsLoading(false);
+              return;
+            }
+          } catch {
+            // 파싱 실패 — 다음 방법으로
+          }
+        }
+
+        // 2차: localStorage 없으면 authClient getSession 시도 (타임아웃 4초)
         const result = await withTimeout(
           authClient().auth.getSession(),
           4000
@@ -106,28 +140,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await loadProfile(result.data.session.user.id);
           setIsLoading(false);
           return;
-        }
-
-        // 2차: getSession 실패 시, localStorage에서 직접 토큰을 읽어 setSession으로 복원
-        const stored = localStorage.getItem("dacon-auth-token");
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            const accessToken = parsed?.access_token;
-            const refreshToken = parsed?.refresh_token;
-            if (accessToken && refreshToken) {
-              const { data, error } = await authClient().auth.setSession({
-                access_token: accessToken,
-                refresh_token: refreshToken,
-              });
-              if (!error && data?.session?.user) {
-                await syncAuthToDataClient();
-                await loadProfile(data.session.user.id);
-              }
-            }
-          } catch {
-            // 파싱 실패 — 무시
-          }
         }
       } catch {
         // ignore — proceed as logged out
