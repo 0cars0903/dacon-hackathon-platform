@@ -96,14 +96,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const initSession = async () => {
       try {
-        // Auth getSession — autoRefreshToken이 활성화되어 있으므로 토큰 갱신 시간 확보
+        // 1차: getSession() 시도 (타임아웃 4초)
         const result = await withTimeout(
           authClient().auth.getSession(),
-          6000
+          4000
         );
         if (result && result.data?.session?.user) {
           await syncAuthToDataClient();
           await loadProfile(result.data.session.user.id);
+          setIsLoading(false);
+          return;
+        }
+
+        // 2차: getSession 실패 시, localStorage에서 직접 토큰을 읽어 setSession으로 복원
+        const stored = localStorage.getItem("dacon-auth-token");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            const accessToken = parsed?.access_token;
+            const refreshToken = parsed?.refresh_token;
+            if (accessToken && refreshToken) {
+              const { data, error } = await authClient().auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken,
+              });
+              if (!error && data?.session?.user) {
+                await syncAuthToDataClient();
+                await loadProfile(data.session.user.id);
+              }
+            }
+          } catch {
+            // 파싱 실패 — 무시
+          }
         }
       } catch {
         // ignore — proceed as logged out

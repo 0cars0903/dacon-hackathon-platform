@@ -27,8 +27,8 @@ export function createClient(): SupabaseClient<any, "public", any> {
     auth: {
       persistSession: true,
       storageKey: "dacon-auth-token",
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       lock: (_name: string, _acquireTimeout: number, fn: () => Promise<any>) => fn(),
     },
