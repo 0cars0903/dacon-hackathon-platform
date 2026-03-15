@@ -15,7 +15,7 @@ export default function HackathonInfoPage() {
   useEffect(() => {
     const load = async () => {
       const d = await getHackathonDetail(slug);
-      setDetail(d);
+      setDetail(d ?? null);
     };
     load();
   }, [slug]);

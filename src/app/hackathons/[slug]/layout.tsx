@@ -33,7 +33,7 @@ export default function HackathonLayout({
   useEffect(() => {
     const load = async () => {
       const h = await getHackathonBySlug(slug as string);
-      setHackathon(h);
+      setHackathon(h ?? null);
     };
     load();
   }, [slug]);

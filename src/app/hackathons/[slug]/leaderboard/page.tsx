@@ -21,22 +21,22 @@ export default function HackathonLeaderboardPage() {
   useEffect(() => {
     const load = async () => {
       const h = await getHackathonBySlug(slug);
-      setHackathon(h);
+      setHackathon(h ?? null);
 
       const staticLb = await getLeaderboard(slug);
-      setStaticLeaderboard(staticLb);
+      setStaticLeaderboard(staticLb ?? null);
 
       const dynamicLb = getDynamicLeaderboard(slug);
       const d = await getHackathonDetail(slug);
-      setDetail(d);
+      setDetail(d ?? null);
 
       // 동적 리더보드가 있으면 정적 데이터와 병합
       if (!staticLb && !dynamicLb) {
         setLeaderboard(null);
       } else if (!dynamicLb) {
-        setLeaderboard(staticLb);
+        setLeaderboard(staticLb ?? null);
       } else if (!staticLb) {
-        setLeaderboard(dynamicLb);
+        setLeaderboard(dynamicLb ?? null);
       } else {
         // 병합: 동적 엔트리의 teamName이 정적에도 있으면 높은 점수 우선
         const mergedMap = new Map<string, LeaderboardEntry>();

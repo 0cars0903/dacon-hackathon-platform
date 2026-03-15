@@ -53,7 +53,7 @@ export default function HackathonSubmitPage() {
   const slug = (params.slug as string) || "";
   const [detail, setDetail] = useState<HackathonDetail | null>(null);
   const [hackathon, setHackathon] = useState<Hackathon | null>(null);
-  useEffect(() => { const load = async () => { setDetail(await getHackathonDetail(slug)); setHackathon(await getHackathonBySlug(slug)); }; load(); }, [slug]);
+  useEffect(() => { const load = async () => { setDetail((await getHackathonDetail(slug)) ?? null); setHackathon((await getHackathonBySlug(slug)) ?? null); }; load(); }, [slug]);
   const { user } = useAuth();
 
   const [formValues, setFormValues] = useState<Record<string, string>>({});

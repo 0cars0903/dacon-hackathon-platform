@@ -1,19 +1,20 @@
 "use client";
 
+import { type Dispatch, type SetStateAction } from "react";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import type { HackathonForm } from "@/app/admin/page";
 
 interface HackathonTabProps {
   form: HackathonForm;
-  setForm: (form: HackathonForm) => void;
+  setForm: Dispatch<SetStateAction<HackathonForm>>;
   editingHackathon: string | null;
   setEditingHackathon: (slug: string | null) => void;
   createdHackathons: HackathonForm[];
   confirmDeleteHackathon: string | null;
   setConfirmDeleteHackathon: (slug: string | null) => void;
-  aiGenerating: string | null;
-  setAiGenerating: (state: string | null) => void;
+  aiGenerating: "banner" | "overview" | null;
+  setAiGenerating: (state: "banner" | "overview" | null) => void;
   generatedBannerUrl: string | null;
   setGeneratedBannerUrl: (url: string | null) => void;
   handleSaveHackathon: () => void;

@@ -22,7 +22,7 @@ interface UserTabProps {
   userSortField: "name" | "email" | "role" | "joinedAt";
   setUserSortField: (field: "name" | "email" | "role" | "joinedAt") => void;
   userSortDir: "asc" | "desc";
-  setUserSortDir: (dir: "asc" | "desc") => void;
+  setUserSortDir: (dir: "asc" | "desc" | ((prev: "asc" | "desc") => "asc" | "desc")) => void;
   editingUser: string | null;
   setEditingUser: (id: string | null) => void;
   confirmDelete: string | null;
