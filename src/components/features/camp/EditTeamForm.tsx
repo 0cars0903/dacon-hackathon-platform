@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { updateTeam } from "@/lib/supabase/data";
 import { Button } from "@/components/common/Button";
 import type { Team } from "@/types";
 
@@ -24,24 +25,26 @@ export function EditTeamForm({
   });
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const stored = localStorage.getItem("dacon_teams");
-    const teams = stored ? JSON.parse(stored) : [];
-    const idx = teams.findIndex((t: Team) => t.teamCode === team.teamCode);
-    if (idx >= 0) {
-      teams[idx].name = formData.name;
-      teams[idx].intro = formData.intro;
-      teams[idx].lookingFor = formData.lookingFor
+    const success = await updateTeam(team.teamCode, {
+      name: formData.name,
+      intro: formData.intro,
+      lookingFor: formData.lookingFor
         .split(",")
         .map((s) => s.trim())
-        .filter(Boolean);
-      teams[idx].contact.url = formData.contactUrl;
-      teams[idx].isOpen = formData.isOpen;
-      teams[idx].joinPolicy = formData.joinPolicy;
-      localStorage.setItem("dacon_teams", JSON.stringify(teams));
+        .filter(Boolean),
+      contactUrl: formData.contactUrl,
+      isOpen: formData.isOpen,
+      joinPolicy: formData.joinPolicy,
+    });
+
+    if (!success) {
+      setError("팀 정보 수정에 실패했습니다. 다시 시도해주세요.");
+      return;
     }
+
     onDone();
   };
 

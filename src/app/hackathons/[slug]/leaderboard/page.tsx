@@ -26,7 +26,7 @@ export default function HackathonLeaderboardPage() {
       const staticLb = await getLeaderboard(slug);
       setStaticLeaderboard(staticLb ?? null);
 
-      const dynamicLb = getDynamicLeaderboard(slug);
+      const dynamicLb = await getDynamicLeaderboard(slug);
       const d = await getHackathonDetail(slug);
       setDetail(d ?? null);
 

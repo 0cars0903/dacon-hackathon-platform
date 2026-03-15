@@ -11,6 +11,8 @@
  */
 
 import groundTruthData from "@/data/ground-truth.json";
+import { saveSubmissionScore, getLeaderboard, updateLeaderboard } from "@/lib/supabase/data";
+import type { Leaderboard } from "@/types";
 
 // =============================================
 // 타입 정의
@@ -393,8 +395,6 @@ export function scoreSubmission(
 // 리더보드 자동 업데이트
 // =============================================
 
-const SCORED_SUBMISSIONS_KEY = "dacon_scored_submissions";
-
 export interface ScoredSubmission {
   id: string;
   hackathonSlug: string;
@@ -408,7 +408,7 @@ export interface ScoredSubmission {
 }
 
 /** 채점 결과 저장 + 리더보드 업데이트 */
-export function saveScoredSubmission(
+export async function saveScoredSubmission(
   hackathonSlug: string,
   userId: string,
   userName: string,
@@ -416,7 +416,7 @@ export function saveScoredSubmission(
   version: number,
   scoringResult: ScoringResult,
   csvRowCount: number
-): ScoredSubmission {
+): Promise<ScoredSubmission> {
   const submission: ScoredSubmission = {
     id: `score-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     hackathonSlug,
@@ -432,13 +432,26 @@ export function saveScoredSubmission(
   // 저장
   if (typeof window !== "undefined") {
     try {
-      const raw = localStorage.getItem(SCORED_SUBMISSIONS_KEY);
+      // Save to Supabase
+      await saveSubmissionScore(submission.id, scoringResult.finalScore, {
+        hackathonSlug,
+        userId,
+        userName,
+        teamName,
+        version,
+        scoringResult,
+        csvRowCount,
+        submittedAt: submission.submittedAt,
+      });
+
+      // Also save to localStorage for immediate access
+      const raw = localStorage.getItem("dacon_scored_submissions");
       const all: ScoredSubmission[] = raw ? JSON.parse(raw) : [];
       all.push(submission);
-      localStorage.setItem(SCORED_SUBMISSIONS_KEY, JSON.stringify(all));
+      localStorage.setItem("dacon_scored_submissions", JSON.stringify(all));
 
       // 리더보드 자동 업데이트
-      updateLeaderboardFromScores(hackathonSlug);
+      await updateLeaderboardFromScores(hackathonSlug);
     } catch {
       // ignore
     }
@@ -447,11 +460,11 @@ export function saveScoredSubmission(
   return submission;
 }
 
-/** 채점 제출 이력 조회 */
+/** 채점 제출 이력 조회 (로컬 스토리지 사용) */
 export function getScoredSubmissions(hackathonSlug: string, userId?: string): ScoredSubmission[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(SCORED_SUBMISSIONS_KEY);
+    const raw = localStorage.getItem("dacon_scored_submissions");
     const all: ScoredSubmission[] = raw ? JSON.parse(raw) : [];
     return all
       .filter(
@@ -466,12 +479,17 @@ export function getScoredSubmissions(hackathonSlug: string, userId?: string): Sc
 }
 
 /** 리더보드 자동 업데이트 (각 유저/팀의 최고 점수로 구성) */
-function updateLeaderboardFromScores(hackathonSlug: string) {
+async function updateLeaderboardFromScores(hackathonSlug: string) {
   if (typeof window === "undefined") return;
   try {
-    const raw = localStorage.getItem(SCORED_SUBMISSIONS_KEY);
+    // Read from localStorage for scored submissions
+    const raw = localStorage.getItem("dacon_scored_submissions");
     const all: ScoredSubmission[] = raw ? JSON.parse(raw) : [];
-    const hackathonScores = all.filter((s) => s.hackathonSlug === hackathonSlug && s.scoringResult.success);
+
+    // Filter for successful submissions
+    const hackathonScores = all.filter((s) =>
+      s.hackathonSlug === hackathonSlug && s.scoringResult.success
+    );
 
     // 유저별 최고 점수
     const bestByUser = new Map<string, ScoredSubmission>();
@@ -496,30 +514,26 @@ function updateLeaderboardFromScores(hackathonSlug: string) {
       metrics: s.scoringResult.scoreBreakdown || {},
     }));
 
-    // localStorage에 동적 리더보드 저장
-    const lbKey = "dacon_dynamic_leaderboards";
-    const lbRaw = localStorage.getItem(lbKey);
-    const leaderboards: Record<string, unknown> = lbRaw ? JSON.parse(lbRaw) : {};
-    leaderboards[hackathonSlug] = {
-      hackathonSlug,
-      evalType: "metric",
-      metricName: "FinalScore",
-      updatedAt: new Date().toISOString(),
-      entries,
-    };
-    localStorage.setItem(lbKey, JSON.stringify(leaderboards));
+    // Supabase에 동적 리더보드 저장
+    await updateLeaderboard(hackathonSlug, entries);
   } catch {
     // ignore
   }
 }
 
 /** 동적 리더보드 조회 (채점 기반) */
-export function getDynamicLeaderboard(hackathonSlug: string) {
+export async function getDynamicLeaderboard(hackathonSlug: string): Promise<Leaderboard | null> {
   if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem("dacon_dynamic_leaderboards");
-    const leaderboards = raw ? JSON.parse(raw) : {};
-    return leaderboards[hackathonSlug] || null;
+    const leaderboard = await getLeaderboard(hackathonSlug);
+    if (!leaderboard) return null;
+    return {
+      hackathonSlug,
+      evalType: "metric",
+      metricName: "FinalScore",
+      updatedAt: leaderboard.updatedAt || new Date().toISOString(),
+      entries: leaderboard.entries || [],
+    };
   } catch {
     return null;
   }

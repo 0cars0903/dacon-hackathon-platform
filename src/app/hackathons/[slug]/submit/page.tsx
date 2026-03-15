@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { getHackathonDetail, getHackathonBySlug, logActivity, addNotification } from "@/lib/supabase/data";
+import { getHackathonDetail, getHackathonBySlug, logActivity, addNotification, getUserSubmission, saveFullSubmission, getTeams } from "@/lib/supabase/data";
 import {
   hasGroundTruth,
   getGroundTruth,
@@ -81,39 +81,65 @@ export default function HackathonSubmitPage() {
   useEffect(() => {
     if (!user) return;
 
-    try {
-      const stored = localStorage.getItem("dacon_submissions");
-      const allSubmissions = stored ? JSON.parse(stored) : [];
-      const userSubmissions = allSubmissions.filter(
-        (s: StoredSubmission) => s.hackathonSlug === slug && s.userId === user.id
-      );
-      setSubmissions(userSubmissions);
+    const loadSubmissions = async () => {
+      try {
+        // Load user's submission for this hackathon
+        const userSubmission = await getUserSubmission(slug, user.id);
 
-      const today = new Date().toDateString();
-      const todaySubmissions = userSubmissions.filter((s: StoredSubmission) => {
-        const submittedDate = new Date(s.savedAt).toDateString();
-        return s.status === "submitted" && submittedDate === today;
-      });
-      setSubmissionCount(todaySubmissions.length);
+        // Map items to include titles from detail config
+        const itemsWithTitles = userSubmission?.items.map(item => {
+          const configItem = detail?.sections.submit.submissionItems?.find(
+            (i: { key: string; title: string }) => i.key === item.key
+          );
+          return {
+            key: item.key,
+            title: configItem?.title || item.key,
+            value: item.value,
+          };
+        }) || [];
 
-      const latestDraft = userSubmissions.find((s: StoredSubmission) => s.status === "draft");
-      if (latestDraft) {
-        setDraftExists(true);
-        const draftValues: Record<string, string> = {};
-        latestDraft.items.forEach((item: { key: string; value: string }) => {
-          draftValues[item.key] = item.value;
+        const userSubmissions: StoredSubmission[] = userSubmission ? [{
+          hackathonSlug: userSubmission.hackathonSlug,
+          userId: userSubmission.userId,
+          userName: userSubmission.userName,
+          version: userSubmission.version,
+          items: itemsWithTitles,
+          files: userSubmission.files && Array.isArray(userSubmission.files) && userSubmission.files.length > 0
+            ? Object.fromEntries(userSubmission.files.map((f, i) => [String(i), f as unknown as SubmissionFile]))
+            : undefined,
+          status: userSubmission.status,
+          savedAt: userSubmission.savedAt,
+        }] : [];
+        setSubmissions(userSubmissions);
+
+        const today = new Date().toDateString();
+        const todaySubmissions = userSubmissions.filter((s: StoredSubmission) => {
+          const submittedDate = new Date(s.savedAt).toDateString();
+          return s.status === "submitted" && submittedDate === today;
         });
-        setFormValues(draftValues);
-        if (latestDraft.files) setFiles(latestDraft.files);
-      }
+        setSubmissionCount(todaySubmissions.length);
 
-      // 채점 이력 로드
-      if (isAutoScored) {
-        setScoredHistory(getScoredSubmissions(slug, user.id));
+        const latestDraft = userSubmissions.find((s: StoredSubmission) => s.status === "draft");
+        if (latestDraft) {
+          setDraftExists(true);
+          const draftValues: Record<string, string> = {};
+          latestDraft.items.forEach((item: { key: string; value: string }) => {
+            draftValues[item.key] = item.value;
+          });
+          setFormValues(draftValues);
+          if (latestDraft.files) setFiles(latestDraft.files);
+        }
+
+        // 채점 이력 로드
+        if (isAutoScored) {
+          setScoredHistory(getScoredSubmissions(slug, user.id));
+        }
+      } catch {
+        console.error("Failed to load submissions from Supabase");
       }
-    } catch {
-      console.error("Failed to load submissions from localStorage");
-    }
+    };
+
+    loadSubmissions();
   }, [user, slug, isAutoScored]);
 
   if (!detail) {
@@ -165,13 +191,13 @@ export default function HackathonSubmitPage() {
   };
 
   // 자동 채점 실행
-  const handleAutoScore = () => {
+  const handleAutoScore = async () => {
     if (!csvText || !user) return;
     setIsScoring(true);
     setScoringResult(null);
 
     // 약간의 딜레이로 채점 "처리" 느낌
-    setTimeout(() => {
+    setTimeout(async () => {
       const result = scoreSubmission(slug, csvText);
       setScoringResult(result);
       setIsScoring(false);
@@ -182,24 +208,38 @@ export default function HackathonSubmitPage() {
         const csvLines = csvText.trim().split(/\r?\n/).length - 1;
 
         // 팀 이름 조회
-        const teamsRaw = localStorage.getItem("dacon_teams");
-        const teams = teamsRaw ? JSON.parse(teamsRaw) : [];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const myTeam = teams.find((t: any) =>
-          t.hackathonSlug === slug &&
-          t.members?.some((m: { userId: string }) => m.userId === user.id)
-        );
+        try {
+          const teams = await getTeams();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const myTeam = teams.find((t: any) =>
+            t.hackathonSlug === slug &&
+            t.members?.some((m: { userId: string }) => m.userId === user.id)
+          );
 
-        saveScoredSubmission(
-          slug,
-          user.id,
-          user.name,
-          myTeam?.name,
-          version,
-          result,
-          csvLines
-        );
-        setScoredHistory(getScoredSubmissions(slug, user.id));
+          saveScoredSubmission(
+            slug,
+            user.id,
+            user.name,
+            myTeam?.name,
+            version,
+            result,
+            csvLines
+          );
+          setScoredHistory(getScoredSubmissions(slug, user.id));
+        } catch (err) {
+          console.error("Failed to fetch teams:", err);
+          // Continue without team name
+          saveScoredSubmission(
+            slug,
+            user.id,
+            user.name,
+            undefined,
+            version,
+            result,
+            csvLines
+          );
+          setScoredHistory(getScoredSubmissions(slug, user.id));
+        }
 
         // 활동 로그 + 알림
         logActivity({
@@ -219,53 +259,80 @@ export default function HackathonSubmitPage() {
     }, 1500);
   };
 
-  const handleDraftSave = () => {
+  const handleDraftSave = async () => {
     if (!user || !submit.submissionItems) return;
-    const existing = localStorage.getItem("dacon_submissions");
-    const allSubmissions: StoredSubmission[] = existing ? JSON.parse(existing) : [];
-    const userHackathonSubmissions = allSubmissions.filter((s) => s.hackathonSlug === slug && s.userId === user.id);
-    const nextVersion = userHackathonSubmissions.length > 0 ? Math.max(...userHackathonSubmissions.map((s) => s.version)) + 1 : 1;
-    const draft: StoredSubmission = {
-      hackathonSlug: slug, userId: user.id, userName: user.name, version: nextVersion,
-      items: submit.submissionItems.map((item: { key: string; title: string }) => ({
-        key: item.key, title: item.title, value: formValues[item.key] || "",
-      })),
-      files: Object.keys(files).length > 0 ? files : undefined,
-      status: "draft", savedAt: new Date().toISOString(),
-    };
+    const nextVersion = submissions.length > 0 ? Math.max(...submissions.map((s) => s.version)) + 1 : 1;
+
     try {
-      const filtered = allSubmissions.filter((s) => !(s.hackathonSlug === slug && s.userId === user.id && s.status === "draft"));
-      filtered.push(draft);
-      localStorage.setItem("dacon_submissions", JSON.stringify(filtered));
+      const fileArray = Object.keys(files).length > 0
+        ? Object.values(files).map(f => ({ name: f.name, size: f.size, type: f.type }))
+        : undefined;
+
+      await saveFullSubmission(slug, user.id, user.name, {
+        items: submit.submissionItems.map((item: { key: string; title: string }) => ({
+          key: item.key, title: item.title, value: formValues[item.key] || "",
+        })),
+        files: fileArray,
+        status: "draft",
+        version: nextVersion,
+      });
       setDraftExists(true);
       setError("");
-    } catch { setError("임시저장 중 오류가 발생했습니다."); }
+    } catch {
+      setError("임시저장 중 오류가 발생했습니다.");
+    }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!user || !submit.submissionItems) return;
     const emptyItems = submit.submissionItems.filter((item: { key: string }) => !formValues[item.key]?.trim());
     if (emptyItems.length > 0) { setError("모든 항목을 입력해주세요."); return; }
     if (isLimitReached) { setError(`하루 제출 횟수 제한(${maxSubmissionsPerDay}회)에 도달했습니다.`); return; }
 
-    const existing = localStorage.getItem("dacon_submissions");
-    const allSubmissions: StoredSubmission[] = existing ? JSON.parse(existing) : [];
-    const userHackathonSubmissions = allSubmissions.filter((s) => s.hackathonSlug === slug && s.userId === user.id);
-    const nextVersion = userHackathonSubmissions.length > 0 ? Math.max(...userHackathonSubmissions.map((s) => s.version)) + 1 : 1;
-    const submission: StoredSubmission = {
-      hackathonSlug: slug, userId: user.id, userName: user.name, version: nextVersion,
-      items: submit.submissionItems.map((item: { key: string; title: string }) => ({
-        key: item.key, title: item.title, value: formValues[item.key],
-      })),
-      files: Object.keys(files).length > 0 ? files : undefined,
-      status: "submitted", savedAt: new Date().toISOString(),
-    };
+    const nextVersion = submissions.length > 0 ? Math.max(...submissions.map((s) => s.version)) + 1 : 1;
+
     try {
-      const filtered = allSubmissions.filter((s) => !(s.hackathonSlug === slug && s.userId === user.id && s.status === "draft"));
-      filtered.push(submission);
-      localStorage.setItem("dacon_submissions", JSON.stringify(filtered));
+      const fileArray = Object.keys(files).length > 0
+        ? Object.values(files).map(f => ({ name: f.name, size: f.size, type: f.type }))
+        : undefined;
+
+      await saveFullSubmission(slug, user.id, user.name, {
+        items: submit.submissionItems.map((item: { key: string; title: string }) => ({
+          key: item.key, title: item.title, value: formValues[item.key],
+        })),
+        files: fileArray,
+        status: "submitted",
+        version: nextVersion,
+      });
       setSubmitted(true);
-      setSubmissions(filtered.filter((s) => s.hackathonSlug === slug && s.userId === user.id));
+      // Reload the submission
+      const userSubmission = await getUserSubmission(slug, user.id);
+
+      // Map items to include titles from detail config
+      const itemsWithTitles = userSubmission?.items.map(item => {
+        const configItem = detail?.sections.submit.submissionItems?.find(
+          (i: { key: string; title: string }) => i.key === item.key
+        );
+        return {
+          key: item.key,
+          title: configItem?.title || item.key,
+          value: item.value,
+        };
+      }) || [];
+
+      const reloadedSubmissions: StoredSubmission[] = userSubmission ? [{
+        hackathonSlug: userSubmission.hackathonSlug,
+        userId: userSubmission.userId,
+        userName: userSubmission.userName,
+        version: userSubmission.version,
+        items: itemsWithTitles,
+        files: userSubmission.files && Array.isArray(userSubmission.files) && userSubmission.files.length > 0
+          ? Object.fromEntries(userSubmission.files.map((f, i) => [String(i), f as unknown as SubmissionFile]))
+          : undefined,
+        status: userSubmission.status,
+        savedAt: userSubmission.savedAt,
+      }] : [];
+      setSubmissions(reloadedSubmissions);
       logActivity({ type: "submission", message: `${user.name}님이 결과물을 제출했습니다. (v${nextVersion})`, timestamp: new Date().toISOString(), hackathonSlug: slug });
     } catch { setError("제출 중 오류가 발생했습니다. 다시 시도해주세요."); }
   };

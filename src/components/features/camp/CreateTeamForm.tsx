@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/components/features/AuthProvider";
+import { createTeam } from "@/lib/supabase/data";
 import { Button } from "@/components/common/Button";
 
 export function CreateTeamForm({
@@ -26,51 +27,27 @@ export function CreateTeamForm({
     e.preventDefault();
     if (!user) return;
 
-    const existing = JSON.parse(localStorage.getItem("dacon_teams") || "[]");
-    const newTeam = {
-      teamCode: `T-${Date.now()}`,
+    const teamCode = `T-${Date.now()}`;
+    const success = await createTeam({
+      teamCode,
       hackathonSlug: formData.hackathonSlug,
       name: formData.name,
       isOpen: true,
       joinPolicy: formData.joinPolicy,
-      memberCount: 1,
       lookingFor: formData.lookingFor
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean),
       intro: formData.intro,
-      contact: { type: "link", url: formData.contactUrl || "" },
-      createdAt: new Date().toISOString(),
+      contactType: "link",
+      contactUrl: formData.contactUrl || "",
       creatorId: user.id,
-      members: [
-        {
-          userId: user.id,
-          name: user.name,
-          role: "팀장",
-          joinedAt: new Date().toISOString(),
-        },
-      ],
-    };
-    existing.push(newTeam);
-    localStorage.setItem("dacon_teams", JSON.stringify(existing));
+      creatorName: user.name,
+    });
 
-    // 프로필 통계 업데이트
-    const profilesRaw = localStorage.getItem("dacon_profiles");
-    const profiles = profilesRaw ? JSON.parse(profilesRaw) : [];
-    const pIdx = profiles.findIndex((p: { id: string }) => p.id === user.id);
-    if (pIdx >= 0) {
-      profiles[pIdx].stats.teamsCreated += 1;
-      profiles[pIdx].teamMemberships.push(newTeam.teamCode);
-      if (profiles[pIdx].stats.teamsCreated === 1) {
-        profiles[pIdx].badges.push({
-          id: `b-team-leader-${Date.now()}`,
-          name: "팀 리더",
-          emoji: "👑",
-          description: "팀을 처음 생성했습니다",
-          earnedAt: new Date().toISOString(),
-        });
-      }
-      localStorage.setItem("dacon_profiles", JSON.stringify(profiles));
+    if (!success) {
+      setError("팀 생성에 실패했습니다. 다시 시도해주세요.");
+      return;
     }
 
     // 활동 로그
@@ -78,7 +55,7 @@ export function CreateTeamForm({
     const h = hackathons.find((hk) => hk.slug === formData.hackathonSlug);
     logActivity({
       type: "team_created",
-      message: `${newTeam.name} 팀이 ${h?.title || formData.hackathonSlug}에 등록했습니다.`,
+      message: `${formData.name} 팀이 ${h?.title || formData.hackathonSlug}에 등록했습니다.`,
       timestamp: new Date().toISOString(),
       hackathonSlug: formData.hackathonSlug,
     });

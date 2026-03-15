@@ -8,6 +8,7 @@ import { HackathonTab } from "@/components/features/admin/HackathonTab";
 import { UserTab } from "@/components/features/admin/UserTab";
 import { Analytics } from "@/components/features/admin/Analytics";
 import type { UserProfile } from "@/types";
+import { createHackathon, updateHackathon as updateHackathonInDB, deleteHackathon as deleteHackathonInDB, changeHackathonStatus, getAllHackathonsUnfiltered } from "@/lib/supabase/data";
 
 export interface HackathonForm {
   slug: string;
@@ -66,11 +67,23 @@ export default function AdminPage() {
         setUsers(allUsers);
         const allProfiles = await getAllProfiles();
         setProfiles(allProfiles);
+        const allHackathons = await getAllHackathonsUnfiltered();
+        const hackathonForms: HackathonForm[] = allHackathons.map((h: any) => ({
+          slug: h.slug,
+          title: h.title,
+          status: h.status,
+          tags: Array.isArray(h.tags) ? h.tags.join(", ") : h.tags || "",
+          submissionDeadlineAt: h.submissionDeadlineAt || "",
+          endAt: h.endAt || "",
+          summary: h.summary || "",
+          maxTeamSize: h.maxTeamSize || 5,
+          allowSolo: h.allowSolo !== false,
+          metricName: h.metricName || "Accuracy",
+          createdAt: h.createdAt,
+        }));
+        setCreatedHackathons(hackathonForms);
       };
       load();
-      // localStorage에서 생성된 해커톤 로드
-      const stored = localStorage.getItem("dacon_admin_hackathons");
-      if (stored) setCreatedHackathons(JSON.parse(stored));
     }
   }, [isAdmin, getAllUsers, getAllProfiles]);
 
@@ -95,7 +108,7 @@ export default function AdminPage() {
     setTimeout(() => setToast(""), 3000);
   };
 
-  const handleSaveHackathon = () => {
+  const handleSaveHackathon = async () => {
     if (!form.title.trim() || !form.slug.trim()) {
       showToast("제목과 슬러그는 필수입니다.");
       return;
@@ -108,52 +121,45 @@ export default function AdminPage() {
       return;
     }
 
-    let updated: HackathonForm[];
-    if (isEditing) {
-      updated = createdHackathons.map((h) =>
-        h.slug === editingHackathon
-          ? { ...form, createdAt: h.createdAt || new Date().toISOString() }
-          : h
-      );
-    } else {
-      updated = [...createdHackathons, { ...form, createdAt: new Date().toISOString() }];
+    try {
+      const baseData = {
+        slug: form.slug,
+        title: form.title,
+        status: form.status,
+        tags: form.tags.split(",").map((t: string) => t.trim()).filter(Boolean),
+        submissionDeadlineAt: form.submissionDeadlineAt ? new Date(form.submissionDeadlineAt).toISOString() : undefined,
+        endAt: form.endAt ? new Date(form.endAt).toISOString() : undefined,
+      };
+
+      if (isEditing) {
+        await updateHackathonInDB(form.slug, baseData);
+      } else {
+        await createHackathon(baseData);
+      }
+
+      const updated = await getAllHackathonsUnfiltered();
+      const hackathonForms: HackathonForm[] = updated.map((h: any) => ({
+        slug: h.slug,
+        title: h.title,
+        status: h.status,
+        tags: Array.isArray(h.tags) ? h.tags.join(", ") : h.tags || "",
+        submissionDeadlineAt: h.submissionDeadlineAt || "",
+        endAt: h.endAt || "",
+        summary: h.summary || "",
+        maxTeamSize: h.maxTeamSize || 5,
+        allowSolo: h.allowSolo !== false,
+        metricName: h.metricName || "Accuracy",
+        createdAt: h.createdAt,
+      }));
+      setCreatedHackathons(hackathonForms);
+
+      setForm(defaultForm);
+      setEditingHackathon(null);
+      showToast(isEditing ? "해커톤이 수정되었습니다!" : "해커톤이 생성되었습니다!");
+    } catch (error) {
+      console.error("Failed to save hackathon:", error);
+      showToast("해커톤 저장에 실패했습니다.");
     }
-
-    setCreatedHackathons(updated);
-    localStorage.setItem("dacon_admin_hackathons", JSON.stringify(updated));
-
-    // Update dacon_hackathons_extra for consistency
-    const existingRaw = localStorage.getItem("dacon_hackathons_extra");
-    const existing = existingRaw ? JSON.parse(existingRaw) : [];
-    const index = existing.findIndex((h: HackathonForm) => h.slug === form.slug);
-    const newEntry = {
-      slug: form.slug,
-      title: form.title,
-      status: form.status,
-      tags: form.tags.split(",").map((t: string) => t.trim()).filter(Boolean),
-      thumbnailUrl: "",
-      period: {
-        timezone: "Asia/Seoul",
-        submissionDeadlineAt: form.submissionDeadlineAt ? new Date(form.submissionDeadlineAt).toISOString() : "",
-        endAt: form.endAt ? new Date(form.endAt).toISOString() : "",
-      },
-      links: {
-        detail: `/hackathons/${form.slug}`,
-        rules: "",
-        faq: "",
-      },
-    };
-
-    if (index >= 0) {
-      existing[index] = newEntry;
-    } else {
-      existing.push(newEntry);
-    }
-    localStorage.setItem("dacon_hackathons_extra", JSON.stringify(existing));
-
-    setForm(defaultForm);
-    setEditingHackathon(null);
-    showToast(isEditing ? "해커톤이 수정되었습니다!" : "해커톤이 생성되었습니다!");
   };
 
   const handleEditHackathon = (slug: string) => {
@@ -164,20 +170,32 @@ export default function AdminPage() {
     }
   };
 
-  const handleDeleteHackathon = (slug: string) => {
-    const updated = createdHackathons.filter((h) => h.slug !== slug);
-    setCreatedHackathons(updated);
-    localStorage.setItem("dacon_admin_hackathons", JSON.stringify(updated));
+  const handleDeleteHackathon = async (slug: string) => {
+    try {
+      await deleteHackathonInDB(slug);
 
-    // Also remove from dacon_hackathons_extra
-    const existingRaw = localStorage.getItem("dacon_hackathons_extra");
-    if (existingRaw) {
-      const existing = JSON.parse(existingRaw).filter((h: HackathonForm) => h.slug !== slug);
-      localStorage.setItem("dacon_hackathons_extra", JSON.stringify(existing));
+      const updated = await getAllHackathonsUnfiltered();
+      const hackathonForms: HackathonForm[] = updated.map((h: any) => ({
+        slug: h.slug,
+        title: h.title,
+        status: h.status,
+        tags: Array.isArray(h.tags) ? h.tags.join(", ") : h.tags || "",
+        submissionDeadlineAt: h.submissionDeadlineAt || "",
+        endAt: h.endAt || "",
+        summary: h.summary || "",
+        maxTeamSize: h.maxTeamSize || 5,
+        allowSolo: h.allowSolo !== false,
+        metricName: h.metricName || "Accuracy",
+        createdAt: h.createdAt,
+      }));
+      setCreatedHackathons(hackathonForms);
+
+      setConfirmDeleteHackathon(null);
+      showToast("해커톤이 삭제되었습니다.");
+    } catch (error) {
+      console.error("Failed to delete hackathon:", error);
+      showToast("해커톤 삭제에 실패했습니다.");
     }
-
-    setConfirmDeleteHackathon(null);
-    showToast("해커톤이 삭제되었습니다.");
   };
 
   const handleCancelEdit = () => {
@@ -185,23 +203,31 @@ export default function AdminPage() {
     setEditingHackathon(null);
   };
 
-  const handleChangeHackathonStatus = (slug: string, newStatus: "upcoming" | "ongoing" | "ended") => {
-    const updated = createdHackathons.map((h) =>
-      h.slug === slug ? { ...h, status: newStatus } : h
-    );
-    setCreatedHackathons(updated);
-    localStorage.setItem("dacon_admin_hackathons", JSON.stringify(updated));
+  const handleChangeHackathonStatus = async (slug: string, newStatus: "upcoming" | "ongoing" | "ended") => {
+    try {
+      await changeHackathonStatus(slug, newStatus);
 
-    // Update dacon_hackathons_extra
-    const existingRaw = localStorage.getItem("dacon_hackathons_extra");
-    if (existingRaw) {
-      const existing = JSON.parse(existingRaw).map((h: HackathonForm) =>
-        h.slug === slug ? { ...h, status: newStatus } : h
-      );
-      localStorage.setItem("dacon_hackathons_extra", JSON.stringify(existing));
+      const updated = await getAllHackathonsUnfiltered();
+      const hackathonForms: HackathonForm[] = updated.map((h: any) => ({
+        slug: h.slug,
+        title: h.title,
+        status: h.status,
+        tags: Array.isArray(h.tags) ? h.tags.join(", ") : h.tags || "",
+        submissionDeadlineAt: h.submissionDeadlineAt || "",
+        endAt: h.endAt || "",
+        summary: h.summary || "",
+        maxTeamSize: h.maxTeamSize || 5,
+        allowSolo: h.allowSolo !== false,
+        metricName: h.metricName || "Accuracy",
+        createdAt: h.createdAt,
+      }));
+      setCreatedHackathons(hackathonForms);
+
+      showToast("상태가 변경되었습니다.");
+    } catch (error) {
+      console.error("Failed to change hackathon status:", error);
+      showToast("상태 변경에 실패했습니다.");
     }
-
-    showToast("상태가 변경되었습니다.");
   };
 
   const handleDeleteUser = async (userId: string) => {

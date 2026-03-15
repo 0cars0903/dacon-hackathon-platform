@@ -54,7 +54,6 @@ function CampContent() {
   }, []);
   const [selectedHackathon, setSelectedHackathon] = useState(hackathonFilter);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [localTeams, setLocalTeams] = useState<Team[]>([]);
   const [contactTeam, setContactTeam] = useState<{ name: string; url: string; creatorId?: string; creatorName?: string; teamCode?: string } | null>(null);
   const [joinSuccess, setJoinSuccess] = useState<string | null>(null);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
@@ -63,25 +62,10 @@ function CampContent() {
   const [showMembersModal, setShowMembersModal] = useState<Team | null>(null);
   const [showInviteModal, setShowInviteModal] = useState<Team | null>(null);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("dacon_teams");
-    if (stored) setLocalTeams(JSON.parse(stored));
-  }, []);
-
-  const allTeams = useMemo(() => {
-    const merged = [...staticTeams];
-    for (const lt of localTeams) {
-      if (!merged.some((t) => t.teamCode === lt.teamCode)) {
-        merged.push(lt);
-      }
-    }
-    return merged;
-  }, [staticTeams, localTeams]);
-
   const filtered = useMemo(() => {
-    if (selectedHackathon === "all") return allTeams;
-    return allTeams.filter((t) => t.hackathonSlug === selectedHackathon);
-  }, [allTeams, selectedHackathon]);
+    if (selectedHackathon === "all") return staticTeams;
+    return staticTeams.filter((t) => t.hackathonSlug === selectedHackathon);
+  }, [staticTeams, selectedHackathon]);
 
   // Supabase에서 팀 데이터 다시 불러오기
   const refreshTeams = async () => {
