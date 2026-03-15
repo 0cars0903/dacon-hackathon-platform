@@ -28,6 +28,8 @@ export default function MessagesPage() {
   const [activeTab, setActiveTab] = useState<"messages" | "invitations">("messages");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [allProfiles, setAllProfiles] = useState<UserProfile[]>([]);
+  const [totalUnread, setTotalUnread] = useState(0);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -64,6 +66,24 @@ export default function MessagesPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    if (!user) return;
+    const load = async () => {
+      const profs = await getAllProfiles();
+      setAllProfiles(profs);
+    };
+    load();
+  }, [user, getAllProfiles]);
+
+  useEffect(() => {
+    if (!user) return;
+    const load = async () => {
+      const count = await getUnreadMessageCount(user.id);
+      setTotalUnread(count);
+    };
+    load();
+  }, [user, refreshKey]);
+
   if (!user) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -71,16 +91,6 @@ export default function MessagesPage() {
       </div>
     );
   }
-
-  const [allProfiles, setAllProfiles] = useState<UserProfile[]>([]);
-
-  useEffect(() => {
-    const load = async () => {
-      const profs = await getAllProfiles();
-      setAllProfiles(profs);
-    };
-    load();
-  }, [getAllProfiles]);
 
   const profiles = allProfiles.filter((p) => p.id !== user.id);
   const filteredProfiles = searchQuery
@@ -144,16 +154,6 @@ export default function MessagesPage() {
     });
     loadData();
   };
-
-  const [totalUnread, setTotalUnread] = useState(0);
-
-  useEffect(() => {
-    const load = async () => {
-      const count = await getUnreadMessageCount(user.id);
-      setTotalUnread(count);
-    };
-    load();
-  }, [user.id, refreshKey]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
