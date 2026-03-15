@@ -7,15 +7,15 @@ import { getDynamicLeaderboard } from "@/lib/scoring";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
 import { formatDateTime, timeAgo } from "@/lib/utils";
-import type { LeaderboardEntry, MetricColumn, LeaderboardRound } from "@/types";
+import type { LeaderboardEntry, MetricColumn, LeaderboardRound, Hackathon, HackathonDetail, Leaderboard } from "@/types";
 
 export default function HackathonLeaderboardPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const [hackathon, setHackathon] = useState<any>(null);
-  const [staticLeaderboard, setStaticLeaderboard] = useState<any>(null);
-  const [leaderboard, setLeaderboard] = useState<any>(null);
-  const [detail, setDetail] = useState<any>(null);
+  const [hackathon, setHackathon] = useState<Hackathon | null>(null);
+  const [staticLeaderboard, setStaticLeaderboard] = useState<Leaderboard | null>(null);
+  const [leaderboard, setLeaderboard] = useState<Leaderboard | null>(null);
+  const [detail, setDetail] = useState<HackathonDetail | null>(null);
   const [activeRound, setActiveRound] = useState<string | null>(null);
 
   useEffect(() => {

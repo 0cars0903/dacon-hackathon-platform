@@ -151,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Auth 상태 변경 리스너
     const { data: { subscription } } = authClient().auth.onAuthStateChange(
-      async (_event: string, session: any) => {
+      async (_event: string, session: { user?: { id: string } } | null) => {
         if (session?.user) {
           await syncAuthToDataClient();
           await loadProfile(session.user.id);

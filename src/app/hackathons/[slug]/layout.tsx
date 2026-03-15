@@ -9,6 +9,7 @@ import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
 import { BookmarkButton } from "@/components/features/BookmarkButton";
 import { getDday, getStatusLabel } from "@/lib/utils";
+import type { Hackathon } from "@/types";
 
 const SUB_PAGES = [
   { key: "", label: "개요", emoji: "📋" },
@@ -27,7 +28,7 @@ export default function HackathonLayout({
   const params = useParams();
   const pathname = usePathname();
   const slug = Array.isArray(params.slug) ? params.slug[0] : (params.slug as string);
-  const [hackathon, setHackathon] = useState<any>(null);
+  const [hackathon, setHackathon] = useState<Hackathon | null>(null);
 
   useEffect(() => {
     const load = async () => {

@@ -133,6 +133,17 @@ export interface Leaderboard {
   entries: LeaderboardEntry[];
 }
 
+// === 플랫폼 통계 ===
+export interface PlatformStats {
+  ongoingHackathons: number;
+  upcomingHackathons: number;
+  totalUsers: number;
+  totalTeams: number;
+  totalHackathons: number;
+  totalMembers: number;
+  totalSubmissions: number;
+}
+
 // === 제출 (localStorage) ===
 export interface Submission {
   hackathonSlug: string;

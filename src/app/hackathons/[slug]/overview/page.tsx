@@ -5,13 +5,12 @@ import { useParams } from "next/navigation";
 import { getHackathonDetail } from "@/lib/supabase/data";
 import { EmptyState } from "@/components/common/EmptyState";
 import { formatKRW, formatDateTime } from "@/lib/utils";
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { HackathonDetail } from "@/types";
 
 export default function HackathonInfoPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const [detail, setDetail] = useState<any>(null);
+  const [detail, setDetail] = useState<HackathonDetail | null>(null);
 
   useEffect(() => {
     const load = async () => {

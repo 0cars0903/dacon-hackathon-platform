@@ -19,6 +19,7 @@ import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
 import { formatDateTime, timeAgo } from "@/lib/utils";
+import type { HackathonDetail, Hackathon } from "@/types";
 
 interface SubmissionFile {
   name: string;
@@ -50,8 +51,8 @@ const ALLOWED_FILE_TYPES = [
 export default function HackathonSubmitPage() {
   const params = useParams();
   const slug = (params.slug as string) || "";
-  const [detail, setDetail] = useState<any>(null);
-  const [hackathon, setHackathon] = useState<any>(null);
+  const [detail, setDetail] = useState<HackathonDetail | null>(null);
+  const [hackathon, setHackathon] = useState<Hackathon | null>(null);
   useEffect(() => { const load = async () => { setDetail(await getHackathonDetail(slug)); setHackathon(await getHackathonBySlug(slug)); }; load(); }, [slug]);
   const { user } = useAuth();
 
