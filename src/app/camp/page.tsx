@@ -35,12 +35,10 @@ function CampContent() {
   useEffect(() => {
     const load = async () => {
       try {
-        console.log("[CampPage] Fetching teams and hackathons from Supabase...");
         const [teams, hacks] = await Promise.all([
           getTeams(),
           getHackathons(),
         ]);
-        console.log("[CampPage] Loaded:", { teams: teams.length, hackathons: hacks.length });
         setStaticTeams(teams);
         setHackathons(hacks);
       } catch (err) {

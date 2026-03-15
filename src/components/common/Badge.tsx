@@ -16,7 +16,7 @@ const variantStyles: Record<string, string> = {
   warning:
     "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
   info: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",
-  muted: "bg-gray-50 text-gray-500 dark:bg-gray-900 dark:text-gray-500",
+  muted: "bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-400",
 };
 
 export function Badge({

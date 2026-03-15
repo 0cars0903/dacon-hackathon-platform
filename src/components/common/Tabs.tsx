@@ -18,6 +18,7 @@ interface TabsProps {
 export function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
   return (
     <div
+      role="tablist"
       className={cn(
         "flex gap-1 overflow-x-auto border-b border-gray-200 dark:border-gray-800",
         className
@@ -26,6 +27,8 @@ export function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
       {tabs.map((tab) => (
         <button
           key={tab.key}
+          role="tab"
+          aria-selected={activeTab === tab.key}
           onClick={() => onTabChange(tab.key)}
           className={cn(
             "shrink-0 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors",

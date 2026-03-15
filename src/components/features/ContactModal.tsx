@@ -54,7 +54,6 @@ export function ContactModal({
           creatorName,
           `[${teamName}] ${message}`
         );
-        console.log("[ContactModal] DM sent:", !!dm);
 
         // 2) 팀장에게 알림 추가
         await addNotification(creatorId, {
@@ -62,7 +61,6 @@ export function ContactModal({
           link: "/messages",
           type: "info",
         });
-        console.log("[ContactModal] Notification added for:", creatorId);
 
         // 3) 최근 활동에 기록 (메시지 미리보기 포함)
         await logActivity({
@@ -77,7 +75,6 @@ export function ContactModal({
             teamCode: teamCode || undefined,
           },
         });
-        console.log("[ContactModal] Activity logged");
       } else {
         // 로그인하지 않은 경우 localStorage 폴백
         const messages = JSON.parse(localStorage.getItem("dacon_messages") || "[]");
@@ -88,7 +85,6 @@ export function ContactModal({
           sentAt: new Date().toISOString(),
         });
         localStorage.setItem("dacon_messages", JSON.stringify(messages));
-        console.log("[ContactModal] Saved to localStorage (no auth)");
       }
 
       setSent(true);
