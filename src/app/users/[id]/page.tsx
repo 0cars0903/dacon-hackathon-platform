@@ -6,7 +6,7 @@ import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
 import { FollowButton, FollowStats } from "@/components/features/FollowButton";
-import { getHackathonBySlug } from "@/lib/supabase/data";
+import { getHackathonBySlug, getTeams } from "@/lib/supabase/data";
 import { formatDate, timeAgo } from "@/lib/utils";
 import type { UserProfile, Team } from "@/types";
 
@@ -24,15 +24,12 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
       const p = await getProfile(params.id);
       if (p) {
         setProfile(p);
-        // 해당 유저의 팀 로드
-        const stored = localStorage.getItem("dacon_teams");
-        if (stored) {
-          const teams = JSON.parse(stored);
-          const userTeamList = teams.filter((t: { members?: { userId: string }[]; creatorId?: string }) =>
-            t.members?.some((m: { userId: string }) => m.userId === params.id) || t.creatorId === params.id
-          );
-          setUserTeams(userTeamList);
-        }
+        // 해당 유저의 팀 로드 (Supabase에서)
+        const allTeams = await getTeams();
+        const userTeamList = allTeams.filter((t: Team) =>
+          t.members?.some((m) => m.userId === params.id) || t.creatorId === params.id
+        );
+        setUserTeams(userTeamList);
       } else {
         setNotFound(true);
       }

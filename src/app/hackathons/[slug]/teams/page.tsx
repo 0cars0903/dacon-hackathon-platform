@@ -28,8 +28,6 @@ export default function HackathonTeamsPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [contactTeam, setContactTeam] = useState<{ name: string; url: string } | null>(null);
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
-  const [localTeamMembers, setLocalTeamMembers] = useState<Record<string, TeamMember[]>>({});
-  const [localTeams, setLocalTeams] = useState<Team[]>([]);
   const [joinMsg, setJoinMsg] = useState<Record<string, string>>({});
   const [actionResult, setActionResult] = useState<Record<string, { type: "success" | "error"; msg: string }>>({});
   const [chatOpen, setChatOpen] = useState<string | null>(null);
@@ -38,21 +36,10 @@ export default function HackathonTeamsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("icon");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // localStorage에서 팀 데이터 로드
+  // Supabase에서 팀 데이터 로드
   const loadTeams = async () => {
-    const staticTeams = await getTeamsByHackathon(slug);
-    setTeams(staticTeams);
-
-    const stored = localStorage.getItem("dacon_teams");
-    if (stored) {
-      const allTeams = JSON.parse(stored);
-      const memberMap: Record<string, TeamMember[]> = {};
-      allTeams.forEach((t: Team & { members?: TeamMember[] }) => {
-        if (t.members) memberMap[t.teamCode] = t.members;
-      });
-      setLocalTeamMembers(memberMap);
-      setLocalTeams(allTeams.filter((t: Team) => t.hackathonSlug === slug));
-    }
+    const hackathonTeams = await getTeamsByHackathon(slug);
+    setTeams(hackathonTeams);
   };
 
   useEffect(() => { loadTeams(); }, [slug]);
@@ -74,9 +61,6 @@ export default function HackathonTeamsPage() {
     setExpandedTeam(expandedTeam === teamCode ? null : teamCode);
   };
 
-  const getAvatar = (userId: string): string | null => {
-    try { return localStorage.getItem(`dacon_avatar_${userId}`); } catch { return null; }
-  };
 
   const handleJoin = async (teamCode: string) => {
     if (!user) return;
@@ -117,33 +101,21 @@ export default function HackathonTeamsPage() {
     setChatMessages(messages);
   };
 
-  // 팀 목록 (localStorage 병합)
-  const mergedTeams: Team[] = (() => {
-    const staticCodes = new Set(teams.map((t: Team) => t.teamCode));
-    const dynamicOnly = localTeams.filter((t: Team) => !staticCodes.has(t.teamCode));
-    const merged = teams.map((t: Team) => {
-      const local = localTeams.find((lt: Team) => lt.teamCode === t.teamCode);
-      return local ? { ...t, ...local } : t;
-    });
-    return [...merged, ...dynamicOnly];
-  })();
-
   const isMemberOf = (team: Team) => {
     if (!user) return false;
-    const members = localTeamMembers[team.teamCode] || [];
-    return members.some((m) => m.userId === user.id) || (team as Team & { creatorId?: string }).creatorId === user.id;
+    return team.members?.some((m) => m.userId === user.id) || team.creatorId === user.id;
   };
 
   const isLeaderOf = (team: Team) => {
     if (!user) return false;
-    return (team as Team & { creatorId?: string }).creatorId === user.id;
+    return team.creatorId === user.id;
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          {mergedTeams.length}개 팀이 등록되어 있습니다.
+          {teams.length}개 팀이 등록되어 있습니다.
         </p>
         <div className="flex items-center gap-2">
           {/* 보기 모드 전환 */}
@@ -169,7 +141,7 @@ export default function HackathonTeamsPage() {
         </div>
       </div>
 
-      {mergedTeams.length === 0 ? (
+      {teams.length === 0 ? (
         <EmptyState emoji="👥" title="등록된 팀이 없습니다" description="첫 번째 팀을 만들어보세요!" />
       ) : viewMode === "list" ? (
         /* 리스트 뷰 */
@@ -186,7 +158,7 @@ export default function HackathonTeamsPage() {
               </tr>
             </thead>
             <tbody>
-              {mergedTeams.map((team) => (
+              {teams.map((team) => (
                 <tr key={team.teamCode} className="border-b border-gray-100 bg-white hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800/50">
                   <td className="px-4 py-3">
                     <button onClick={() => toggleExpand(team.teamCode)} className="font-medium text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
@@ -229,9 +201,9 @@ export default function HackathonTeamsPage() {
       ) : (
         /* 큰 아이콘 뷰 */
         <div className="space-y-3">
-          {mergedTeams.map((team, i) => {
+          {teams.map((team, i) => {
             const isExpanded = expandedTeam === team.teamCode;
-            const members = localTeamMembers[team.teamCode] || [];
+            const members = team.members || [];
             const isMember = isMemberOf(team);
             const isLeader = isLeaderOf(team);
             // Note: getJoinRequests is async, so we cannot call it here synchronously
@@ -380,29 +352,22 @@ export default function HackathonTeamsPage() {
                     </h4>
                     {members.length > 0 ? (
                       <div className="space-y-2">
-                        {members.map((m) => {
-                          const avatar = getAvatar(m.userId);
-                          return (
-                            <div key={m.userId} className="flex items-center justify-between rounded-lg bg-white p-3 dark:bg-gray-900">
-                              <div className="flex items-center gap-3">
-                                {avatar ? (
-                                  <img src={avatar} alt={m.name} className="h-8 w-8 rounded-full object-cover" />
-                                ) : (
-                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900 dark:text-blue-400">
-                                    {m.name.charAt(0).toUpperCase()}
-                                  </div>
-                                )}
-                                <div>
-                                  <Link href={`/users/${m.userId}`} className="text-sm font-medium text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
-                                    {m.name}
-                                  </Link>
-                                  <p className="text-[10px] text-gray-400">{timeAgo(m.joinedAt)}</p>
-                                </div>
+                        {members.map((m) => (
+                          <div key={m.userId} className="flex items-center justify-between rounded-lg bg-white p-3 dark:bg-gray-900">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900 dark:text-blue-400">
+                                {m.name.charAt(0).toUpperCase()}
                               </div>
-                              <Badge variant={m.role === "팀장" ? "info" : "muted"} size="sm">{m.role}</Badge>
+                              <div>
+                                <Link href={`/users/${m.userId}`} className="text-sm font-medium text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
+                                  {m.name}
+                                </Link>
+                                <p className="text-[10px] text-gray-400">{timeAgo(m.joinedAt)}</p>
+                              </div>
                             </div>
-                          );
-                        })}
+                            <Badge variant={m.role === "팀장" ? "info" : "muted"} size="sm">{m.role}</Badge>
+                          </div>
+                        ))}
                       </div>
                     ) : (
                       <div className="flex items-center gap-3">
@@ -432,7 +397,7 @@ export default function HackathonTeamsPage() {
           <div className="flex h-[500px] w-full max-w-lg flex-col rounded-2xl bg-white shadow-xl dark:bg-gray-900">
             <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-800">
               <h3 className="font-semibold text-gray-900 dark:text-white">
-                팀 채팅 — {mergedTeams.find((t) => t.teamCode === chatOpen)?.name}
+                팀 채팅 — {teams.find((t) => t.teamCode === chatOpen)?.name}
               </h3>
               <button onClick={() => setChatOpen(null)} className="rounded p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>

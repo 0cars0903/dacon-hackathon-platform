@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getAllHackathonsUnfiltered } from "@/lib/supabase/data";
+import { getAllHackathonsUnfiltered, getBookmarks, removeBookmark } from "@/lib/supabase/data";
 import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -17,9 +17,23 @@ export default function BookmarksPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("dacon_bookmarks") || "[]") as string[];
-    setBookmarkedSlugs(saved);
-  }, [refreshKey]);
+    if (!user) {
+      setBookmarkedSlugs([]);
+      return;
+    }
+
+    const loadBookmarks = async () => {
+      try {
+        const bookmarks = await getBookmarks(user.id);
+        setBookmarkedSlugs(bookmarks);
+      } catch (error) {
+        console.error("Error loading bookmarks:", error);
+        setBookmarkedSlugs([]);
+      }
+    };
+
+    loadBookmarks();
+  }, [user, refreshKey]);
 
   useEffect(() => {
     const load = async () => {
@@ -42,9 +56,17 @@ export default function BookmarksPage() {
     }
   };
 
-  const handleRemoveAll = () => {
-    localStorage.setItem("dacon_bookmarks", JSON.stringify([]));
-    setRefreshKey((k) => k + 1);
+  const handleRemoveAll = async () => {
+    if (!user) return;
+
+    try {
+      await Promise.all(
+        bookmarkedSlugs.map((slug) => removeBookmark(user.id, slug))
+      );
+      setRefreshKey((k) => k + 1);
+    } catch (error) {
+      console.error("Error removing all bookmarks:", error);
+    }
   };
 
   if (!user) {

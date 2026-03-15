@@ -6,9 +6,14 @@ import { useAuth } from "@/components/features/AuthProvider";
 import { Badge, Button, Card, CardContent, CardHeader, EmptyState } from "@/components/common";
 import { cn, timeAgo } from "@/lib/utils";
 import type { ForumPost, ForumComment } from "@/types";
-
-const FORUM_POSTS_KEY = "dacon_forum_posts";
-const FORUM_COMMENTS_KEY = "dacon_forum_comments";
+import {
+  getForumPosts,
+  getForumComments,
+  createForumPost,
+  createForumComment,
+  toggleForumPostLike,
+  toggleForumCommentLike,
+} from "@/lib/supabase/data";
 
 type Category = "all" | "question" | "discussion" | "announcement" | "bug";
 type SortBy = "latest" | "popular";
@@ -20,77 +25,6 @@ const CATEGORY_CONFIG: Record<string, { label: string; color: string; bg: string
   bug: { label: "버그리포트", color: "text-red-700 dark:text-red-300", bg: "bg-red-100 dark:bg-red-900" },
 };
 
-// Seed data for demo
-function initializeSamplePosts(hackathonSlug: string) {
-  const existing = localStorage.getItem(FORUM_POSTS_KEY);
-  if (existing) return JSON.parse(existing);
-
-  const samplePosts: ForumPost[] = [
-    {
-      id: `post-${Date.now()}-1`,
-      hackathonSlug,
-      authorId: "user-handover-1",
-      authorName: "최예린",
-      authorNickname: "yerin_dev",
-      title: "팀 멤버 초대 기능 구현 방법 질문입니다",
-      content: "현재 팀 초대 기능을 구현 중인데, QR코드를 통한 초대는 어떻게 하면 좋을까요? 다른 팀들은 어떻게 구현했는지 궁금합니다.",
-      category: "question",
-      likes: ["user-handover-2", "user-handover-3"],
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: `post-${Date.now()}-2`,
-      hackathonSlug,
-      authorId: "user-lgtm-1",
-      authorName: "신지호",
-      authorNickname: "pm_jiho",
-      title: "해커톤 기간 중 팀 활동 정보 공유",
-      content: "안녕하세요! 공식 공지사항입니다. 해커톤 기간 중 일일 스탠드업 미팅은 매일 오전 10시에 진행됩니다. 모두 참여 부탁드립니다.",
-      category: "announcement",
-      likes: ["user-lgtm-2", "user-lgtm-3", "user-handover-1"],
-      createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: `post-${Date.now()}-3`,
-      hackathonSlug,
-      authorId: "user-handover-2",
-      authorName: "한도윤",
-      authorNickname: "frontend_doyun",
-      title: "Tailwind CSS에서 다크모드 구현 팁 공유",
-      content: "안녕하세요! 현재 프로젝트에서 다크모드를 완벽하게 구현했어요. 핵심은 next-themes를 사용해서 localStorage에 저장하고, Tailwind의 dark: 클래스를 활용하는 거예요. 코드 예제는 아래를 참고하세요.",
-      category: "discussion",
-      likes: ["user-lgtm-2", "user-handover-1"],
-      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: `post-${Date.now()}-4`,
-      hackathonSlug,
-      authorId: "user-lgtm-3",
-      authorName: "윤태양",
-      authorNickname: "backend_taeyang",
-      title: "리더보드 데이터 로딩 시간이 너무 깁니다",
-      content: "제출 후 리더보드가 업데이트되는 데 2-3분이 걸리는데, 이게 정상인가요? 다른 분들은 어떻게 되나요? 혹시 서버 문제가 있는 건 아닐까요?",
-      category: "bug",
-      likes: ["user-handover-1"],
-      createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: `post-${Date.now()}-5`,
-      hackathonSlug,
-      authorId: "user-lgtm-5",
-      authorName: "조은우",
-      authorNickname: "devops_eunwoo",
-      title: "Docker를 이용한 배포 자동화 경험담",
-      content: "해커톤 기간 동안 Docker를 활용해서 배포 프로세스를 완전히 자동화했습니다. CI/CD 파이프라인을 GitHub Actions로 구축했고, 정말 편해졌어요. 혹시 관심 있으신 분들 있으면 공유해드릴 수 있습니다!",
-      category: "discussion",
-      likes: ["user-lgtm-1", "user-lgtm-2", "user-handover-3"],
-      createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    },
-  ];
-
-  localStorage.setItem(FORUM_POSTS_KEY, JSON.stringify(samplePosts));
-  return samplePosts;
-}
 
 export default function DiscussionPage() {
   const params = useParams();
@@ -110,32 +44,54 @@ export default function DiscussionPage() {
   const [newCommentContent, setNewCommentContent] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Initialize data
+  // Initialize data from Supabase
   useEffect(() => {
-    const samplePosts = initializeSamplePosts(hackathonSlug);
-    const storedPosts = samplePosts.filter((p: ForumPost) => p.hackathonSlug === hackathonSlug);
-    const commentsRaw = localStorage.getItem(FORUM_COMMENTS_KEY);
-    const storedComments: ForumComment[] = commentsRaw ? JSON.parse(commentsRaw) : [];
+    const loadData = async () => {
+      try {
+        // Load all forum posts for this hackathon
+        const fetchedPosts = await getForumPosts(hackathonSlug);
+        setPosts(fetchedPosts);
 
-    setPosts(storedPosts);
-    setComments(storedComments);
-    setLoading(false);
+        // Load all comments for this hackathon
+        const allComments: ForumComment[] = [];
+        for (const post of fetchedPosts) {
+          const postComments = await getForumComments(post.id);
+          allComments.push(...postComments);
+        }
+        setComments(allComments);
+      } catch (error) {
+        console.error("Failed to load forum data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, [hackathonSlug]);
 
-  // Save posts to localStorage
-  const savePosts = useCallback((updatedPosts: ForumPost[]) => {
-    const allPosts = JSON.parse(localStorage.getItem(FORUM_POSTS_KEY) || "[]") as ForumPost[];
-    const otherPosts = allPosts.filter((p) => p.hackathonSlug !== hackathonSlug);
-    const merged = [...otherPosts, ...updatedPosts];
-    localStorage.setItem(FORUM_POSTS_KEY, JSON.stringify(merged));
-    setPosts(updatedPosts);
+  // Refresh posts from Supabase
+  const refreshPosts = useCallback(async () => {
+    try {
+      const fetchedPosts = await getForumPosts(hackathonSlug);
+      setPosts(fetchedPosts);
+    } catch (error) {
+      console.error("Failed to refresh posts:", error);
+    }
   }, [hackathonSlug]);
 
-  // Save comments to localStorage
-  const saveComments = useCallback((updatedComments: ForumComment[]) => {
-    localStorage.setItem(FORUM_COMMENTS_KEY, JSON.stringify(updatedComments));
-    setComments(updatedComments);
-  }, []);
+  // Refresh comments from Supabase
+  const refreshComments = useCallback(async () => {
+    try {
+      const allComments: ForumComment[] = [];
+      for (const post of posts) {
+        const postComments = await getForumComments(post.id);
+        allComments.push(...postComments);
+      }
+      setComments(allComments);
+    } catch (error) {
+      console.error("Failed to refresh comments:", error);
+    }
+  }, [posts]);
 
   const filteredPosts = posts.filter(
     (post) => selectedCategory === "all" || post.category === selectedCategory
@@ -150,89 +106,88 @@ export default function DiscussionPage() {
 
   const postComments = selectedPost ? comments.filter((c) => c.postId === selectedPost.id) : [];
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
     if (!user || !newPostTitle.trim() || !newPostContent.trim()) return;
 
-    const post: ForumPost = {
-      id: `post-${Date.now()}`,
-      hackathonSlug,
-      authorId: user.id,
-      authorName: user.name,
-      title: newPostTitle.trim(),
-      content: newPostContent.trim(),
-      category: newPostCategory,
-      likes: [],
-      createdAt: new Date().toISOString(),
-    };
-
-    savePosts([...posts, post]);
-    setNewPostTitle("");
-    setNewPostContent("");
-    setNewPostCategory("discussion");
-    setShowNewPostForm(false);
-
-    // 활동 로그
-    import("@/lib/supabase/data").then(({ logActivity }) => {
-      logActivity({
-        type: "forum_post",
-        message: `${user.name}님이 토론 게시글을 작성했습니다: "${post.title}"`,
-        timestamp: new Date().toISOString(),
+    try {
+      const post = {
         hackathonSlug,
+        authorId: user.id,
+        authorName: user.name,
+        title: newPostTitle.trim(),
+        content: newPostContent.trim(),
+        category: newPostCategory,
+      };
+
+      await createForumPost(post);
+
+      setNewPostTitle("");
+      setNewPostContent("");
+      setNewPostCategory("discussion");
+      setShowNewPostForm(false);
+
+      // Refresh posts from Supabase
+      await refreshPosts();
+
+      // 활동 로그
+      import("@/lib/supabase/data").then(({ logActivity }) => {
+        logActivity({
+          type: "forum_post",
+          message: `${user.name}님이 토론 게시글을 작성했습니다: "${post.title}"`,
+          timestamp: new Date().toISOString(),
+          hackathonSlug,
+        });
       });
-    });
-  };
-
-  const handleAddComment = () => {
-    if (!user || !selectedPost || !newCommentContent.trim()) return;
-
-    const comment: ForumComment = {
-      id: `comment-${Date.now()}`,
-      postId: selectedPost.id,
-      authorId: user.id,
-      authorName: user.name,
-      content: newCommentContent.trim(),
-      likes: [],
-      createdAt: new Date().toISOString(),
-    };
-
-    const updatedComments = [...comments, comment];
-    saveComments(updatedComments);
-    setNewCommentContent("");
-  };
-
-  const handleToggleLike = (postId: string) => {
-    if (!user) return;
-
-    const updatedPosts = posts.map((post) => {
-      if (post.id === postId) {
-        const likes = post.likes.includes(user.id)
-          ? post.likes.filter((id) => id !== user.id)
-          : [...post.likes, user.id];
-        return { ...post, likes };
-      }
-      return post;
-    });
-
-    savePosts(updatedPosts);
-    if (selectedPost && selectedPost.id === postId) {
-      setSelectedPost(updatedPosts.find((p) => p.id === postId) || null);
+    } catch (error) {
+      console.error("Failed to create post:", error);
     }
   };
 
-  const handleToggleCommentLike = (commentId: string) => {
+  const handleAddComment = async () => {
+    if (!user || !selectedPost || !newCommentContent.trim()) return;
+
+    try {
+      const comment = {
+        postId: selectedPost.id,
+        authorId: user.id,
+        authorName: user.name,
+        content: newCommentContent.trim(),
+      };
+
+      await createForumComment(comment);
+      setNewCommentContent("");
+
+      // Refresh comments from Supabase
+      await refreshComments();
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+    }
+  };
+
+  const handleToggleLike = async (postId: string) => {
     if (!user) return;
 
-    const updatedComments = comments.map((comment) => {
-      if (comment.id === commentId) {
-        const likes = comment.likes.includes(user.id)
-          ? comment.likes.filter((id) => id !== user.id)
-          : [...comment.likes, user.id];
-        return { ...comment, likes };
-      }
-      return comment;
-    });
+    try {
+      await toggleForumPostLike(postId, user.id);
 
-    saveComments(updatedComments);
+      // Refresh posts from Supabase
+      await refreshPosts();
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+    }
+  };
+
+  const handleToggleCommentLike = async (commentId: string) => {
+    if (!user) return;
+
+    try {
+      await toggleForumCommentLike(commentId, user.id);
+
+      // Refresh comments from Supabase
+      await refreshComments();
+    } catch (error) {
+      console.error("Failed to toggle comment like:", error);
+    }
   };
 
   if (loading) {

@@ -1,29 +1,51 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/components/features/AuthProvider";
+import { isBookmarked, addBookmark, removeBookmark } from "@/lib/supabase/data";
 
 export function BookmarkButton({ hackathonSlug }: { hackathonSlug: string }) {
+  const { user } = useAuth();
   const [bookmarked, setBookmarked] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const saved = JSON.parse(
-      localStorage.getItem("dacon_bookmarks") || "[]"
-    ) as string[];
-    setBookmarked(saved.includes(hackathonSlug));
-  }, [hackathonSlug]);
-
-  const toggle = () => {
-    const saved = JSON.parse(
-      localStorage.getItem("dacon_bookmarks") || "[]"
-    ) as string[];
-    let updated: string[];
-    if (saved.includes(hackathonSlug)) {
-      updated = saved.filter((s) => s !== hackathonSlug);
-    } else {
-      updated = [...saved, hackathonSlug];
+    if (!user) {
+      setBookmarked(false);
+      return;
     }
-    localStorage.setItem("dacon_bookmarks", JSON.stringify(updated));
-    setBookmarked(!bookmarked);
+
+    const checkBookmark = async () => {
+      try {
+        const isCurrentlyBookmarked = await isBookmarked(user.id, hackathonSlug);
+        setBookmarked(isCurrentlyBookmarked);
+      } catch (error) {
+        console.error("Error checking bookmark status:", error);
+      }
+    };
+
+    checkBookmark();
+  }, [user, hackathonSlug]);
+
+  const toggle = async () => {
+    if (!user) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (bookmarked) {
+        await removeBookmark(user.id, hackathonSlug);
+        setBookmarked(false);
+      } else {
+        await addBookmark(user.id, hackathonSlug);
+        setBookmarked(true);
+      }
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,11 +55,14 @@ export function BookmarkButton({ hackathonSlug }: { hackathonSlug: string }) {
         e.stopPropagation();
         toggle();
       }}
+      disabled={!user || loading}
       className={`rounded-lg p-1.5 transition-all ${
-        bookmarked
+        !user
+          ? "text-gray-300 cursor-not-allowed dark:text-gray-600"
+          : bookmarked
           ? "text-yellow-500 hover:text-yellow-600"
           : "text-gray-300 hover:text-gray-400 dark:text-gray-600 dark:hover:text-gray-500"
-      }`}
+      } ${loading ? "opacity-50" : ""}`}
       aria-label={bookmarked ? "북마크 해제" : "북마크"}
     >
       <svg

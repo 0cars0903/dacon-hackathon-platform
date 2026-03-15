@@ -5,6 +5,7 @@ import { useThemeContext } from "@/components/layout/ThemeProvider";
 import { useAuth } from "@/components/features/AuthProvider";
 import { Button } from "@/components/common/Button";
 import { Tag } from "@/components/common/Tag";
+import { getNotificationPrefs, saveNotificationPrefs, type NotificationPrefs } from "@/lib/supabase/data";
 import type { ColorTheme } from "@/types";
 
 const COLOR_THEMES: { key: ColorTheme; label: string; color: string }[] = [
@@ -19,35 +20,26 @@ const SUGGESTED_TAGS = [
   "Workflow", "Idea", "Handover", "Vercel",
 ];
 
-interface NotificationPrefs {
-  hackathonDeadline: boolean;
-  teamActivity: boolean;
-  leaderboardUpdate: boolean;
-  forumReply: boolean;
-  systemNotice: boolean;
-}
-
-const NOTIF_KEY = "dacon_notification_prefs";
-
-const defaultNotifPrefs: NotificationPrefs = {
-  hackathonDeadline: true,
-  teamActivity: true,
-  leaderboardUpdate: true,
-  forumReply: true,
-  systemNotice: true,
-};
-
 export function SettingsPanel() {
   const { theme, colorTheme, interestTags, toggleTheme, setColorTheme, setInterestTags } = useThemeContext();
   const { user } = useAuth();
   const [customTag, setCustomTag] = useState("");
-  const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>(defaultNotifPrefs);
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>({
+    hackathonDeadline: true,
+    teamActivity: true,
+    leaderboardUpdate: true,
+    forumReply: true,
+    systemNotice: true,
+  });
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(NOTIF_KEY);
-    if (stored) setNotifPrefs(JSON.parse(stored));
-  }, []);
+    if (user) {
+      getNotificationPrefs(user.id).then((prefs) => {
+        if (prefs) setNotifPrefs(prefs);
+      });
+    }
+  }, [user]);
 
   const toggleTag = (tag: string) => {
     if (interestTags.includes(tag)) {
@@ -68,9 +60,12 @@ export function SettingsPanel() {
   const toggleNotifPref = (key: keyof NotificationPrefs) => {
     const updated = { ...notifPrefs, [key]: !notifPrefs[key] };
     setNotifPrefs(updated);
-    localStorage.setItem(NOTIF_KEY, JSON.stringify(updated));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    if (user) {
+      saveNotificationPrefs(user.id, updated).then(() => {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      });
+    }
   };
 
   const notifItems: { key: keyof NotificationPrefs; label: string; description: string }[] = [
@@ -198,20 +193,20 @@ export function SettingsPanel() {
       <div>
         <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">데이터 관리</h3>
         <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">
-          브라우저에 저장된 데이터를 관리합니다. 초기화 시 복구할 수 없습니다.
+          모든 데이터는 서버에 저장됩니다.
         </p>
         <Button
           variant="secondary"
           size="sm"
           onClick={() => {
-            if (confirm("정말 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
-              const keys = Object.keys(localStorage).filter((k) => k.startsWith("dacon_"));
-              keys.forEach((k) => localStorage.removeItem(k));
+            if (confirm("로컬 캐시를 초기화하시겠습니까?")) {
+              const keysToRemove = ["dacon-auth-token", "dacon_recent_searches"];
+              keysToRemove.forEach((k) => localStorage.removeItem(k));
               window.location.reload();
             }
           }}
         >
-          데이터 초기화
+          로컬 캐시 초기화
         </Button>
       </div>
     </div>

@@ -6,7 +6,7 @@ import { useAuth } from "@/components/features/AuthProvider";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
-import { getHackathonBySlug, getAllHackathonsUnfiltered } from "@/lib/supabase/data";
+import { getHackathonBySlug, getAllHackathonsUnfiltered, getTeams } from "@/lib/supabase/data";
 import { FollowStats } from "@/components/features/FollowButton";
 import { formatDate, timeAgo } from "@/lib/utils";
 import type { Hackathon,  UserProfile, Team } from "@/types";
@@ -42,21 +42,17 @@ export default function ProfilePage() {
           setEditBio(p.bio || "");
           setEditSkills(p.skills.join(", "));
           setEditNickname(p.nickname || p.name);
+          // 프로필에서 아바타 URL 로드
+          if (p.avatarUrl) setAvatarUrl(p.avatarUrl);
         }
-      };
-      load();
-      // 아바타 로드
-      const storedAvatar = localStorage.getItem(`dacon_avatar_${user.id}`);
-      if (storedAvatar) setAvatarUrl(storedAvatar);
-      // 내 팀 로드
-      const stored = localStorage.getItem("dacon_teams");
-      if (stored) {
-        const teams = JSON.parse(stored);
-        const mine = teams.filter((t: { members?: { userId: string }[]; creatorId?: string }) =>
-          t.members?.some((m: { userId: string }) => m.userId === user.id) || t.creatorId === user.id
+        // 내 팀 로드 (Supabase에서)
+        const allTeams = await getTeams();
+        const mine = allTeams.filter((t: Team) =>
+          t.members?.some((m) => m.userId === user.id) || t.creatorId === user.id
         );
         setMyTeams(mine);
-      }
+      };
+      load();
     }
   }, [user, getProfile]);
 
@@ -155,10 +151,11 @@ export default function ProfilePage() {
                   if (!file) return;
                   if (file.size > 2 * 1024 * 1024) { alert("이미지 크기는 2MB 이하여야 합니다."); return; }
                   const reader = new FileReader();
-                  reader.onload = () => {
+                  reader.onload = async () => {
                     const result = reader.result as string;
                     setAvatarUrl(result);
-                    localStorage.setItem(`dacon_avatar_${user.id}`, result);
+                    // Supabase에 아바타 저장
+                    await updateProfile({ avatarUrl: result });
                   };
                   reader.readAsDataURL(file);
                 }}

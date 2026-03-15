@@ -132,7 +132,7 @@ export default function HackathonSubmitPage() {
 
         // 채점 이력 로드
         if (isAutoScored) {
-          setScoredHistory(getScoredSubmissions(slug, user.id));
+          setScoredHistory(await getScoredSubmissions(slug, user.id));
         }
       } catch {
         console.error("Failed to load submissions from Supabase");
@@ -225,7 +225,7 @@ export default function HackathonSubmitPage() {
             result,
             csvLines
           );
-          setScoredHistory(getScoredSubmissions(slug, user.id));
+          setScoredHistory(await getScoredSubmissions(slug, user.id));
         } catch (err) {
           console.error("Failed to fetch teams:", err);
           // Continue without team name
@@ -238,7 +238,7 @@ export default function HackathonSubmitPage() {
             result,
             csvLines
           );
-          setScoredHistory(getScoredSubmissions(slug, user.id));
+          setScoredHistory(await getScoredSubmissions(slug, user.id));
         }
 
         // 활동 로그 + 알림

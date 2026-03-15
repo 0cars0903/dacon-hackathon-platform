@@ -11,7 +11,7 @@
  */
 
 import groundTruthData from "@/data/ground-truth.json";
-import { saveSubmissionScore, getLeaderboard, updateLeaderboard } from "@/lib/supabase/data";
+import { saveSubmissionScore, getLeaderboard, updateLeaderboard, getSubmissionsByHackathon } from "@/lib/supabase/data";
 import type { Leaderboard } from "@/types";
 
 // =============================================
@@ -444,12 +444,6 @@ export async function saveScoredSubmission(
         submittedAt: submission.submittedAt,
       });
 
-      // Also save to localStorage for immediate access
-      const raw = localStorage.getItem("dacon_scored_submissions");
-      const all: ScoredSubmission[] = raw ? JSON.parse(raw) : [];
-      all.push(submission);
-      localStorage.setItem("dacon_scored_submissions", JSON.stringify(all));
-
       // 리더보드 자동 업데이트
       await updateLeaderboardFromScores(hackathonSlug);
     } catch {
@@ -460,18 +454,30 @@ export async function saveScoredSubmission(
   return submission;
 }
 
-/** 채점 제출 이력 조회 (로컬 스토리지 사용) */
-export function getScoredSubmissions(hackathonSlug: string, userId?: string): ScoredSubmission[] {
+/** 채점 제출 이력 조회 (Supabase 사용) */
+export async function getScoredSubmissions(hackathonSlug: string, userId?: string): Promise<ScoredSubmission[]> {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem("dacon_scored_submissions");
-    const all: ScoredSubmission[] = raw ? JSON.parse(raw) : [];
-    return all
-      .filter(
-        (s) =>
-          s.hackathonSlug === hackathonSlug &&
-          (!userId || s.userId === userId)
-      )
+    const submissions = await getSubmissionsByHackathon(hackathonSlug);
+    if (!submissions) return [];
+
+    return submissions
+      .filter((s) => !userId || s.userId === userId)
+      .filter((s) => s.scoreDetails && (s.scoreDetails as Record<string, unknown>).scoringResult)
+      .map((s) => {
+        const details = s.scoreDetails as Record<string, unknown>;
+        return {
+          id: s.id,
+          hackathonSlug: s.hackathonSlug,
+          userId: s.userId,
+          userName: s.userName,
+          teamName: (details.teamName as string) || undefined,
+          version: s.version,
+          scoringResult: details.scoringResult as ScoringResult,
+          csvRowCount: (details.csvRowCount as number) || 0,
+          submittedAt: (details.submittedAt as string) || s.savedAt,
+        };
+      })
       .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
   } catch {
     return [];
@@ -482,14 +488,12 @@ export function getScoredSubmissions(hackathonSlug: string, userId?: string): Sc
 async function updateLeaderboardFromScores(hackathonSlug: string) {
   if (typeof window === "undefined") return;
   try {
-    // Read from localStorage for scored submissions
-    const raw = localStorage.getItem("dacon_scored_submissions");
-    const all: ScoredSubmission[] = raw ? JSON.parse(raw) : [];
+    // Fetch scored submissions from Supabase
+    const scored = await getScoredSubmissions(hackathonSlug);
+    if (!scored.length) return;
 
     // Filter for successful submissions
-    const hackathonScores = all.filter((s) =>
-      s.hackathonSlug === hackathonSlug && s.scoringResult.success
-    );
+    const hackathonScores = scored.filter((s) => s.scoringResult.success);
 
     // 유저별 최고 점수
     const bestByUser = new Map<string, ScoredSubmission>();

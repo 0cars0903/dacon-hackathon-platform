@@ -41,51 +41,39 @@ export function ContactModal({
   };
 
   const handleSendMessage = async () => {
-    if (!message.trim() || sending) return;
+    if (!message.trim() || sending || !user || !creatorId || !creatorName) return;
     setSending(true);
 
     try {
       // 1) Supabase DM 전송
-      if (user && creatorId && creatorName) {
-        const dm = await sendMessage(
-          user.id,
-          user.name,
-          creatorId,
-          creatorName,
-          `[${teamName}] ${message}`
-        );
+      const dm = await sendMessage(
+        user.id,
+        user.name,
+        creatorId,
+        creatorName,
+        `[${teamName}] ${message}`
+      );
 
-        // 2) 팀장에게 알림 추가
-        await addNotification(creatorId, {
-          message: `${user.name}님이 "${teamName}" 팀에 연락 메시지를 보냈습니다.`,
-          link: "/messages",
-          type: "info",
-        });
+      // 2) 팀장에게 알림 추가
+      await addNotification(creatorId, {
+        message: `${user.name}님이 "${teamName}" 팀에 연락 메시지를 보냈습니다.`,
+        link: "/messages",
+        type: "info",
+      });
 
-        // 3) 최근 활동에 기록 (메시지 미리보기 포함)
-        await logActivity({
-          type: "contact_message",
-          message: `${user.name}님이 ${teamName} 팀에 참여 메시지를 보냈습니다.`,
-          timestamp: new Date().toISOString(),
-          hackathonSlug: undefined,
-          metadata: {
-            messageContent: message.trim(),
-            senderName: user.name,
-            teamName,
-            teamCode: teamCode || undefined,
-          },
-        });
-      } else {
-        // 로그인하지 않은 경우 localStorage 폴백
-        const messages = JSON.parse(localStorage.getItem("dacon_messages") || "[]");
-        messages.push({
-          id: Date.now().toString(),
+      // 3) 최근 활동에 기록 (메시지 미리보기 포함)
+      await logActivity({
+        type: "contact_message",
+        message: `${user.name}님이 ${teamName} 팀에 참여 메시지를 보냈습니다.`,
+        timestamp: new Date().toISOString(),
+        hackathonSlug: undefined,
+        metadata: {
+          messageContent: message.trim(),
+          senderName: user.name,
           teamName,
-          message,
-          sentAt: new Date().toISOString(),
-        });
-        localStorage.setItem("dacon_messages", JSON.stringify(messages));
-      }
+          teamCode: teamCode || undefined,
+        },
+      });
 
       setSent(true);
       setTimeout(() => {
@@ -192,9 +180,15 @@ export function ContactModal({
               <Button onClick={onClose} className="flex-1 !bg-gray-100 !text-gray-700 hover:!bg-gray-200 dark:!bg-gray-800 dark:!text-gray-300">
                 닫기
               </Button>
-              <Button onClick={handleSendMessage} disabled={!message.trim() || sending} className="flex-1">
-                {sending ? "전송 중..." : "메시지 보내기"}
-              </Button>
+              {user ? (
+                <Button onClick={handleSendMessage} disabled={!message.trim() || sending} className="flex-1">
+                  {sending ? "전송 중..." : "메시지 보내기"}
+                </Button>
+              ) : (
+                <Button disabled className="flex-1">
+                  로그인이 필요합니다
+                </Button>
+              )}
             </div>
           </>
         )}
