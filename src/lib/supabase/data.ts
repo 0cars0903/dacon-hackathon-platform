@@ -846,3 +846,420 @@ export async function saveUserPreferences(userId: string, prefs: Partial<UserPre
     }, { onConflict: "user_id" });
   return !error;
 }
+
+// ============================================================
+// BOOKMARKS (Phase 0 — NEW)
+// ============================================================
+export async function getBookmarks(userId: string): Promise<string[]> {
+  const { data } = await supabase()
+    .from("bookmarks")
+    .select("hackathon_slug")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  return (data ?? []).map((b: { hackathon_slug: string }) => b.hackathon_slug);
+}
+
+export async function addBookmark(userId: string, hackathonSlug: string): Promise<boolean> {
+  const { error } = await supabase()
+    .from("bookmarks")
+    .insert({ user_id: userId, hackathon_slug: hackathonSlug });
+  return !error;
+}
+
+export async function removeBookmark(userId: string, hackathonSlug: string): Promise<boolean> {
+  const { error } = await supabase()
+    .from("bookmarks")
+    .delete()
+    .eq("user_id", userId)
+    .eq("hackathon_slug", hackathonSlug);
+  return !error;
+}
+
+export async function isBookmarked(userId: string, hackathonSlug: string): Promise<boolean> {
+  const { data } = await supabase()
+    .from("bookmarks")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("hackathon_slug", hackathonSlug)
+    .maybeSingle();
+  return !!data;
+}
+
+// ============================================================
+// NOTIFICATION PREFERENCES (Phase 0 — NEW)
+// ============================================================
+export interface NotificationPrefs {
+  hackathonDeadline: boolean;
+  teamActivity: boolean;
+  leaderboardUpdate: boolean;
+  forumReply: boolean;
+  systemNotice: boolean;
+}
+
+const DEFAULT_NOTIF_PREFS: NotificationPrefs = {
+  hackathonDeadline: true,
+  teamActivity: true,
+  leaderboardUpdate: true,
+  forumReply: true,
+  systemNotice: true,
+};
+
+export async function getNotificationPrefs(userId: string): Promise<NotificationPrefs> {
+  const { data } = await supabase()
+    .from("user_preferences")
+    .select("notification_prefs")
+    .eq("user_id", userId)
+    .single();
+  if (!data?.notification_prefs) return { ...DEFAULT_NOTIF_PREFS };
+  return { ...DEFAULT_NOTIF_PREFS, ...(data.notification_prefs as Partial<NotificationPrefs>) };
+}
+
+export async function saveNotificationPrefs(userId: string, prefs: NotificationPrefs): Promise<boolean> {
+  const { error } = await supabase()
+    .from("user_preferences")
+    .update({ notification_prefs: prefs })
+    .eq("user_id", userId);
+  return !error;
+}
+
+// ============================================================
+// SUBMISSIONS — Extended (Phase 0 — scoring + versioning)
+// ============================================================
+export interface ScoredSubmission {
+  id: string;
+  hackathonSlug: string;
+  userId: string;
+  userName: string;
+  version: number;
+  items: Submission["items"];
+  files: Array<{ name: string; size: number; type: string }>;
+  status: "draft" | "submitted";
+  score: number | null;
+  scoreDetails: Record<string, unknown> | null;
+  savedAt: string;
+}
+
+export async function getSubmissionsByHackathon(hackathonSlug: string): Promise<ScoredSubmission[]> {
+  const { data } = await supabase()
+    .from("submissions")
+    .select("*")
+    .eq("hackathon_slug", hackathonSlug)
+    .order("saved_at", { ascending: false });
+  return (data ?? []).map(mapScoredSubmission);
+}
+
+export async function getUserSubmissions(userId: string): Promise<ScoredSubmission[]> {
+  const { data } = await supabase()
+    .from("submissions")
+    .select("*")
+    .eq("user_id", userId)
+    .order("saved_at", { ascending: false });
+  return (data ?? []).map(mapScoredSubmission);
+}
+
+export async function getUserSubmission(hackathonSlug: string, userId: string): Promise<ScoredSubmission | undefined> {
+  const { data } = await supabase()
+    .from("submissions")
+    .select("*")
+    .eq("hackathon_slug", hackathonSlug)
+    .eq("user_id", userId)
+    .order("version", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data ? mapScoredSubmission(data) : undefined;
+}
+
+export async function saveFullSubmission(
+  hackathonSlug: string,
+  userId: string,
+  userName: string,
+  submission: {
+    items: Submission["items"];
+    files?: Array<{ name: string; size: number; type: string }>;
+    status: "draft" | "submitted";
+    version?: number;
+  }
+): Promise<boolean> {
+  // Get current max version
+  const { data: existing } = await supabase()
+    .from("submissions")
+    .select("version")
+    .eq("hackathon_slug", hackathonSlug)
+    .eq("user_id", userId)
+    .order("version", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextVersion = submission.version ?? ((existing?.version ?? 0) + 1);
+
+  const { error } = await supabase()
+    .from("submissions")
+    .upsert({
+      hackathon_slug: hackathonSlug,
+      user_id: userId,
+      user_name: userName,
+      items: submission.items ?? [],
+      files: submission.files ?? [],
+      status: submission.status,
+      version: nextVersion,
+      saved_at: new Date().toISOString(),
+    }, { onConflict: "hackathon_slug,user_id" });
+  return !error;
+}
+
+export async function saveSubmissionScore(
+  submissionId: string,
+  score: number,
+  scoreDetails: Record<string, unknown>
+): Promise<boolean> {
+  const { error } = await supabase()
+    .from("submissions")
+    .update({ score, score_details: scoreDetails })
+    .eq("id", submissionId);
+  return !error;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapScoredSubmission(row: any): ScoredSubmission {
+  return {
+    id: row.id,
+    hackathonSlug: row.hackathon_slug,
+    userId: row.user_id,
+    userName: row.user_name ?? "",
+    version: row.version ?? 1,
+    items: (row.items ?? []) as Submission["items"],
+    files: (row.files ?? []) as ScoredSubmission["files"],
+    status: row.status,
+    score: row.score ?? null,
+    scoreDetails: row.score_details ?? null,
+    savedAt: row.saved_at,
+  };
+}
+
+// ============================================================
+// LEADERBOARD — Update (Phase 0)
+// ============================================================
+export async function updateLeaderboard(
+  hackathonSlug: string,
+  entries: Leaderboard["entries"]
+): Promise<boolean> {
+  const { error } = await supabase()
+    .from("leaderboards")
+    .update({ entries, updated_at: new Date().toISOString() })
+    .eq("hackathon_slug", hackathonSlug);
+  return !error;
+}
+
+// ============================================================
+// HACKATHON ADMIN CRUD (Phase 1)
+// ============================================================
+export async function createHackathon(hackathon: {
+  slug: string; title: string; status?: string; tags?: string[];
+  thumbnailUrl?: string; timezone?: string;
+  submissionDeadlineAt?: string; endAt?: string;
+  detailLink?: string; rulesLink?: string; faqLink?: string;
+}): Promise<boolean> {
+  const { error } = await supabase()
+    .from("hackathons")
+    .insert({
+      slug: hackathon.slug,
+      title: hackathon.title,
+      status: hackathon.status ?? "upcoming",
+      tags: hackathon.tags ?? [],
+      thumbnail_url: hackathon.thumbnailUrl ?? null,
+      timezone: hackathon.timezone ?? "Asia/Seoul",
+      submission_deadline_at: hackathon.submissionDeadlineAt ?? null,
+      end_at: hackathon.endAt ?? null,
+      detail_link: hackathon.detailLink ?? null,
+      rules_link: hackathon.rulesLink ?? null,
+      faq_link: hackathon.faqLink ?? null,
+    });
+  if (error) logSupabaseError("createHackathon", error);
+  return !error;
+}
+
+export async function updateHackathon(slug: string, updates: {
+  title?: string; status?: string; tags?: string[];
+  thumbnailUrl?: string; submissionDeadlineAt?: string; endAt?: string;
+}): Promise<boolean> {
+  const dbUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (updates.title !== undefined) dbUpdates.title = updates.title;
+  if (updates.status !== undefined) dbUpdates.status = updates.status;
+  if (updates.tags !== undefined) dbUpdates.tags = updates.tags;
+  if (updates.thumbnailUrl !== undefined) dbUpdates.thumbnail_url = updates.thumbnailUrl;
+  if (updates.submissionDeadlineAt !== undefined) dbUpdates.submission_deadline_at = updates.submissionDeadlineAt;
+  if (updates.endAt !== undefined) dbUpdates.end_at = updates.endAt;
+
+  const { error } = await supabase().from("hackathons").update(dbUpdates).eq("slug", slug);
+  return !error;
+}
+
+export async function deleteHackathon(slug: string): Promise<boolean> {
+  // Delete related data first (cascade should handle most, but be explicit)
+  await supabase().from("hackathon_details").delete().eq("slug", slug);
+  await supabase().from("leaderboards").delete().eq("hackathon_slug", slug);
+  const { error } = await supabase().from("hackathons").delete().eq("slug", slug);
+  return !error;
+}
+
+export async function changeHackathonStatus(slug: string, status: "upcoming" | "ongoing" | "ended"): Promise<boolean> {
+  const { error } = await supabase()
+    .from("hackathons")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("slug", slug);
+  return !error;
+}
+
+// ============================================================
+// TEAM CRUD (Phase 1)
+// ============================================================
+export async function createTeam(team: {
+  teamCode: string; hackathonSlug: string; name: string;
+  isOpen?: boolean; joinPolicy?: "auto" | "approval";
+  lookingFor?: string[]; intro?: string;
+  contactType?: string; contactUrl?: string;
+  creatorId: string; creatorName: string;
+}): Promise<boolean> {
+  const { error: teamError } = await supabase()
+    .from("teams")
+    .insert({
+      team_code: team.teamCode,
+      hackathon_slug: team.hackathonSlug,
+      name: team.name,
+      is_open: team.isOpen ?? true,
+      join_policy: team.joinPolicy ?? "auto",
+      looking_for: team.lookingFor ?? [],
+      intro: team.intro ?? "",
+      contact_type: team.contactType ?? "",
+      contact_url: team.contactUrl ?? "",
+      creator_id: team.creatorId,
+    });
+  if (teamError) { logSupabaseError("createTeam", teamError); return false; }
+
+  // Add creator as team leader
+  const { error: memberError } = await supabase()
+    .from("team_members")
+    .insert({
+      team_code: team.teamCode,
+      user_id: team.creatorId,
+      name: team.creatorName,
+      role: "팀장",
+    });
+  if (memberError) logSupabaseError("createTeam:addCreator", memberError);
+  return true;
+}
+
+export async function updateTeam(teamCode: string, updates: {
+  name?: string; intro?: string; isOpen?: boolean;
+  joinPolicy?: "auto" | "approval"; lookingFor?: string[];
+  contactType?: string; contactUrl?: string;
+}): Promise<boolean> {
+  const dbUpdates: Record<string, unknown> = {};
+  if (updates.name !== undefined) dbUpdates.name = updates.name;
+  if (updates.intro !== undefined) dbUpdates.intro = updates.intro;
+  if (updates.isOpen !== undefined) dbUpdates.is_open = updates.isOpen;
+  if (updates.joinPolicy !== undefined) dbUpdates.join_policy = updates.joinPolicy;
+  if (updates.lookingFor !== undefined) dbUpdates.looking_for = updates.lookingFor;
+  if (updates.contactType !== undefined) dbUpdates.contact_type = updates.contactType;
+  if (updates.contactUrl !== undefined) dbUpdates.contact_url = updates.contactUrl;
+
+  const { error } = await supabase().from("teams").update(dbUpdates).eq("team_code", teamCode);
+  return !error;
+}
+
+export async function deleteTeam(teamCode: string): Promise<boolean> {
+  await supabase().from("team_members").delete().eq("team_code", teamCode);
+  await supabase().from("team_join_requests").delete().eq("team_code", teamCode);
+  await supabase().from("team_chat_messages").delete().eq("team_code", teamCode);
+  await supabase().from("team_invitations").delete().eq("team_code", teamCode);
+  const { error } = await supabase().from("teams").delete().eq("team_code", teamCode);
+  return !error;
+}
+
+// ============================================================
+// FORUM CRUD (Phase 2)
+// ============================================================
+export async function createForumPost(post: {
+  hackathonSlug: string; authorId: string; authorName: string;
+  authorNickname?: string; title: string; content: string;
+  category?: string;
+}): Promise<ForumPost | null> {
+  const { data, error } = await supabase()
+    .from("forum_posts")
+    .insert({
+      hackathon_slug: post.hackathonSlug,
+      author_id: post.authorId,
+      author_name: post.authorName,
+      author_nickname: post.authorNickname ?? null,
+      title: post.title,
+      content: post.content,
+      category: post.category ?? "discussion",
+    })
+    .select()
+    .single();
+  if (error || !data) return null;
+  return mapForumPost(data);
+}
+
+export async function createForumComment(comment: {
+  postId: string; authorId: string; authorName: string;
+  authorNickname?: string; content: string;
+}): Promise<ForumComment | null> {
+  const { data, error } = await supabase()
+    .from("forum_comments")
+    .insert({
+      post_id: comment.postId,
+      author_id: comment.authorId,
+      author_name: comment.authorName,
+      author_nickname: comment.authorNickname ?? null,
+      content: comment.content,
+    })
+    .select()
+    .single();
+  if (error || !data) return null;
+  return {
+    id: data.id, postId: data.post_id, authorId: data.author_id,
+    authorName: data.author_name, authorNickname: data.author_nickname,
+    content: data.content, likes: data.likes ?? [], createdAt: data.created_at,
+  };
+}
+
+export async function toggleForumPostLike(postId: string, userId: string): Promise<boolean> {
+  const { data: post } = await supabase()
+    .from("forum_posts")
+    .select("likes")
+    .eq("id", postId)
+    .single();
+  if (!post) return false;
+
+  const likes: string[] = post.likes ?? [];
+  const newLikes = likes.includes(userId)
+    ? likes.filter((id: string) => id !== userId)
+    : [...likes, userId];
+
+  const { error } = await supabase()
+    .from("forum_posts")
+    .update({ likes: newLikes })
+    .eq("id", postId);
+  return !error;
+}
+
+export async function toggleForumCommentLike(commentId: string, userId: string): Promise<boolean> {
+  const { data: comment } = await supabase()
+    .from("forum_comments")
+    .select("likes")
+    .eq("id", commentId)
+    .single();
+  if (!comment) return false;
+
+  const likes: string[] = comment.likes ?? [];
+  const newLikes = likes.includes(userId)
+    ? likes.filter((id: string) => id !== userId)
+    : [...likes, userId];
+
+  const { error } = await supabase()
+    .from("forum_comments")
+    .update({ likes: newLikes })
+    .eq("id", commentId);
+  return !error;
+}
