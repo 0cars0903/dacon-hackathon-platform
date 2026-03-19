@@ -165,14 +165,14 @@ export function SearchContent() {
     <div className="mx-auto max-w-4xl px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="mb-6 text-3xl font-bold text-slate-900 dark:text-white">
           검색
         </h1>
 
         {/* Search Input */}
-        <div className="mb-6 flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <svg
-            className="h-5 w-5 text-gray-400"
+            className="h-5 w-5 text-slate-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -189,13 +189,13 @@ export function SearchContent() {
             value={query}
             onChange={handleSearchChange}
             placeholder="해커톤, 팀, 사용자 검색..."
-            className="flex-1 bg-transparent text-lg text-gray-900 outline-none placeholder:text-gray-400 dark:text-white"
+            className="flex-1 bg-transparent text-lg text-slate-900 outline-none placeholder:text-slate-400 dark:text-white"
             autoFocus
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               aria-label="검색 초기화"
             >
               <svg
@@ -231,8 +231,8 @@ export function SearchContent() {
                   onClick={() => setFilterType(type)}
                   className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                     filterType === type
-                      ? "bg-blue-600 text-white dark:bg-blue-500"
-                      : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
+                      ? "bg-indigo-600 text-white dark:bg-indigo-500"
+                      : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                   }`}
                 >
                   {labels[type]}
@@ -250,7 +250,7 @@ export function SearchContent() {
       <div>
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-gray-500 dark:text-gray-400">검색 중...</div>
+            <div className="text-slate-500 dark:text-slate-400">검색 중...</div>
           </div>
         ) : query.trim() && filteredResults.length > 0 ? (
           <div className="space-y-4">
@@ -263,10 +263,10 @@ export function SearchContent() {
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 truncate">
+                      <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1 truncate">
                         {result.name}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 line-clamp-2">
                         {result.description}
                       </p>
                       <div className="flex items-center gap-2">
@@ -286,7 +286,7 @@ export function SearchContent() {
                     </div>
 
                     {/* Arrow */}
-                    <div className="flex-shrink-0 text-gray-400">
+                    <div className="flex-shrink-0 text-slate-400">
                       <svg
                         className="h-6 w-6"
                         fill="none"

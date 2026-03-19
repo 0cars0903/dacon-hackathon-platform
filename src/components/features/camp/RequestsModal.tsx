@@ -97,7 +97,7 @@ export function RequestsModal({
     <div className="space-y-4">
       {pendingRequests.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             대기 중인 참가 요청이 없습니다.
           </p>
         </div>
@@ -106,20 +106,20 @@ export function RequestsModal({
           {pendingRequests.map((request) => (
             <div
               key={request.id}
-              className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800"
+              className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800"
             >
               <div className="mb-2 flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">
+                  <p className="font-medium text-slate-900 dark:text-white">
                     {request.userName}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-slate-400">
                     {timeAgo(request.createdAt)}
                   </p>
                 </div>
               </div>
               {request.message && (
-                <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+                <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">
                   {request.message}
                 </p>
               )}

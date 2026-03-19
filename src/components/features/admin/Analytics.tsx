@@ -38,7 +38,7 @@ export function Analytics({ users, profiles, createdHackathons }: AnalyticsProps
   }, []);
 
   if (!platformStats) {
-    return <div className="text-center text-gray-400">로딩 중...</div>;
+    return <div className="text-center text-slate-400">로딩 중...</div>;
   }
 
   // 해커톤별 제출 통계
@@ -90,7 +90,7 @@ export function Analytics({ users, profiles, createdHackathons }: AnalyticsProps
       {/* 핵심 지표 카드 */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "총 사용자", value: users.length, sub: `관리자 ${users.filter((u) => u.role === "admin").length}명`, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-900/20", icon: "👤" },
+          { label: "총 사용자", value: users.length, sub: `관리자 ${users.filter((u) => u.role === "admin").length}명`, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-900/20", icon: "👤" },
           { label: "전체 해커톤", value: platformStats.totalHackathons + createdHackathons.length, sub: `진행중 ${statusDistribution.ongoing}개`, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-900/20", icon: "🏆" },
           { label: "등록 팀", value: platformStats.totalTeams, sub: `${platformStats.totalMembers}명 참여`, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-900/20", icon: "👥" },
           { label: "총 제출", value: platformStats.totalSubmissions, sub: `${allLeaderboards.length}개 리더보드`, color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-900/20", icon: "📤" },
@@ -100,31 +100,31 @@ export function Analytics({ users, profiles, createdHackathons }: AnalyticsProps
               <span className="text-2xl">{stat.icon}</span>
               <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
             </div>
-            <p className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">{stat.label}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{stat.sub}</p>
+            <p className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-300">{stat.label}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{stat.sub}</p>
           </div>
         ))}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* 해커톤별 제출 차트 */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-          <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">해커톤별 제출 현황</h3>
+        <section className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+          <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">해커톤별 제출 현황</h3>
           <div className="space-y-3">
             {hackathonSubmissionData.map((d) => (
               <div key={d.slug}>
                 <div className="mb-1 flex items-center justify-between text-xs">
-                  <span className="text-gray-600 dark:text-gray-400">{d.title}</span>
+                  <span className="text-slate-600 dark:text-slate-400">{d.title}</span>
                   <div className="flex items-center gap-2">
                     <Badge variant={d.status === "ongoing" ? "success" : d.status === "upcoming" ? "info" : "muted"} size="sm">
                       {d.status === "ongoing" ? "진행중" : d.status === "upcoming" ? "예정" : "종료"}
                     </Badge>
-                    <span className="font-medium text-gray-900 dark:text-white">{d.submissions}</span>
+                    <span className="font-medium text-slate-900 dark:text-white">{d.submissions}</span>
                   </div>
                 </div>
-                <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800">
+                <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800">
                   <div
-                    className="h-2 rounded-full bg-blue-500 transition-all duration-700"
+                    className="h-2 rounded-full bg-indigo-500 transition-all duration-700"
                     style={{ width: `${(d.submissions / maxSubmissions) * 100}%` }}
                   />
                 </div>
@@ -134,8 +134,8 @@ export function Analytics({ users, profiles, createdHackathons }: AnalyticsProps
         </section>
 
         {/* 해커톤 상태 분포 (도넛형) */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-          <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">해커톤 상태 분포</h3>
+        <section className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+          <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">해커톤 상태 분포</h3>
           <div className="flex items-center justify-center gap-8">
             {/* CSS 도넛 차트 */}
             <div className="relative h-36 w-36">
@@ -156,55 +156,55 @@ export function Analytics({ users, profiles, createdHackathons }: AnalyticsProps
                 )}
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-gray-900 dark:text-white">{totalHackathons}</span>
-                <span className="text-[10px] text-gray-400">전체</span>
+                <span className="text-2xl font-bold text-slate-900 dark:text-white">{totalHackathons}</span>
+                <span className="text-[10px] text-slate-400">전체</span>
               </div>
             </div>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-green-500" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">진행중</span>
-                <span className="ml-auto font-semibold text-gray-900 dark:text-white">{statusDistribution.ongoing}</span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">진행중</span>
+                <span className="ml-auto font-semibold text-slate-900 dark:text-white">{statusDistribution.ongoing}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-blue-500" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">예정</span>
-                <span className="ml-auto font-semibold text-gray-900 dark:text-white">{statusDistribution.upcoming}</span>
+                <span className="h-3 w-3 rounded-full bg-indigo-500" />
+                <span className="text-sm text-slate-600 dark:text-slate-400">예정</span>
+                <span className="ml-auto font-semibold text-slate-900 dark:text-white">{statusDistribution.upcoming}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">종료</span>
-                <span className="ml-auto font-semibold text-gray-900 dark:text-white">{statusDistribution.ended}</span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">종료</span>
+                <span className="ml-auto font-semibold text-slate-900 dark:text-white">{statusDistribution.ended}</span>
               </div>
             </div>
           </div>
         </section>
 
         {/* 기술 스택 분포 */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-          <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">인기 기술 스택 TOP 10</h3>
+        <section className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+          <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">인기 기술 스택 TOP 10</h3>
           <div className="space-y-2">
             {topSkills.map(([skill, count], i) => (
               <div key={skill} className="flex items-center gap-3">
-                <span className="w-5 text-right text-xs font-medium text-gray-400">{i + 1}</span>
-                <span className="w-24 text-xs text-gray-700 dark:text-gray-300 truncate">{skill}</span>
+                <span className="w-5 text-right text-xs font-medium text-slate-400">{i + 1}</span>
+                <span className="w-24 text-xs text-slate-700 dark:text-slate-300 truncate">{skill}</span>
                 <div className="flex-1">
-                  <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800">
+                  <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800">
                     <div
                       className="h-2 rounded-full bg-purple-500 transition-all duration-500"
                       style={{ width: `${(count / maxSkillCount) * 100}%` }}
                     />
                   </div>
                 </div>
-                <span className="w-8 text-right text-xs font-medium text-gray-600 dark:text-gray-400">{count}</span>
+                <span className="w-8 text-right text-xs font-medium text-slate-600 dark:text-slate-400">{count}</span>
               </div>
             ))}
           </div>
         </section>
 
         {/* 활동 유형 분포 */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-          <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">최근 활동 유형 분포</h3>
+        <section className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+          <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">최근 활동 유형 분포</h3>
           <div className="space-y-3">
             {Object.entries(activityByType)
               .sort((a, b) => b[1] - a[1])
@@ -212,11 +212,11 @@ export function Analytics({ users, profiles, createdHackathons }: AnalyticsProps
                 const maxCount = Math.max(...Object.values(activityByType));
                 return (
                   <div key={type} className="flex items-center gap-3">
-                    <span className="w-28 text-xs text-gray-600 dark:text-gray-400">
+                    <span className="w-28 text-xs text-slate-600 dark:text-slate-400">
                       {activityTypeLabels[type] || type}
                     </span>
                     <div className="flex-1">
-                      <div className="h-4 rounded bg-gray-100 dark:bg-gray-800">
+                      <div className="h-4 rounded bg-slate-100 dark:bg-slate-800">
                         <div
                           className="flex h-4 items-center justify-end rounded bg-green-500 px-1 text-[10px] font-bold text-white transition-all duration-500"
                           style={{ width: `${Math.max((count / maxCount) * 100, 10)}%` }}
@@ -229,26 +229,26 @@ export function Analytics({ users, profiles, createdHackathons }: AnalyticsProps
                 );
               })}
             {Object.keys(activityByType).length === 0 && (
-              <p className="text-sm text-gray-400">기록된 활동이 없습니다.</p>
+              <p className="text-sm text-slate-400">기록된 활동이 없습니다.</p>
             )}
           </div>
         </section>
       </div>
 
       {/* 사용자 활동 순위 */}
-      <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-        <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">사용자 활동 순위 TOP 10</h3>
+      <section className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+        <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">사용자 활동 순위 TOP 10</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-700">
-                <th className="px-3 py-2 text-xs font-medium text-gray-500">#</th>
-                <th className="px-3 py-2 text-xs font-medium text-gray-500">사용자</th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">해커톤</th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">제출</th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">팀</th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">배지</th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">총점</th>
+              <tr className="border-b border-slate-200 dark:border-slate-700">
+                <th className="px-3 py-2 text-xs font-medium text-slate-500">#</th>
+                <th className="px-3 py-2 text-xs font-medium text-slate-500">사용자</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-slate-500">해커톤</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-slate-500">제출</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-slate-500">팀</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-slate-500">배지</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-slate-500">총점</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -256,24 +256,24 @@ export function Analytics({ users, profiles, createdHackathons }: AnalyticsProps
                 .sort((a, b) => (b.stats.hackathonsJoined + b.stats.submissions * 2 + b.stats.totalScore) - (a.stats.hackathonsJoined + a.stats.submissions * 2 + a.stats.totalScore))
                 .slice(0, 10)
                 .map((p, i) => (
-                  <tr key={p.id} className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <tr key={p.id} className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800">
                     <td className="px-3 py-2.5">
                       <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
                         i === 0 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400" :
-                        i === 1 ? "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300" :
+                        i === 1 ? "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300" :
                         i === 2 ? "bg-orange-100 text-orange-600 dark:bg-orange-900/50 dark:text-orange-400" :
-                        "text-gray-400"
+                        "text-slate-400"
                       }`}>{i + 1}</span>
                     </td>
                     <td className="px-3 py-2.5">
-                      <p className="font-medium text-gray-900 dark:text-white">{p.nickname || p.name}</p>
-                      <p className="text-[10px] text-gray-400">{p.email}</p>
+                      <p className="font-medium text-slate-900 dark:text-white">{p.nickname || p.name}</p>
+                      <p className="text-[10px] text-slate-400">{p.email}</p>
                     </td>
-                    <td className="px-3 py-2.5 text-right font-medium text-gray-700 dark:text-gray-300">{p.stats.hackathonsJoined}</td>
-                    <td className="px-3 py-2.5 text-right font-medium text-gray-700 dark:text-gray-300">{p.stats.submissions}</td>
-                    <td className="px-3 py-2.5 text-right font-medium text-gray-700 dark:text-gray-300">{p.stats.teamsCreated}</td>
-                    <td className="px-3 py-2.5 text-right font-medium text-gray-700 dark:text-gray-300">{p.badges.length}</td>
-                    <td className="px-3 py-2.5 text-right font-bold text-blue-600 dark:text-blue-400">{p.stats.totalScore}</td>
+                    <td className="px-3 py-2.5 text-right font-medium text-slate-700 dark:text-slate-300">{p.stats.hackathonsJoined}</td>
+                    <td className="px-3 py-2.5 text-right font-medium text-slate-700 dark:text-slate-300">{p.stats.submissions}</td>
+                    <td className="px-3 py-2.5 text-right font-medium text-slate-700 dark:text-slate-300">{p.stats.teamsCreated}</td>
+                    <td className="px-3 py-2.5 text-right font-medium text-slate-700 dark:text-slate-300">{p.badges.length}</td>
+                    <td className="px-3 py-2.5 text-right font-bold text-indigo-600 dark:text-indigo-400">{p.stats.totalScore}</td>
                   </tr>
                 ))}
             </tbody>
@@ -291,25 +291,25 @@ function AdminActivityTimeline({ recentActivity }: { recentActivity: ActivityFee
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
-    <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-      <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">최근 활동 타임라인</h3>
+    <section className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+      <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">최근 활동 타임라인</h3>
       <div className="relative space-y-0 pl-4">
         {recentActivity.slice(0, 15).map((a, i) => {
           const hasPreview = a.type === "contact_message" && !!a.metadata?.messageContent;
           return (
             <div key={a.id} className="relative pb-4 last:pb-0">
               {i < Math.min(recentActivity.length, 15) - 1 && (
-                <div className="absolute bottom-0 left-[-12px] top-3 w-0.5 bg-gray-200 dark:bg-gray-700" />
+                <div className="absolute bottom-0 left-[-12px] top-3 w-0.5 bg-slate-200 dark:bg-slate-700" />
               )}
               <div className={`absolute left-[-16px] top-1.5 h-2.5 w-2.5 rounded-full border-2 ${
-                a.type === "contact_message" ? "border-purple-500" : "border-blue-500"
-              } bg-white dark:bg-gray-900`} />
+                a.type === "contact_message" ? "border-purple-500" : "border-indigo-500"
+              } bg-white dark:bg-slate-900`} />
               <div
                 className={`flex items-start justify-between gap-2 ${hasPreview ? "cursor-pointer" : ""}`}
                 onClick={() => hasPreview && setExpandedId((prev) => (prev === a.id ? null : a.id))}
               >
                 <div className="flex-1">
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
                     {a.message}
                     {hasPreview && (
                       <span className="ml-1 text-[10px] text-purple-500 dark:text-purple-400">
@@ -320,13 +320,13 @@ function AdminActivityTimeline({ recentActivity }: { recentActivity: ActivityFee
                   {hasPreview && expandedId === a.id && (
                     <div className="mt-1.5 rounded-lg bg-purple-50 p-2 dark:bg-purple-900/20">
                       <p className="text-[10px] font-medium text-purple-600 dark:text-purple-400 mb-0.5">메시지 내용</p>
-                      <p className="whitespace-pre-wrap text-xs text-gray-700 dark:text-gray-300">
+                      <p className="whitespace-pre-wrap text-xs text-slate-700 dark:text-slate-300">
                         {String(a.metadata?.messageContent || "")}
                       </p>
                     </div>
                   )}
                 </div>
-                <span className="shrink-0 text-[10px] text-gray-400">
+                <span className="shrink-0 text-[10px] text-slate-400">
                   {new Date(a.timestamp).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}
                 </span>
               </div>

@@ -44,10 +44,10 @@ export function JoinRequestForm({
     return (
       <div className="space-y-4 text-center">
         <div className="text-5xl">✅</div>
-        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
           "{team.name}" 팀에 참가 신청했습니다!
         </p>
-        <p className="text-xs text-gray-500">팀장의 승인을 기다리고 있습니다.</p>
+        <p className="text-xs text-slate-500">팀장의 승인을 기다리고 있습니다.</p>
       </div>
     );
   }
@@ -55,24 +55,24 @@ export function JoinRequestForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
           팀명
         </label>
         <input
           type="text"
           disabled
           value={team.name}
-          className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
           신청 메시지 (선택)
         </label>
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"
           rows={4}
           placeholder="팀에 참가하고 싶은 이유나 본인 소개를 작성해주세요."
         />

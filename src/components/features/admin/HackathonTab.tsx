@@ -47,42 +47,42 @@ export function HackathonTab({
   return (
     <div className="space-y-6">
       {/* 생성/수정 폼 */}
-      <section className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+      <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
           {editingHackathon ? "해커톤 수정" : "새 해커톤 생성"}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">제목 *</label>
-            <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="해커톤 제목" />
+            <label className="mb-1 block text-xs font-medium text-slate-500">제목 *</label>
+            <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" placeholder="해커톤 제목" />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">슬러그 (URL) *</label>
-            <input type="text" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="my-hackathon-2026" />
+            <label className="mb-1 block text-xs font-medium text-slate-500">슬러그 (URL) *</label>
+            <input type="text" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") })} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" placeholder="my-hackathon-2026" />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">상태</label>
-            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as HackathonForm["status"] })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+            <label className="mb-1 block text-xs font-medium text-slate-500">상태</label>
+            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as HackathonForm["status"] })} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
               <option value="upcoming">예정</option>
               <option value="ongoing">진행중</option>
               <option value="ended">종료</option>
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">태그 (쉼표 구분)</label>
-            <input type="text" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="AI, Web, Data" />
+            <label className="mb-1 block text-xs font-medium text-slate-500">태그 (쉼표 구분)</label>
+            <input type="text" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" placeholder="AI, Web, Data" />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">제출 마감일</label>
-            <input type="datetime-local" value={form.submissionDeadlineAt} onChange={(e) => setForm({ ...form, submissionDeadlineAt: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+            <label className="mb-1 block text-xs font-medium text-slate-500">제출 마감일</label>
+            <input type="datetime-local" value={form.submissionDeadlineAt} onChange={(e) => setForm({ ...form, submissionDeadlineAt: e.target.value })} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">종료일</label>
-            <input type="datetime-local" value={form.endAt} onChange={(e) => setForm({ ...form, endAt: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+            <label className="mb-1 block text-xs font-medium text-slate-500">종료일</label>
+            <input type="datetime-local" value={form.endAt} onChange={(e) => setForm({ ...form, endAt: e.target.value })} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
           </div>
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-xs font-medium text-gray-500">설명</label>
-            <textarea value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" rows={3} placeholder="해커톤 설명" />
+            <label className="mb-1 block text-xs font-medium text-slate-500">설명</label>
+            <textarea value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" rows={3} placeholder="해커톤 설명" />
             <div className="mt-2 flex flex-wrap gap-2">
               <button
                 onClick={async () => {
@@ -133,26 +133,26 @@ export function HackathonTab({
             </div>
             {generatedBannerUrl && (
               <div className="mt-3">
-                <p className="mb-1 text-xs text-gray-500">생성된 배너 미리보기:</p>
-                <img src={generatedBannerUrl} alt="Generated Banner" className="w-full max-w-md rounded-lg border border-gray-200 dark:border-gray-700" />
+                <p className="mb-1 text-xs text-slate-500">생성된 배너 미리보기:</p>
+                <img src={generatedBannerUrl} alt="Generated Banner" className="w-full max-w-md rounded-lg border border-slate-200 dark:border-slate-700" />
               </div>
             )}
           </div>
           <div className="flex items-center gap-4">
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-500">최대 팀 인원</label>
-              <input type="number" min={1} max={10} value={form.maxTeamSize} onChange={(e) => setForm({ ...form, maxTeamSize: Number(e.target.value) })} className="w-24 rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+              <label className="mb-1 block text-xs font-medium text-slate-500">최대 팀 인원</label>
+              <input type="number" min={1} max={10} value={form.maxTeamSize} onChange={(e) => setForm({ ...form, maxTeamSize: Number(e.target.value) })} className="w-24 rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
             </div>
             <div className="pt-4">
-              <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                 <input type="checkbox" checked={form.allowSolo} onChange={(e) => setForm({ ...form, allowSolo: e.target.checked })} className="rounded" />
                 개인 참가 허용
               </label>
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">평가 지표명</label>
-            <input type="text" value={form.metricName} onChange={(e) => setForm({ ...form, metricName: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Accuracy" />
+            <label className="mb-1 block text-xs font-medium text-slate-500">평가 지표명</label>
+            <input type="text" value={form.metricName} onChange={(e) => setForm({ ...form, metricName: e.target.value })} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" placeholder="Accuracy" />
           </div>
         </div>
         <div className="mt-4 flex gap-2">
@@ -169,9 +169,9 @@ export function HackathonTab({
 
       {/* 생성된 해커톤 목록 */}
       <section>
-        <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">생성된 해커톤 ({createdHackathons.length})</h3>
+        <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">생성된 해커톤 ({createdHackathons.length})</h3>
         {createdHackathons.length === 0 ? (
-          <p className="text-sm text-gray-400">아직 생성된 해커톤이 없습니다.</p>
+          <p className="text-sm text-slate-400">아직 생성된 해커톤이 없습니다.</p>
         ) : (
           <div className="space-y-2">
             {[...createdHackathons]
@@ -181,17 +181,17 @@ export function HackathonTab({
                 return dateB - dateA;
               })
               .map((h) => (
-                <div key={h.slug} className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+                <div key={h.slug} className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{h.title}</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">{h.title}</p>
                       <Badge variant={h.status === "ongoing" ? "success" : h.status === "upcoming" ? "info" : "muted"} size="sm">
                         {h.status === "ongoing" ? "진행중" : h.status === "upcoming" ? "예정" : "종료"}
                       </Badge>
                     </div>
-                    <p className="text-xs text-gray-400">/{h.slug}</p>
+                    <p className="text-xs text-slate-400">/{h.slug}</p>
                     {h.submissionDeadlineAt && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                         마감일: {new Date(h.submissionDeadlineAt).toLocaleDateString("ko-KR")}
                       </p>
                     )}
@@ -205,7 +205,7 @@ export function HackathonTab({
                           e.target.value as "upcoming" | "ongoing" | "ended"
                         )
                       }
-                      className="rounded border border-gray-200 px-2 py-1 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                      className="rounded border border-slate-200 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                       title="직접 상태 변경"
                     >
                       <option value="upcoming">예정</option>
@@ -214,7 +214,7 @@ export function HackathonTab({
                     </select>
                     <button
                       onClick={() => handleEditHackathon(h.slug)}
-                      className="text-xs text-blue-600 hover:underline dark:text-blue-400 font-medium"
+                      className="text-xs text-indigo-600 hover:underline dark:text-indigo-400 font-medium"
                     >
                       수정
                     </button>
@@ -228,7 +228,7 @@ export function HackathonTab({
                         </button>
                         <button
                           onClick={() => setConfirmDeleteHackathon(null)}
-                          className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                         >
                           취소
                         </button>

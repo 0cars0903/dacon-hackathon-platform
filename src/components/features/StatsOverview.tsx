@@ -56,7 +56,7 @@ export function StatsOverview() {
   }, []);
 
   const STATS = [
-    { label: "진행중 해커톤", value: stats.ongoingHackathons, suffix: "개", color: "text-blue-600 dark:text-blue-400" },
+    { label: "진행중 해커톤", value: stats.ongoingHackathons, suffix: "개", color: "text-indigo-600 dark:text-indigo-400" },
     { label: "참가 팀", value: stats.totalTeams, suffix: "팀", color: "text-green-600 dark:text-green-400" },
     { label: "총 참가자", value: stats.totalUsers, suffix: "명", color: "text-purple-600 dark:text-purple-400" },
     { label: "제출물", value: 0, suffix: "건", color: "text-orange-600 dark:text-orange-400" },
@@ -68,14 +68,14 @@ export function StatsOverview() {
         {STATS.map((stat, i) => (
           <div
             key={stat.label}
-            className="animate-fade-in-up rounded-xl border border-gray-200 bg-white p-4 text-center dark:border-gray-800 dark:bg-gray-900"
+            className="animate-fade-in-up rounded-xl border border-slate-200 bg-white p-4 text-center dark:border-slate-800 dark:bg-slate-900"
             style={{ animationDelay: `${i * 100}ms` }}
           >
             <div className={`mb-1 text-2xl font-bold ${stat.color}`}>
               <AnimatedNumber target={stat.value} />
               <span className="ml-0.5 text-sm font-medium">{stat.suffix}</span>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               {stat.label}
             </p>
           </div>

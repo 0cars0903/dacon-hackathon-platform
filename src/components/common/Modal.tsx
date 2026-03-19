@@ -47,18 +47,18 @@ export function Modal({
       />
       <div
         className={cn(
-          "relative mx-4 w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900",
+          "relative mx-4 w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900",
           className
         )}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 id="modal-title" className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h2 id="modal-title" className="text-lg font-semibold text-slate-900 dark:text-white">
             {title}
           </h2>
           <button
             onClick={onClose}
             aria-label="닫기"
-            className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800"
+            className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
           >
             <svg
               className="h-5 w-5"

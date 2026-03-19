@@ -19,7 +19,7 @@ type Category = "all" | "question" | "discussion" | "announcement" | "bug";
 type SortBy = "latest" | "popular";
 
 const CATEGORY_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  question: { label: "질문", color: "text-blue-700 dark:text-blue-300", bg: "bg-blue-100 dark:bg-blue-900" },
+  question: { label: "질문", color: "text-indigo-700 dark:text-indigo-300", bg: "bg-indigo-100 dark:bg-indigo-900" },
   discussion: { label: "자유토론", color: "text-purple-700 dark:text-purple-300", bg: "bg-purple-100 dark:bg-purple-900" },
   announcement: { label: "공지", color: "text-green-700 dark:text-green-300", bg: "bg-green-100 dark:bg-green-900" },
   bug: { label: "버그리포트", color: "text-red-700 dark:text-red-300", bg: "bg-red-100 dark:bg-red-900" },
@@ -191,7 +191,7 @@ export default function DiscussionPage() {
   };
 
   if (loading) {
-    return <div className="py-8 text-center text-gray-500">로딩 중...</div>;
+    return <div className="py-8 text-center text-slate-500">로딩 중...</div>;
   }
 
   // Post detail view
@@ -201,7 +201,7 @@ export default function DiscussionPage() {
         {/* Back button */}
         <button
           onClick={() => setSelectedPost(null)}
-          className="mb-4 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+          className="mb-4 text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm font-medium"
         >
           ← 목록으로 돌아가기
         </button>
@@ -216,10 +216,10 @@ export default function DiscussionPage() {
                     {CATEGORY_CONFIG[selectedPost.category].label}
                   </Badge>
                 </div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
                   {selectedPost.title}
                 </h1>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+                <div className="text-sm text-slate-500 dark:text-slate-400">
                   <span className="font-medium">{selectedPost.authorNickname || selectedPost.authorName}</span>
                   <span className="mx-1">·</span>
                   <span>{timeAgo(selectedPost.createdAt)}</span>
@@ -229,24 +229,24 @@ export default function DiscussionPage() {
           </CardHeader>
           <CardContent>
             <div className="prose dark:prose-invert max-w-none mb-4">
-              <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+              <p className="whitespace-pre-wrap text-slate-700 dark:text-slate-300">
                 {selectedPost.content}
               </p>
             </div>
-            <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => handleToggleLike(selectedPost.id)}
                 className={cn(
                   "flex items-center gap-1 text-sm font-medium transition-colors",
                   user && selectedPost.likes.includes(user.id)
                     ? "text-red-600 dark:text-red-400"
-                    : "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                    : "text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400"
                 )}
               >
                 {user && selectedPost.likes.includes(user.id) ? "❤️" : "🤍"}
                 {selectedPost.likes.length}
               </button>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-sm text-slate-500 dark:text-slate-400">
                 댓글 {postComments.length}개
               </div>
             </div>
@@ -255,12 +255,12 @@ export default function DiscussionPage() {
 
         {/* Comments section */}
         <div className="mb-6">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
             댓글 {postComments.length}
           </h3>
 
           {postComments.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-8 text-slate-500 dark:text-slate-400">
               첫 번째 댓글을 남겨보세요!
             </div>
           ) : (
@@ -270,15 +270,15 @@ export default function DiscussionPage() {
                   <CardContent className="pt-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <div className="font-medium text-gray-900 dark:text-white text-sm">
+                        <div className="font-medium text-slate-900 dark:text-white text-sm">
                           {comment.authorNickname || comment.authorName}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
                           {timeAgo(comment.createdAt)}
                         </div>
                       </div>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 text-sm whitespace-pre-wrap mb-2">
+                    <p className="text-slate-700 dark:text-slate-300 text-sm whitespace-pre-wrap mb-2">
                       {comment.content}
                     </p>
                     <button
@@ -287,7 +287,7 @@ export default function DiscussionPage() {
                         "text-xs font-medium transition-colors",
                         user && comment.likes.includes(user.id)
                           ? "text-red-600 dark:text-red-400"
-                          : "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                          : "text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400"
                       )}
                     >
                       {user && comment.likes.includes(user.id) ? "❤️" : "🤍"} {comment.likes.length}
@@ -306,7 +306,7 @@ export default function DiscussionPage() {
                   value={newCommentContent}
                   onChange={(e) => setNewCommentContent(e.target.value)}
                   placeholder="댓글을 입력하세요..."
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
                   rows={3}
                 />
                 <div className="flex justify-end gap-2">
@@ -328,8 +328,8 @@ export default function DiscussionPage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
-              댓글을 달려면 <button onClick={() => router.push("/auth/login")} className="text-blue-600 dark:text-blue-400 hover:underline font-medium">로그인</button>이 필요합니다.
+            <div className="text-center py-4 text-sm text-slate-500 dark:text-slate-400">
+              댓글을 달려면 <button onClick={() => router.push("/auth/login")} className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">로그인</button>이 필요합니다.
             </div>
           )}
         </div>
@@ -343,8 +343,8 @@ export default function DiscussionPage() {
       {/* Header with new post button */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">토론 포럼</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">토론 포럼</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             해커톤 참가자들과 자유롭게 질문하고 의견을 나누세요
           </p>
         </div>
@@ -368,19 +368,19 @@ export default function DiscussionPage() {
 
       {/* New post form */}
       {showNewPostForm && user && (
-        <Card className="mb-6 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
+        <Card className="mb-6 border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950">
           <CardHeader>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">새 글 작성</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">새 글 작성</h3>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 카테고리
               </label>
               <select
                 value={newPostCategory}
                 onChange={(e) => setNewPostCategory(e.target.value as any)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="question">질문</option>
                 <option value="discussion">자유토론</option>
@@ -389,7 +389,7 @@ export default function DiscussionPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 제목
               </label>
               <input
@@ -397,18 +397,18 @@ export default function DiscussionPage() {
                 value={newPostTitle}
                 onChange={(e) => setNewPostTitle(e.target.value)}
                 placeholder="글의 제목을 입력하세요"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 내용
               </label>
               <textarea
                 value={newPostContent}
                 onChange={(e) => setNewPostContent(e.target.value)}
                 placeholder="글의 내용을 입력하세요. 마크다운 형식을 지원합니다."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 rows={6}
               />
             </div>
@@ -450,8 +450,8 @@ export default function DiscussionPage() {
             className={cn(
               "px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors",
               selectedCategory === cat.key
-                ? "bg-blue-600 text-white dark:bg-blue-500"
-                : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                ? "bg-indigo-600 text-white dark:bg-indigo-500"
+                : "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-gray-600"
             )}
           >
             {cat.label}
@@ -466,8 +466,8 @@ export default function DiscussionPage() {
           className={cn(
             "px-3 py-1 text-sm rounded-lg transition-colors",
             sortBy === "latest"
-              ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
-              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              ? "bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white font-medium"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           )}
         >
           최신순
@@ -477,8 +477,8 @@ export default function DiscussionPage() {
           className={cn(
             "px-3 py-1 text-sm rounded-lg transition-colors",
             sortBy === "popular"
-              ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
-              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              ? "bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white font-medium"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           )}
         >
           인기순
@@ -519,18 +519,18 @@ export default function DiscussionPage() {
                         <Badge variant="success">📢</Badge>
                       )}
                     </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 text-sm sm:text-base">
+                    <h3 className="font-semibold text-slate-900 dark:text-white line-clamp-2 text-sm sm:text-base">
                       {post.title}
                     </h3>
-                    <div className="flex items-center gap-2 mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex-wrap">
+                    <div className="flex items-center gap-2 mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 flex-wrap">
                       <span className="font-medium">{post.authorNickname || post.authorName}</span>
-                      <span className="text-gray-400 dark:text-gray-600">·</span>
+                      <span className="text-slate-400 dark:text-slate-600">·</span>
                       <span>{timeAgo(post.createdAt)}</span>
                     </div>
                   </div>
 
                   {/* Stats */}
-                  <div className="flex items-center gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400 shrink-0">
+                  <div className="flex items-center gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400 shrink-0">
                     <div className="flex items-center gap-1">
                       <span className="text-base">🤍</span>
                       <span>{post.likes.length}</span>

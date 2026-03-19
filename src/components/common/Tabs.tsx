@@ -20,7 +20,7 @@ export function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
     <div
       role="tablist"
       className={cn(
-        "flex gap-1 overflow-x-auto border-b border-gray-200 dark:border-gray-800",
+        "flex gap-1 overflow-x-auto border-b border-slate-200 dark:border-slate-800",
         className
       )}
     >
@@ -33,8 +33,8 @@ export function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
           className={cn(
             "shrink-0 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors",
             activeTab === tab.key
-              ? "border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
-              : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+              : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
           )}
         >
           {tab.emoji && <span className="mr-1.5">{tab.emoji}</span>}

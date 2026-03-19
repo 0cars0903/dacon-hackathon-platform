@@ -52,25 +52,25 @@ export function ScoreChart({ title = "점수 분포", scores }: ScoreChartProps)
   const maxPercent = Math.max(...distribution.map((d) => d.percent), 1);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-      <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+      <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">
         {title}
       </h3>
       <div className="flex items-end gap-2" style={{ height: 120 }}>
         {distribution.map((d) => (
           <div key={d.range} className="flex flex-1 flex-col items-center gap-1">
-            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">
+            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
               {d.count}
             </span>
             <div
-              className="w-full rounded-t bg-blue-500 transition-all duration-700 dark:bg-blue-400"
+              className="w-full rounded-t bg-indigo-500 transition-all duration-700 dark:bg-indigo-400"
               style={{
                 height: d.count > 0 ? `${(d.percent / maxPercent) * 80}px` : "4px",
                 minHeight: 4,
                 opacity: d.count > 0 ? 1 : 0.3,
               }}
             />
-            <span className="text-[10px] text-gray-400">{d.range}</span>
+            <span className="text-[10px] text-slate-400">{d.range}</span>
           </div>
         ))}
       </div>

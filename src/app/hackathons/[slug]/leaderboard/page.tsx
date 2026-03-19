@@ -92,7 +92,7 @@ export default function HackathonLeaderboardPage() {
       {/* 헤더: 평가 방식 + 상태 배지 */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
             {leaderboard.metricName}
           </h3>
           <Badge
@@ -111,7 +111,7 @@ export default function HackathonLeaderboardPage() {
           </Badge>
         </div>
         <div className="flex items-center gap-2">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-slate-400">
             업데이트: {formatDateTime(leaderboard.updatedAt)}
           </p>
           {hackathon?.status === "ended" && (
@@ -125,18 +125,18 @@ export default function HackathonLeaderboardPage() {
 
       {/* 평가 비중 표시 */}
       {evalBreakdown && evalBreakdown.length > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
-          <p className="mb-3 text-xs font-semibold text-gray-500 dark:text-gray-400">평가 비중</p>
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+          <p className="mb-3 text-xs font-semibold text-slate-500 dark:text-slate-400">평가 비중</p>
           <div className="flex gap-2">
             {evalBreakdown.map((item: any) => (
-              <div key={item.key} className="flex-1 rounded-lg bg-white p-3 text-center dark:bg-gray-800">
-                <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{item.weightPercent}%</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">{item.label}</p>
+              <div key={item.key} className="flex-1 rounded-lg bg-white p-3 text-center dark:bg-slate-800">
+                <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">{item.weightPercent}%</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">{item.label}</p>
               </div>
             ))}
           </div>
           {leaderboard.metricFormula && (
-            <p className="mt-2 font-code text-xs text-gray-400 dark:text-gray-500">
+            <p className="mt-2 font-code text-xs text-slate-400 dark:text-slate-500">
               {leaderboard.metricFormula}
             </p>
           )}
@@ -182,15 +182,15 @@ function MultiRoundLeaderboard({
   return (
     <div className="space-y-4">
       {/* 라운드 타임라인 */}
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-        <p className="mb-3 text-xs font-semibold text-gray-500 dark:text-gray-400">평가 단계</p>
+      <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <p className="mb-3 text-xs font-semibold text-slate-500 dark:text-slate-400">평가 단계</p>
         <div className="flex gap-2">
           <button
             onClick={() => onRoundChange(null)}
             className={`flex-1 rounded-lg p-3 text-center transition-all ${
               !activeRound
-                ? "bg-blue-600 text-white shadow-md"
-                : "border border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                ? "bg-indigo-600 text-white shadow-md"
+                : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
             }`}
           >
             <p className="text-sm font-semibold">종합 결과</p>
@@ -202,8 +202,8 @@ function MultiRoundLeaderboard({
               onClick={() => onRoundChange(round.roundId)}
               className={`flex-1 rounded-lg p-3 text-center transition-all ${
                 activeRound === round.roundId
-                  ? "bg-blue-600 text-white shadow-md"
-                  : "border border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
               }`}
             >
               <div className="flex items-center justify-center gap-1.5">
@@ -226,11 +226,11 @@ function MultiRoundLeaderboard({
 
       {/* 선택된 라운드 정보 */}
       {currentRound && (
-        <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
-          <p className="text-sm font-medium text-blue-800 dark:text-blue-300">{currentRound.name}</p>
-          <p className="text-xs text-blue-600 dark:text-blue-400">{currentRound.description}</p>
+        <div className="rounded-lg bg-indigo-50 p-3 dark:bg-indigo-900/20">
+          <p className="text-sm font-medium text-indigo-800 dark:text-indigo-300">{currentRound.name}</p>
+          <p className="text-xs text-indigo-600 dark:text-indigo-400">{currentRound.description}</p>
           {currentRound.scoreFormula && (
-            <p className="mt-1 font-code text-xs text-blue-500">{currentRound.scoreFormula}</p>
+            <p className="mt-1 font-code text-xs text-indigo-500">{currentRound.scoreFormula}</p>
           )}
         </div>
       )}
@@ -288,29 +288,29 @@ function LeaderboardTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+    <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
+          <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
+            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
               순위
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
+            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
               팀
             </th>
             {/* 세부 지표 컬럼들 */}
             {metricColumns && metricColumns.map((col) => (
               <th
                 key={col.key}
-                className="hidden px-4 py-3 text-right text-xs font-medium text-gray-500 md:table-cell dark:text-gray-400"
+                className="hidden px-4 py-3 text-right text-xs font-medium text-slate-500 md:table-cell dark:text-slate-400"
               >
                 {col.label}
               </th>
             ))}
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
+            <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400">
               종합 점수
             </th>
-            <th className="hidden px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 sm:table-cell">
+            <th className="hidden px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 sm:table-cell">
               제출 시간
             </th>
           </tr>
@@ -319,18 +319,18 @@ function LeaderboardTable({
           {entries.map((entry, i) => (
             <tr
               key={entry.rank}
-              className="animate-fade-in border-b border-gray-100 transition-colors hover:bg-gray-50 last:border-0 dark:border-gray-800 dark:hover:bg-gray-800/50"
+              className="animate-fade-in border-b border-slate-100 transition-colors hover:bg-slate-50 last:border-0 dark:border-slate-800 dark:hover:bg-slate-800/50"
               style={{ animationDelay: `${i * 50}ms` }}
             >
               <td className="px-4 py-4">
-                <span className={`text-sm font-medium ${entry.rank <= 3 ? "text-lg" : "text-gray-900 dark:text-white"}`}>
+                <span className={`text-sm font-medium ${entry.rank <= 3 ? "text-lg" : "text-slate-900 dark:text-white"}`}>
                   {entry.rank <= 3
                     ? ["🥇", "🥈", "🥉"][entry.rank - 1]
                     : `#${entry.rank}`}
                 </span>
               </td>
               <td className="px-4 py-4">
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                <span className="text-sm font-medium text-slate-900 dark:text-white">
                   {entry.teamName}
                 </span>
                 {entry.scoreBreakdown && (
@@ -345,10 +345,10 @@ function LeaderboardTable({
                 )}
                 {entry.artifacts && (
                   <div className="mt-1 flex gap-2">
-                    <a href={entry.artifacts.webUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline">
+                    <a href={entry.artifacts.webUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:underline">
                       🌐 웹
                     </a>
-                    <a href={entry.artifacts.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline">
+                    <a href={entry.artifacts.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:underline">
                       📄 PDF
                     </a>
                   </div>
@@ -359,7 +359,7 @@ function LeaderboardTable({
                     {metricColumns.map((col) => (
                       <span
                         key={col.key}
-                        className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                        className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                       >
                         {col.label}: {entry.metrics?.[col.key]}{col.unit === "%" ? "%" : col.unit === "ms" ? "ms" : ""}
                       </span>
@@ -373,26 +373,26 @@ function LeaderboardTable({
                   key={col.key}
                   className="hidden px-4 py-4 text-right md:table-cell"
                 >
-                  <span className="font-code text-sm text-gray-700 dark:text-gray-300">
+                  <span className="font-code text-sm text-slate-700 dark:text-slate-300">
                     {entry.metrics?.[col.key] ?? "-"}
-                    <span className="ml-0.5 text-[10px] text-gray-400">{col.unit}</span>
+                    <span className="ml-0.5 text-[10px] text-slate-400">{col.unit}</span>
                   </span>
                 </td>
               ))}
               <td className="px-4 py-4 text-right">
                 <div className="flex flex-col items-end gap-1">
-                  <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                  <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
                     {entry.score}
                   </span>
-                  <div className="h-1.5 w-16 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                  <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                     <div
-                      className="h-full rounded-full bg-blue-500 transition-all duration-500"
+                      className="h-full rounded-full bg-indigo-500 transition-all duration-500"
                       style={{ width: `${Math.min(entry.score, 100)}%` }}
                     />
                   </div>
                 </div>
               </td>
-              <td className="hidden px-4 py-4 text-right text-xs text-gray-500 dark:text-gray-400 sm:table-cell">
+              <td className="hidden px-4 py-4 text-right text-xs text-slate-500 dark:text-slate-400 sm:table-cell">
                 {timeAgo(entry.submittedAt)}
               </td>
             </tr>

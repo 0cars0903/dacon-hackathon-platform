@@ -21,11 +21,11 @@ export function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <span className="mb-4 text-5xl">{emoji}</span>
-      <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+      <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
         {title}
       </h3>
       {description && (
-        <p className="mb-4 max-w-sm text-sm text-gray-500 dark:text-gray-400">
+        <p className="mb-4 max-w-sm text-sm text-slate-500 dark:text-slate-400">
           {description}
         </p>
       )}

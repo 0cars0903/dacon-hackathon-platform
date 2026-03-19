@@ -353,8 +353,8 @@ export default function HackathonSubmitPage() {
       <div className="space-y-6">
         <div className="rounded-xl border-2 border-dashed border-yellow-300 bg-yellow-50 p-8 text-center dark:border-yellow-700 dark:bg-yellow-900/20">
           <p className="text-3xl mb-3">⏳</p>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">아직 제출 기간이 아닙니다</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">해커톤이 시작되면 이곳에서 제출할 수 있습니다.</p>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">아직 제출 기간이 아닙니다</h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400">해커톤이 시작되면 이곳에서 제출할 수 있습니다.</p>
         </div>
       </div>
     );
@@ -362,10 +362,10 @@ export default function HackathonSubmitPage() {
   if (isEnded || isPastDeadline) {
     return (
       <div className="space-y-6">
-        <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-900">
+        <div className="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-900">
           <p className="text-3xl mb-3">🏁</p>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">제출이 마감되었습니다</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">리더보드에서 결과를 확인하세요.</p>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">제출이 마감되었습니다</h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400">리더보드에서 결과를 확인하세요.</p>
         </div>
       </div>
     );
@@ -373,10 +373,10 @@ export default function HackathonSubmitPage() {
   if (!user) {
     return (
       <div className="space-y-6">
-        <div className="rounded-xl border-2 border-dashed border-blue-300 bg-blue-50 p-8 text-center dark:border-blue-700 dark:bg-blue-900/20">
+        <div className="rounded-xl border-2 border-dashed border-indigo-300 bg-indigo-50 p-8 text-center dark:border-indigo-700 dark:bg-indigo-900/20">
           <p className="text-3xl mb-3">🔒</p>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">로그인이 필요합니다</h3>
-          <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">제출하려면 먼저 로그인해주세요.</p>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">로그인이 필요합니다</h3>
+          <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">제출하려면 먼저 로그인해주세요.</p>
           <Link href="/login"><Button>로그인하기</Button></Link>
         </div>
       </div>
@@ -386,12 +386,12 @@ export default function HackathonSubmitPage() {
   return (
     <div className="space-y-6">
       {/* 제출 가이드 */}
-      <div className="rounded-xl bg-gray-50 p-6 dark:bg-gray-900">
-        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">제출 가이드</h3>
+      <div className="rounded-xl bg-slate-50 p-6 dark:bg-slate-900">
+        <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">제출 가이드</h3>
         <ul className="space-y-2">
           {submit.guide.map((g: string, i: number) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <span className="font-medium text-blue-500">{i + 1}.</span>{g}
+            <li key={i} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <span className="font-medium text-indigo-500">{i + 1}.</span>{g}
             </li>
           ))}
         </ul>
@@ -401,12 +401,12 @@ export default function HackathonSubmitPage() {
       {isAutoScored && gt ? (
         <div className="space-y-6">
           {/* 자동 채점 안내 */}
-          <div className="rounded-xl border-2 border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-900/20">
+          <div className="rounded-xl border-2 border-indigo-200 bg-indigo-50 p-6 dark:border-indigo-800 dark:bg-indigo-900/20">
             <div className="flex items-start gap-3">
               <span className="text-3xl">🤖</span>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">자동 채점 지원</h3>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">자동 채점 지원</h3>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                   이 해커톤은 CSV 예측 파일을 업로드하면 자동으로 채점됩니다.
                   {gt.taskType === "classification" ? " 분류(Classification) 태스크로 Accuracy, Macro F1 등이 계산됩니다." : " 회귀(Regression) 태스크로 RMSE, MAE, R² 등이 계산됩니다."}
                 </p>
@@ -421,11 +421,11 @@ export default function HackathonSubmitPage() {
           </div>
 
           {/* 탭 */}
-          <div className="flex gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
-            <button onClick={() => setActiveTab("submit")} className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === "submit" ? "bg-white text-gray-900 shadow dark:bg-gray-700 dark:text-white" : "text-gray-500 hover:text-gray-700 dark:text-gray-400"}`}>
+          <div className="flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
+            <button onClick={() => setActiveTab("submit")} className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === "submit" ? "bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-white" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
               예측 제출
             </button>
-            <button onClick={() => setActiveTab("history")} className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === "history" ? "bg-white text-gray-900 shadow dark:bg-gray-700 dark:text-white" : "text-gray-500 hover:text-gray-700 dark:text-gray-400"}`}>
+            <button onClick={() => setActiveTab("history")} className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${activeTab === "history" ? "bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-white" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
               채점 이력 ({scoredHistory.length})
             </button>
           </div>
@@ -433,28 +433,28 @@ export default function HackathonSubmitPage() {
           {activeTab === "submit" && (
             <div className="space-y-6">
               {/* 제출 형식 안내 */}
-              <div className="rounded-xl border border-gray-200 p-6 dark:border-gray-800">
-                <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">CSV 형식 안내</h3>
-                <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+              <div className="rounded-xl border border-slate-200 p-6 dark:border-slate-800">
+                <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">CSV 형식 안내</h3>
+                <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
                   아래 형식에 맞춰 CSV 파일을 제출하세요. 첫 행은 헤더, 이후 행은 예측값입니다.
                 </p>
                 {sampleCSV && (
-                  <pre className="rounded-lg bg-gray-900 p-4 text-xs text-green-400 overflow-x-auto">{sampleCSV}</pre>
+                  <pre className="rounded-lg bg-slate-900 p-4 text-xs text-green-400 overflow-x-auto">{sampleCSV}</pre>
                 )}
                 <div className="mt-3 flex items-center justify-between">
-                  <p className="text-xs text-gray-400">오늘 제출: {submissionCount} / {maxSubmissionsPerDay}회</p>
+                  <p className="text-xs text-slate-400">오늘 제출: {submissionCount} / {maxSubmissionsPerDay}회</p>
                 </div>
               </div>
 
               {/* CSV 파일 업로드 */}
-              <div className="rounded-xl border border-gray-200 p-6 dark:border-gray-800">
-                <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">예측 CSV 업로드</h3>
-                <label className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors dark:border-gray-600 dark:bg-gray-800 dark:hover:border-blue-500 dark:hover:bg-blue-900/20">
+              <div className="rounded-xl border border-slate-200 p-6 dark:border-slate-800">
+                <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">예측 CSV 업로드</h3>
+                <label className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors dark:border-slate-600 dark:bg-slate-800 dark:hover:border-indigo-500 dark:hover:bg-indigo-900/20">
                   <span className="text-4xl">{csvFileName ? "📄" : "📁"}</span>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     {csvFileName ? csvFileName : "CSV 파일을 선택하세요"}
                   </span>
-                  <span className="text-xs text-gray-400">최대 5MB, .csv 형식</span>
+                  <span className="text-xs text-slate-400">최대 5MB, .csv 형식</span>
                   <input
                     type="file"
                     accept=".csv"
@@ -465,10 +465,10 @@ export default function HackathonSubmitPage() {
 
                 {csvText && (
                   <div className="mt-4">
-                    <p className="mb-2 text-xs text-gray-500">
+                    <p className="mb-2 text-xs text-slate-500">
                       미리보기 (처음 5행):
                     </p>
-                    <pre className="max-h-32 overflow-auto rounded-lg bg-gray-100 p-3 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                    <pre className="max-h-32 overflow-auto rounded-lg bg-slate-100 p-3 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                       {csvText.split("\n").slice(0, 6).join("\n")}
                     </pre>
                   </div>
@@ -491,9 +491,9 @@ export default function HackathonSubmitPage() {
 
               {/* 채점 결과 */}
               {isScoring && (
-                <div className="rounded-xl border-2 border-blue-300 bg-blue-50 p-8 text-center dark:border-blue-700 dark:bg-blue-900/20">
-                  <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
-                  <p className="mt-4 text-sm font-medium text-gray-700 dark:text-gray-300">Ground Truth와 비교하여 채점 중...</p>
+                <div className="rounded-xl border-2 border-indigo-300 bg-indigo-50 p-8 text-center dark:border-indigo-700 dark:bg-indigo-900/20">
+                  <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+                  <p className="mt-4 text-sm font-medium text-slate-700 dark:text-slate-300">Ground Truth와 비교하여 채점 중...</p>
                 </div>
               )}
 
@@ -529,26 +529,26 @@ export default function HackathonSubmitPage() {
                           {/* 클래스별 상세 */}
                           {scoringResult.perClassMetrics && (
                             <div>
-                              <h4 className="mb-2 text-sm font-semibold text-gray-900 dark:text-white">클래스별 성능</h4>
+                              <h4 className="mb-2 text-sm font-semibold text-slate-900 dark:text-white">클래스별 성능</h4>
                               <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                   <thead>
-                                    <tr className="border-b border-gray-200 dark:border-gray-700">
-                                      <th className="py-2 text-left font-medium text-gray-600 dark:text-gray-400">클래스</th>
-                                      <th className="py-2 text-right font-medium text-gray-600 dark:text-gray-400">Precision</th>
-                                      <th className="py-2 text-right font-medium text-gray-600 dark:text-gray-400">Recall</th>
-                                      <th className="py-2 text-right font-medium text-gray-600 dark:text-gray-400">F1</th>
-                                      <th className="py-2 text-right font-medium text-gray-600 dark:text-gray-400">Support</th>
+                                    <tr className="border-b border-slate-200 dark:border-slate-700">
+                                      <th className="py-2 text-left font-medium text-slate-600 dark:text-slate-400">클래스</th>
+                                      <th className="py-2 text-right font-medium text-slate-600 dark:text-slate-400">Precision</th>
+                                      <th className="py-2 text-right font-medium text-slate-600 dark:text-slate-400">Recall</th>
+                                      <th className="py-2 text-right font-medium text-slate-600 dark:text-slate-400">F1</th>
+                                      <th className="py-2 text-right font-medium text-slate-600 dark:text-slate-400">Support</th>
                                     </tr>
                                   </thead>
                                   <tbody>
                                     {scoringResult.perClassMetrics.map((m) => (
-                                      <tr key={m.label} className="border-b border-gray-100 dark:border-gray-800">
-                                        <td className="py-2 font-mono text-xs text-gray-900 dark:text-white">{m.label}</td>
-                                        <td className="py-2 text-right text-gray-700 dark:text-gray-300">{m.precision}%</td>
-                                        <td className="py-2 text-right text-gray-700 dark:text-gray-300">{m.recall}%</td>
-                                        <td className="py-2 text-right font-medium text-gray-900 dark:text-white">{m.f1}%</td>
-                                        <td className="py-2 text-right text-gray-500 dark:text-gray-400">{m.support}</td>
+                                      <tr key={m.label} className="border-b border-slate-100 dark:border-slate-800">
+                                        <td className="py-2 font-mono text-xs text-slate-900 dark:text-white">{m.label}</td>
+                                        <td className="py-2 text-right text-slate-700 dark:text-slate-300">{m.precision}%</td>
+                                        <td className="py-2 text-right text-slate-700 dark:text-slate-300">{m.recall}%</td>
+                                        <td className="py-2 text-right font-medium text-slate-900 dark:text-white">{m.f1}%</td>
+                                        <td className="py-2 text-right text-slate-500 dark:text-slate-400">{m.support}</td>
                                       </tr>
                                     ))}
                                   </tbody>
@@ -589,42 +589,42 @@ export default function HackathonSubmitPage() {
           {activeTab === "history" && (
             <div className="space-y-3">
               {scoredHistory.length === 0 ? (
-                <div className="rounded-xl border border-gray-200 py-12 text-center dark:border-gray-700">
+                <div className="rounded-xl border border-slate-200 py-12 text-center dark:border-slate-700">
                   <p className="text-4xl">📊</p>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">아직 채점 이력이 없습니다.</p>
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">아직 채점 이력이 없습니다.</p>
                 </div>
               ) : (
                 scoredHistory.map((s) => (
-                  <div key={s.id} className="rounded-xl border border-gray-200 dark:border-gray-700">
+                  <div key={s.id} className="rounded-xl border border-slate-200 dark:border-slate-700">
                     <button
                       onClick={() => setExpandedScoreHistory(expandedScoreHistory === s.id ? null : s.id)}
-                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition"
+                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{s.scoringResult.finalScore}</span>
+                        <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{s.scoringResult.finalScore}</span>
                         <div className="text-left">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">v{s.version}</p>
-                          <p className="text-xs text-gray-500">{timeAgo(s.submittedAt)}</p>
+                          <p className="text-sm font-medium text-slate-900 dark:text-white">v{s.version}</p>
+                          <p className="text-xs text-slate-500">{timeAgo(s.submittedAt)}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant={s.scoringResult.success ? "success" : "muted"}>
                           {s.scoringResult.success ? "성공" : "실패"}
                         </Badge>
-                        <span className="text-gray-400">{expandedScoreHistory === s.id ? "▼" : "▶"}</span>
+                        <span className="text-slate-400">{expandedScoreHistory === s.id ? "▼" : "▶"}</span>
                       </div>
                     </button>
                     {expandedScoreHistory === s.id && s.scoringResult.scoreBreakdown && (
-                      <div className="border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800/50">
+                      <div className="border-t border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50">
                         <div className="grid grid-cols-3 gap-3 text-xs">
                           {Object.entries(s.scoringResult.scoreBreakdown).map(([key, value]) => (
                             <div key={key} className="text-center">
-                              <p className="font-medium text-gray-900 dark:text-white">{String(value)}</p>
-                              <p className="text-gray-500">{key}</p>
+                              <p className="font-medium text-slate-900 dark:text-white">{String(value)}</p>
+                              <p className="text-slate-500">{key}</p>
                             </div>
                           ))}
                         </div>
-                        <p className="mt-2 text-xs text-gray-400">
+                        <p className="mt-2 text-xs text-slate-400">
                           {formatDateTime(s.submittedAt)} | {s.csvRowCount}행 | {s.scoringResult.matchedSamples}/{s.scoringResult.totalSamples} 매칭
                         </p>
                       </div>
@@ -638,8 +638,8 @@ export default function HackathonSubmitPage() {
       ) : (
         /* 일반 제출 (자동 채점 없음) */
         <>
-          <div className="rounded-xl border border-gray-200 p-6 dark:border-gray-800">
-            <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">제출 형식</h3>
+          <div className="rounded-xl border border-slate-200 p-6 dark:border-slate-800">
+            <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">제출 형식</h3>
             <div className="flex flex-wrap gap-2">
               {submit.allowedArtifactTypes.map((type: string) => <Badge key={type} variant="info">{type.toUpperCase()}</Badge>)}
             </div>
@@ -648,44 +648,44 @@ export default function HackathonSubmitPage() {
           {submitted ? (
             <div className="rounded-xl border-2 border-green-300 bg-green-50 p-8 text-center dark:border-green-700 dark:bg-green-900/20">
               <p className="text-3xl mb-3">✅</p>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">제출이 완료되었습니다!</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{user.name}님의 결과물이 성공적으로 제출되었습니다.</p>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">제출이 완료되었습니다!</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{user.name}님의 결과물이 성공적으로 제출되었습니다.</p>
               <Button variant="secondary" onClick={() => { setSubmitted(false); setFormValues({}); setFiles({}); }}>다시 제출하기</Button>
             </div>
           ) : submit.submissionItems && (
             <div className="space-y-6">
-              <div className="rounded-xl border border-gray-200 p-6 dark:border-gray-800">
+              <div className="rounded-xl border border-slate-200 p-6 dark:border-slate-800">
                 <div className="mb-6 flex items-start justify-between gap-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">제출 항목</h3>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">제출 항목</h3>
                     <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">{user.name}님으로 로그인됨</span>
                   </div>
-                  <div className="text-right text-sm text-gray-600 dark:text-gray-400">
+                  <div className="text-right text-sm text-slate-600 dark:text-slate-400">
                     <p className="font-medium">오늘 제출: {submissionCount} / {maxSubmissionsPerDay}회</p>
                     {draftExists && <p className="mt-1 text-yellow-600 dark:text-yellow-400">⚠️ 임시저장된 내용이 있습니다</p>}
                   </div>
                 </div>
                 <div className="space-y-5">
                   {submit.submissionItems.map((item: { key: string; title: string; format: string }) => (
-                    <div key={item.key} className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+                    <div key={item.key} className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
                       <div className="mb-3">
-                        <p className="font-medium text-gray-900 dark:text-white">{item.title}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">형식: {item.format}</p>
+                        <p className="font-medium text-slate-900 dark:text-white">{item.title}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">형식: {item.format}</p>
                       </div>
-                      <input type="text" value={formValues[item.key] || ""} onChange={(e) => handleInputChange(item.key, e.target.value)} placeholder="URL 또는 내용 입력" className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm mb-3 dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                      <input type="text" value={formValues[item.key] || ""} onChange={(e) => handleInputChange(item.key, e.target.value)} placeholder="URL 또는 내용 입력" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm mb-3 dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
                       <div className="flex items-center gap-2">
-                        <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg border border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg border border-slate-300 hover:border-gray-400 dark:border-slate-600 dark:hover:border-gray-500 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
                           <span>📎 파일 업로드</span>
                           <input type="file" accept=".csv,.json,.txt,.zip" onChange={(e) => { if (e.target.files?.[0]) handleFileChange(item.key, e.target.files[0]); }} className="hidden" />
                         </label>
                       </div>
                       {files[item.key] && (
-                        <div className="mt-3 flex items-center justify-between rounded-lg bg-blue-50 px-3 py-2 dark:bg-blue-900/20">
+                        <div className="mt-3 flex items-center justify-between rounded-lg bg-indigo-50 px-3 py-2 dark:bg-indigo-900/20">
                           <div className="text-sm">
-                            <p className="font-medium text-blue-900 dark:text-blue-300">{files[item.key].name}</p>
-                            <p className="text-xs text-blue-700 dark:text-blue-400">{formatFileSize(files[item.key].size)}</p>
+                            <p className="font-medium text-indigo-900 dark:text-indigo-300">{files[item.key].name}</p>
+                            <p className="text-xs text-indigo-700 dark:text-indigo-400">{formatFileSize(files[item.key].size)}</p>
                           </div>
-                          <button onClick={() => handleRemoveFile(item.key)} className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">제거</button>
+                          <button onClick={() => handleRemoveFile(item.key)} className="text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 hover:underline">제거</button>
                         </div>
                       )}
                     </div>
@@ -699,32 +699,32 @@ export default function HackathonSubmitPage() {
               </div>
 
               {submissions.length > 0 && (
-                <div className="rounded-xl border border-gray-200 p-6 dark:border-gray-800">
-                  <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">제출 이력</h3>
+                <div className="rounded-xl border border-slate-200 p-6 dark:border-slate-800">
+                  <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">제출 이력</h3>
                   <div className="space-y-3">
                     {submissions.sort((a, b) => b.version - a.version).map((sub) => (
-                      <div key={sub.version} className="rounded-lg border border-gray-200 dark:border-gray-700">
-                        <button onClick={() => setExpandedHistory(expandedHistory === sub.version ? null : sub.version)} className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                      <div key={sub.version} className="rounded-lg border border-slate-200 dark:border-slate-700">
+                        <button onClick={() => setExpandedHistory(expandedHistory === sub.version ? null : sub.version)} className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                           <div className="flex items-center gap-3 flex-1 text-left">
                             <span className="text-lg">{sub.status === "draft" ? "📝" : "✓"}</span>
                             <div className="flex-1">
-                              <p className="font-medium text-gray-900 dark:text-white">버전 {sub.version}</p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">{timeAgo(sub.savedAt)}</p>
+                              <p className="font-medium text-slate-900 dark:text-white">버전 {sub.version}</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">{timeAgo(sub.savedAt)}</p>
                             </div>
                             <Badge variant={sub.status === "draft" ? "warning" : "success"}>{sub.status === "draft" ? "임시저장" : "제출됨"}</Badge>
                           </div>
-                          <span className="ml-2 text-gray-400">{expandedHistory === sub.version ? "▼" : "▶"}</span>
+                          <span className="ml-2 text-slate-400">{expandedHistory === sub.version ? "▼" : "▶"}</span>
                         </button>
                         {expandedHistory === sub.version && (
-                          <div className="border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800/50">
+                          <div className="border-t border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50">
                             <div className="text-sm space-y-2">
-                              <div><p className="font-medium text-gray-700 dark:text-gray-300 mb-1">제출 시간</p><p className="text-gray-600 dark:text-gray-400">{formatDateTime(sub.savedAt)}</p></div>
-                              <div><p className="font-medium text-gray-700 dark:text-gray-300 mb-1">제출 내용</p>
-                                <div className="space-y-1">{sub.items.map((item) => (<div key={item.key} className="text-xs text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900 rounded px-2 py-1"><span className="font-medium">{item.title}:</span> <span className="break-words">{item.value}</span></div>))}</div>
+                              <div><p className="font-medium text-slate-700 dark:text-slate-300 mb-1">제출 시간</p><p className="text-slate-600 dark:text-slate-400">{formatDateTime(sub.savedAt)}</p></div>
+                              <div><p className="font-medium text-slate-700 dark:text-slate-300 mb-1">제출 내용</p>
+                                <div className="space-y-1">{sub.items.map((item) => (<div key={item.key} className="text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 rounded px-2 py-1"><span className="font-medium">{item.title}:</span> <span className="break-words">{item.value}</span></div>))}</div>
                               </div>
                               {sub.files && Object.keys(sub.files).length > 0 && (
-                                <div><p className="font-medium text-gray-700 dark:text-gray-300 mb-1">업로드된 파일</p>
-                                  <div className="space-y-1">{Object.entries(sub.files).map(([key, file]) => (<div key={key} className="text-xs text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900 rounded px-2 py-1"><span className="font-medium">{file.name}</span> ({formatFileSize(file.size)})</div>))}</div>
+                                <div><p className="font-medium text-slate-700 dark:text-slate-300 mb-1">업로드된 파일</p>
+                                  <div className="space-y-1">{Object.entries(sub.files).map(([key, file]) => (<div key={key} className="text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 rounded px-2 py-1"><span className="font-medium">{file.name}</span> ({formatFileSize(file.size)})</div>))}</div>
                                 </div>
                               )}
                             </div>
@@ -745,10 +745,10 @@ export default function HackathonSubmitPage() {
 
 function MetricCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-lg bg-white p-3 text-center shadow-sm dark:bg-gray-800">
-      <p className="text-lg font-bold text-gray-900 dark:text-white">{value}</p>
-      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">{label}</p>
-      {sub && <p className="text-[10px] text-gray-400">{sub}</p>}
+    <div className="rounded-lg bg-white p-3 text-center shadow-sm dark:bg-slate-800">
+      <p className="text-lg font-bold text-slate-900 dark:text-white">{value}</p>
+      <p className="text-xs font-medium text-slate-600 dark:text-slate-400">{label}</p>
+      {sub && <p className="text-[10px] text-slate-400">{sub}</p>}
     </div>
   );
 }

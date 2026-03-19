@@ -273,11 +273,11 @@ export function SearchModal({ isOpen: externalIsOpen, onClose }: SearchModalProp
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl mx-4 rounded-2xl bg-white shadow-2xl dark:bg-gray-900 overflow-hidden">
+      <div className="relative w-full max-w-2xl mx-4 rounded-2xl bg-white shadow-2xl dark:bg-slate-900 overflow-hidden">
         {/* Search input */}
-        <div className="flex items-center gap-3 border-b border-gray-200 px-4 py-4 dark:border-gray-800">
+        <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-4 dark:border-slate-800">
           <svg
-            className="h-5 w-5 text-gray-400"
+            className="h-5 w-5 text-slate-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -295,13 +295,13 @@ export function SearchModal({ isOpen: externalIsOpen, onClose }: SearchModalProp
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="해커톤, 팀, 사용자 검색... (Cmd+K)"
-            className="flex-1 bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 dark:text-white"
+            className="flex-1 bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400 dark:text-white"
             autoFocus
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               aria-label="검색 초기화"
             >
               <svg
@@ -328,7 +328,7 @@ export function SearchModal({ isOpen: externalIsOpen, onClose }: SearchModalProp
         >
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-sm text-slate-500 dark:text-slate-400">
                 검색 중...
               </div>
             </div>
@@ -337,7 +337,7 @@ export function SearchModal({ isOpen: externalIsOpen, onClose }: SearchModalProp
               {Object.entries(groupedResults).map(([type, items]) =>
                 items.length > 0 ? (
                   <div key={type}>
-                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <div className="px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
                       {categoryLabels[type as keyof typeof categoryLabels]}
                     </div>
                     {items.map((result, idx) => {
@@ -349,20 +349,20 @@ export function SearchModal({ isOpen: externalIsOpen, onClose }: SearchModalProp
                           onClick={() => handleSelectResult(result)}
                           className={`w-full px-4 py-3 text-left transition-colors flex items-center gap-3 ${
                             globalIdx === selectedIndex
-                              ? "bg-blue-50 dark:bg-blue-900/20"
-                              : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                              ? "bg-indigo-50 dark:bg-indigo-900/20"
+                              : "hover:bg-slate-50 dark:hover:bg-slate-800"
                           }`}
                         >
                           <span className="text-lg">{result.icon}</span>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                            <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
                               {result.name}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                               {result.description}
                             </p>
                             {result.metadata && (
-                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                              <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                                 {result.metadata}
                               </p>
                             )}
@@ -377,22 +377,22 @@ export function SearchModal({ isOpen: externalIsOpen, onClose }: SearchModalProp
           ) : query.trim() ? (
             <div className="flex flex-col items-center justify-center py-12 px-4">
               <span className="text-4xl mb-3">🔍</span>
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+              <h3 className="text-sm font-medium text-slate-900 dark:text-white mb-1">
                 검색 결과가 없습니다
               </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 text-center max-w-xs">
+              <p className="text-xs text-slate-500 dark:text-slate-400 text-center max-w-xs">
                 다른 키워드로 검색해보세요
               </p>
             </div>
           ) : recentSearches.length > 0 ? (
             <div className="py-3">
               <div className="flex items-center justify-between px-4 py-2">
-                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   최근 검색
                 </span>
                 <button
                   onClick={clearRecentSearches}
-                  className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                 >
                   모두 삭제
                 </button>
@@ -401,10 +401,10 @@ export function SearchModal({ isOpen: externalIsOpen, onClose }: SearchModalProp
                 <button
                   key={`recent-${idx}`}
                   onClick={() => handleRecentSearch(recent.query)}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
+                  className="w-full px-4 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2"
                 >
                   <svg
-                    className="h-4 w-4 text-gray-400"
+                    className="h-4 w-4 text-slate-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -416,7 +416,7 @@ export function SearchModal({ isOpen: externalIsOpen, onClose }: SearchModalProp
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                  <span className="text-sm text-slate-700 dark:text-slate-300">
                     {recent.query}
                   </span>
                 </button>
@@ -425,10 +425,10 @@ export function SearchModal({ isOpen: externalIsOpen, onClose }: SearchModalProp
           ) : (
             <div className="flex flex-col items-center justify-center py-12 px-4">
               <span className="text-4xl mb-3">💡</span>
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+              <h3 className="text-sm font-medium text-slate-900 dark:text-white mb-2">
                 어떤 것을 찾으세요?
               </h3>
-              <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+              <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
                 <li>• 해커톤 제목 또는 태그로 검색</li>
                 <li>• 팀 이름 또는 모집 분야로 검색</li>
                 <li>• 사용자 이름 또는 스킬로 검색</li>
@@ -438,7 +438,7 @@ export function SearchModal({ isOpen: externalIsOpen, onClose }: SearchModalProp
         </div>
 
         {/* Footer hint */}
-        <div className="border-t border-gray-200 px-4 py-2 text-xs text-gray-400 dark:border-gray-800">
+        <div className="border-t border-slate-200 px-4 py-2 text-xs text-slate-400 dark:border-slate-800">
           <div className="flex items-center justify-between">
             <span>↑↓ 이동</span>
             <span>Enter 선택</span>

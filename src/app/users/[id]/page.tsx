@@ -56,7 +56,7 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
     return (
       <div className="mx-auto max-w-4xl px-4 py-16">
         <div className="text-center">
-          <p className="text-gray-500 dark:text-gray-400">로드 중...</p>
+          <p className="text-slate-500 dark:text-slate-400">로드 중...</p>
         </div>
       </div>
     );
@@ -67,28 +67,28 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       {/* 프로필 헤더 */}
-      <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+      <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
           {/* 아바타 */}
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-3xl font-bold text-white">
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 text-3xl font-bold text-white">
             {profile.name.charAt(0).toUpperCase()}
           </div>
 
           <div className="flex-1">
             <div className="mb-1 flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{profile.nickname || profile.name}</h1>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{profile.nickname || profile.name}</h1>
               {profile.role === "admin" && <Badge variant="info" size="sm">Admin</Badge>}
               {profile.badges.length >= 3 && <Badge variant="warning" size="sm">Top Contributor</Badge>}
             </div>
-            <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">{profile.email}</p>
+            <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">{profile.email}</p>
 
-            <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">
               {profile.bio || "아직 자기소개가 없습니다."}
             </p>
             {profile.skills.length > 0 && (
               <div className="mb-3 flex flex-wrap gap-1.5">
                 {profile.skills.map((skill) => (
-                  <span key={skill} className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                  <span key={skill} className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
                     {skill}
                   </span>
                 ))}
@@ -97,10 +97,10 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
             <div className="mb-3 flex items-center gap-4">
               <FollowStats userId={profile.id} />
             </div>
-            <div className="flex items-center gap-3 text-xs text-gray-400">
+            <div className="flex items-center gap-3 text-xs text-slate-400">
               <span>가입일: {formatDate(profile.joinedAt)}</span>
               {isOwnProfile ? (
-                <Link href="/profile" className="text-blue-600 hover:underline dark:text-blue-400">
+                <Link href="/profile" className="text-indigo-600 hover:underline dark:text-indigo-400">
                   이것은 나의 프로필입니다
                 </Link>
               ) : (
@@ -108,7 +108,7 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
                   <FollowButton targetUserId={profile.id} targetUserName={profile.name} size="sm" />
                   <Link
                     href={`/messages?partner=${profile.id}`}
-                    className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                    className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
                   >
                     메시지
                   </Link>
@@ -120,14 +120,14 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
           {/* 통계 미니카드 */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
             {[
-              { label: "참가 해커톤", value: profile.stats.hackathonsJoined, color: "text-blue-600 dark:text-blue-400" },
+              { label: "참가 해커톤", value: profile.stats.hackathonsJoined, color: "text-indigo-600 dark:text-indigo-400" },
               { label: "생성 팀", value: profile.stats.teamsCreated, color: "text-green-600 dark:text-green-400" },
               { label: "제출물", value: profile.stats.submissions, color: "text-purple-600 dark:text-purple-400" },
               { label: "총 점수", value: profile.stats.totalScore, color: "text-orange-600 dark:text-orange-400" },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-lg bg-gray-50 px-4 py-3 text-center dark:bg-gray-800">
+              <div key={stat.label} className="rounded-lg bg-slate-50 px-4 py-3 text-center dark:bg-slate-800">
                 <p className={`text-lg font-bold ${stat.color}`}>{stat.value}</p>
-                <p className="text-[10px] text-gray-500 dark:text-gray-400">{stat.label}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -136,17 +136,17 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
 
       {/* 배지 섹션 */}
       <section className="mb-8">
-        <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">배지 ({profile.badges.length})</h3>
+        <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">배지 ({profile.badges.length})</h3>
         {profile.badges.length === 0 ? (
-          <p className="text-sm text-gray-400">아직 배지를 획득하지 않았습니다.</p>
+          <p className="text-sm text-slate-400">아직 배지를 획득하지 않았습니다.</p>
         ) : (
           <div className="grid gap-3 sm:grid-cols-3">
             {profile.badges.map((badge) => (
-              <div key={badge.id} className="rounded-lg border border-gray-200 bg-white p-4 text-center dark:border-gray-800 dark:bg-gray-900">
+              <div key={badge.id} className="rounded-lg border border-slate-200 bg-white p-4 text-center dark:border-slate-800 dark:bg-slate-900">
                 <span className="mb-2 block text-2xl">{badge.emoji}</span>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">{badge.name}</p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{badge.description}</p>
-                <p className="mt-2 text-[10px] text-gray-400">{formatDate(badge.earnedAt)}</p>
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">{badge.name}</p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{badge.description}</p>
+                <p className="mt-2 text-[10px] text-slate-400">{formatDate(badge.earnedAt)}</p>
               </div>
             ))}
           </div>
@@ -155,15 +155,15 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
 
       {/* 참가 해커톤 섹션 */}
       <section className="mb-8">
-        <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">참가 해커톤</h3>
+        <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">참가 해커톤</h3>
         {profile.joinedHackathons.length === 0 ? (
-          <p className="text-sm text-gray-400">아직 참가한 해커톤이 없습니다.</p>
+          <p className="text-sm text-slate-400">아직 참가한 해커톤이 없습니다.</p>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             {profile.joinedHackathons.map((slug) => (
-              <Link key={slug} href={`/hackathons/${slug}`} className="group rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-blue-300 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700">
+              <Link key={slug} href={`/hackathons/${slug}`} className="group rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-indigo-300 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-700">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">{slug}</span>
+                  <span className="text-sm font-medium text-slate-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">{slug}</span>
                 </div>
               </Link>
             ))}
@@ -173,16 +173,16 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
 
       {/* 팀 멤버십 섹션 */}
       <section className="mb-8">
-        <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">팀 멤버십</h3>
+        <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">팀 멤버십</h3>
         {userTeams.length === 0 ? (
-          <p className="text-sm text-gray-400">아직 참가한 팀이 없습니다.</p>
+          <p className="text-sm text-slate-400">아직 참가한 팀이 없습니다.</p>
         ) : (
           <div className="space-y-2">
             {userTeams.map((team: Team) => (
-              <div key={team.teamCode} className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
+              <div key={team.teamCode} className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
                 <div>
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">{team.name}</span>
-                  <span className="ml-2 text-xs text-gray-400">{team.memberCount}명</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-white">{team.name}</span>
+                  <span className="ml-2 text-xs text-slate-400">{team.memberCount}명</span>
                 </div>
                 <Badge variant={team.isOpen ? "success" : "muted"} size="sm">{team.isOpen ? "모집중" : "마감"}</Badge>
               </div>

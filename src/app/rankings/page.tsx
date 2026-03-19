@@ -69,7 +69,7 @@ export default function RankingsPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="font-display mb-6 text-2xl font-bold text-gray-900 dark:text-white" style={{ fontWeight: 700 }}>
+      <h1 className="font-display mb-6 text-2xl font-bold text-slate-900 dark:text-white" style={{ fontWeight: 700 }}>
         랭킹
       </h1>
 
@@ -83,8 +83,8 @@ export default function RankingsPage() {
               onClick={() => setSelectedSlug(lb.hackathonSlug)}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 selectedSlug === lb.hackathonSlug
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400"
               }`}
             >
               {h
@@ -100,16 +100,16 @@ export default function RankingsPage() {
       {/* 통계 카드 + 차트 */}
       {sorted.length > 0 && (
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <p className="text-xs text-gray-500 dark:text-gray-400">참가 팀</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{sorted.length}</p>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+            <p className="text-xs text-slate-500 dark:text-slate-400">참가 팀</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-white">{sorted.length}</p>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <p className="text-xs text-gray-500 dark:text-gray-400">최고 점수</p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{maxScore}</p>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+            <p className="text-xs text-slate-500 dark:text-slate-400">최고 점수</p>
+            <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{maxScore}</p>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <p className="text-xs text-gray-500 dark:text-gray-400">평균 점수</p>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+            <p className="text-xs text-slate-500 dark:text-slate-400">평균 점수</p>
             <p className="text-2xl font-bold text-green-600 dark:text-green-400">{avgScore}</p>
           </div>
           <ScoreChart title="점수 분포" scores={sorted.map((e) => e.score)} />
@@ -117,7 +117,7 @@ export default function RankingsPage() {
       )}
 
       {leaderboard && (
-        <p className="mb-4 text-xs text-gray-400">
+        <p className="mb-4 text-xs text-slate-400">
           업데이트: {formatDateTime(leaderboard.updatedAt)}
         </p>
       )}
@@ -130,26 +130,26 @@ export default function RankingsPage() {
           description="아직 제출된 결과가 없습니다."
         />
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
+              <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
                 <th
-                  className="cursor-pointer px-5 py-3 text-left text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                  className="cursor-pointer px-5 py-3 text-left text-xs font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400"
                   onClick={() => handleSort("rank")}
                 >
                   순위 {sortKey === "rank" && (sortAsc ? "↑" : "↓")}
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
+                <th className="px-5 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
                   팀
                 </th>
                 <th
-                  className="cursor-pointer px-5 py-3 text-right text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                  className="cursor-pointer px-5 py-3 text-right text-xs font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400"
                   onClick={() => handleSort("score")}
                 >
                   점수 {sortKey === "score" && (sortAsc ? "↑" : "↓")}
                 </th>
-                <th className="hidden px-5 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 sm:table-cell">
+                <th className="hidden px-5 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 sm:table-cell">
                   제출 시간
                 </th>
               </tr>
@@ -158,12 +158,12 @@ export default function RankingsPage() {
               {sorted.map((entry, i) => (
                 <tr
                   key={entry.rank}
-                  className="animate-fade-in border-b border-gray-100 transition-colors hover:bg-gray-50 last:border-0 dark:border-gray-800 dark:hover:bg-gray-800/50"
+                  className="animate-fade-in border-b border-slate-100 transition-colors hover:bg-slate-50 last:border-0 dark:border-slate-800 dark:hover:bg-slate-800/50"
                   style={{ animationDelay: `${i * 50}ms` }}
                 >
                   <td className="px-5 py-4">
                     <span className={`text-sm font-medium ${
-                      entry.rank <= 3 ? "text-lg" : "text-gray-900 dark:text-white"
+                      entry.rank <= 3 ? "text-lg" : "text-slate-900 dark:text-white"
                     }`}>
                       {entry.rank <= 3
                         ? ["🥇", "🥈", "🥉"][entry.rank - 1]
@@ -171,7 +171,7 @@ export default function RankingsPage() {
                     </span>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    <span className="text-sm font-medium text-slate-900 dark:text-white">
                       {entry.teamName}
                     </span>
                     {entry.scoreBreakdown && (
@@ -190,7 +190,7 @@ export default function RankingsPage() {
                           href={entry.artifacts.webUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-blue-500 hover:underline"
+                          className="text-xs text-indigo-500 hover:underline"
                         >
                           🌐 웹
                         </a>
@@ -198,7 +198,7 @@ export default function RankingsPage() {
                           href={entry.artifacts.pdfUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-blue-500 hover:underline"
+                          className="text-xs text-indigo-500 hover:underline"
                         >
                           📄 PDF
                         </a>
@@ -207,18 +207,18 @@ export default function RankingsPage() {
                   </td>
                   <td className="px-5 py-4 text-right">
                     <div className="flex flex-col items-end gap-1">
-                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                      <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
                         {entry.score}
                       </span>
-                      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                         <div
-                          className="h-full rounded-full bg-blue-500 transition-all duration-500"
+                          className="h-full rounded-full bg-indigo-500 transition-all duration-500"
                           style={{ width: `${Math.min(entry.score, 100)}%` }}
                         />
                       </div>
                     </div>
                   </td>
-                  <td className="hidden px-5 py-4 text-right text-xs text-gray-500 dark:text-gray-400 sm:table-cell">
+                  <td className="hidden px-5 py-4 text-right text-xs text-slate-500 dark:text-slate-400 sm:table-cell">
                     {timeAgo(entry.submittedAt)}
                   </td>
                 </tr>

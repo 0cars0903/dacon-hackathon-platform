@@ -10,13 +10,13 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<string, string> = {
-  default: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  default: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
   success:
     "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
   warning:
     "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
-  info: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",
-  muted: "bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-400",
+  info: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300",
+  muted: "bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-400",
 };
 
 export function Badge({

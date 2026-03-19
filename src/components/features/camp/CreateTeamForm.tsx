@@ -66,7 +66,7 @@ export function CreateTeamForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
           팀 이름
         </label>
         <input
@@ -74,12 +74,12 @@ export function CreateTeamForm({
           required
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"
           placeholder="팀 이름을 입력하세요"
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
           해커톤
         </label>
         <select
@@ -87,7 +87,7 @@ export function CreateTeamForm({
           onChange={(e) =>
             setFormData({ ...formData, hackathonSlug: e.target.value })
           }
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"
         >
           {hackathons.map((h) => (
             <option key={h.slug} value={h.slug}>
@@ -97,19 +97,19 @@ export function CreateTeamForm({
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
           소개
         </label>
         <textarea
           value={formData.intro}
           onChange={(e) => setFormData({ ...formData, intro: e.target.value })}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"
           rows={3}
           placeholder="팀을 소개해주세요"
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
           구하는 역할 (쉼표로 구분)
         </label>
         <input
@@ -118,28 +118,28 @@ export function CreateTeamForm({
           onChange={(e) =>
             setFormData({ ...formData, lookingFor: e.target.value })
           }
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"
           placeholder="Frontend, Designer, ML Engineer"
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
           참가 허용 방식
         </label>
         <div className="flex gap-4 mt-1">
-          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
             <input
               type="radio"
               name="joinPolicy"
               value="auto"
               checked={formData.joinPolicy === "auto"}
               onChange={() => setFormData({ ...formData, joinPolicy: "auto" })}
-              className="text-blue-600"
+              className="text-indigo-600"
             />
             자동 허용
-            <span className="text-xs text-gray-400">(누구나 바로 참가)</span>
+            <span className="text-xs text-slate-400">(누구나 바로 참가)</span>
           </label>
-          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
             <input
               type="radio"
               name="joinPolicy"
@@ -148,15 +148,15 @@ export function CreateTeamForm({
               onChange={() =>
                 setFormData({ ...formData, joinPolicy: "approval" })
               }
-              className="text-blue-600"
+              className="text-indigo-600"
             />
             확인 후 허용
-            <span className="text-xs text-gray-400">(팀장 승인 필요)</span>
+            <span className="text-xs text-slate-400">(팀장 승인 필요)</span>
           </label>
         </div>
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
           연락처 링크 (선택)
         </label>
         <input
@@ -165,10 +165,10 @@ export function CreateTeamForm({
           onChange={(e) =>
             setFormData({ ...formData, contactUrl: e.target.value })
           }
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"
           placeholder="https://..."
         />
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-slate-400">
           팀 내부 채팅은 팀 참가 후 자동으로 이용할 수 있습니다. 외부 연락처가
           있으면 추가로 입력하세요.
         </p>

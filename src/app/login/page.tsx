@@ -58,11 +58,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* 로고 */}
         <div className="mb-8 text-center">
-          <Link href="/" className="font-display inline-block text-2xl font-bold text-gray-900 dark:text-white" style={{ fontWeight: 800 }}>
-            <span className="text-blue-600 dark:text-blue-400">DACON</span>{" "}
-            <span className="text-gray-500">Platform</span>
+          <Link href="/" className="font-display inline-block text-2xl font-bold text-slate-900 dark:text-white" style={{ fontWeight: 800 }}>
+            <span className="text-indigo-600 dark:text-indigo-400">DACON</span>{" "}
+            <span className="text-slate-500">Platform</span>
           </Link>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             {mode === "login"
               ? "계정에 로그인하세요"
               : "새 계정을 만들어 시작하세요"}
@@ -70,13 +70,13 @@ export default function LoginPage() {
         </div>
 
         {/* 탭 */}
-        <div className="mb-6 flex rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="mb-6 flex rounded-lg border border-slate-200 dark:border-slate-700">
           <button
             onClick={() => { setMode("login"); setError(""); }}
             className={`flex-1 rounded-l-lg py-2.5 text-sm font-medium transition-colors ${
               mode === "login"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400"
+                ? "bg-indigo-600 text-white"
+                : "bg-white text-slate-600 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-400"
             }`}
           >
             로그인
@@ -85,8 +85,8 @@ export default function LoginPage() {
             onClick={() => { setMode("signup"); setError(""); }}
             className={`flex-1 rounded-r-lg py-2.5 text-sm font-medium transition-colors ${
               mode === "signup"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400"
+                ? "bg-indigo-600 text-white"
+                : "bg-white text-slate-600 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-400"
             }`}
           >
             회원가입
@@ -97,14 +97,14 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === "signup" && (
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
                 이름
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 placeholder="이름을 입력하세요"
                 required={mode === "signup"}
               />
@@ -112,7 +112,7 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
               이메일
             </label>
             <input
@@ -120,14 +120,14 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="username"
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               placeholder="email@example.com"
               required
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
               비밀번호
             </label>
             <input
@@ -135,7 +135,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete={mode === "login" ? "current-password" : "new-password"}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               placeholder="비밀번호를 입력하세요"
               required
               minLength={6}
@@ -159,8 +159,8 @@ export default function LoginPage() {
 
         {/* 데모 계정 안내 */}
         <div className="mt-6 space-y-3">
-          <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-            <p className="mb-2 text-xs font-semibold text-blue-700 dark:text-blue-300">
+          <div className="rounded-lg bg-indigo-50 p-4 dark:bg-indigo-900/20">
+            <p className="mb-2 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
               Admin 관리자 계정
             </p>
             <button
@@ -187,14 +187,14 @@ export default function LoginPage() {
                 }
               }}
               disabled={loading}
-              className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400 disabled:opacity-50"
+              className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400 disabled:opacity-50"
             >
               {loading ? "로그인 중..." : "Admin 계정으로 바로 로그인"}
             </button>
-            <p className="mt-1 text-[10px] text-blue-500 dark:text-blue-400">관리자 권한 + 팀 생성 및 프로필이 구성된 계정입니다</p>
+            <p className="mt-1 text-[10px] text-indigo-500 dark:text-indigo-400">관리자 권한 + 팀 생성 및 프로필이 구성된 계정입니다</p>
           </div>
-          <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50">
-            <p className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+          <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/50">
+            <p className="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">
               User_1 일반 사용자 계정
             </p>
             <button
@@ -220,11 +220,11 @@ export default function LoginPage() {
                 }
               }}
               disabled={loading}
-              className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400 disabled:opacity-50"
+              className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400 disabled:opacity-50"
             >
               {loading ? "로그인 중..." : "Demo 계정으로 바로 로그인"}
             </button>
-            <p className="mt-1 text-[10px] text-gray-400">일반 사용자 기능 체험용 계정입니다</p>
+            <p className="mt-1 text-[10px] text-slate-400">일반 사용자 기능 체험용 계정입니다</p>
           </div>
         </div>
       </div>

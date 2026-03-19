@@ -60,12 +60,12 @@ export default function HackathonLayout({
       <div className="mb-6">
         <Link
           href="/hackathons"
-          className="mb-4 inline-flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          className="mb-4 inline-flex items-center text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
         >
           ← 해커톤 목록
         </Link>
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-display text-2xl font-bold text-gray-900 dark:text-white" style={{ fontWeight: 700 }}>
+          <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white" style={{ fontWeight: 700 }}>
             {hackathon.title}
           </h1>
           <Badge
@@ -79,7 +79,7 @@ export default function HackathonLayout({
           >
             {getStatusLabel(hackathon.status)}
           </Badge>
-          <span className="text-sm text-gray-400">
+          <span className="text-sm text-slate-400">
             {getDday(hackathon.period.submissionDeadlineAt)}
           </span>
           <BookmarkButton hackathonSlug={slug} />
@@ -87,7 +87,7 @@ export default function HackathonLayout({
       </div>
 
       {/* 서브 페이지 네비게이션 */}
-      <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-gray-200 dark:border-gray-800">
+      <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-slate-200 dark:border-slate-800">
         {SUB_PAGES.map((page) => {
           const href = basePath + page.key;
           const isActive =
@@ -101,8 +101,8 @@ export default function HackathonLayout({
               href={href}
               className={`flex shrink-0 items-center gap-1.5 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                 isActive
-                  ? "border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
-                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+                  : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
               }`}
             >
               <span className="text-xs">{page.emoji}</span>

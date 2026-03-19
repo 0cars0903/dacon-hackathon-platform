@@ -91,16 +91,16 @@ export default function HackathonsPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           해커톤 목록
         </h1>
-        <span className="text-sm text-gray-400">
+        <span className="text-sm text-slate-400">
           총 {allHackathons.length}개
         </span>
       </div>
 
       {/* 필터 영역 */}
-      <div className="mb-6 space-y-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="mb-6 space-y-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
         {/* 상태 필터 */}
         <div className="flex flex-wrap gap-2">
           {STATUS_OPTIONS.map((opt) => (
@@ -109,8 +109,8 @@ export default function HackathonsPage() {
               onClick={() => setStatusFilter(opt.key)}
               className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 statusFilter === opt.key
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
               }`}
             >
               <span className="text-xs">{opt.emoji}</span>
@@ -118,7 +118,7 @@ export default function HackathonsPage() {
               <span className={`ml-1 rounded-full px-1.5 text-xs ${
                 statusFilter === opt.key
                   ? "bg-white/20"
-                  : "bg-gray-200 dark:bg-gray-700"
+                  : "bg-slate-200 dark:bg-slate-700"
               }`}>
                 {counts[opt.key] || 0}
               </span>
@@ -128,7 +128,7 @@ export default function HackathonsPage() {
 
         {/* 태그 필터 */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
+          <span className="text-sm text-slate-500 dark:text-slate-400">
             태그:
           </span>
           {allTags.map((tag) => (
@@ -144,13 +144,13 @@ export default function HackathonsPage() {
         {/* 정렬 + 필터 리셋 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-sm text-slate-500 dark:text-slate-400">
               정렬:
             </span>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortOption)}
-              className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
             >
               <option value="latest">최신순</option>
               <option value="deadline">마감임박순</option>
@@ -159,7 +159,7 @@ export default function HackathonsPage() {
           {(statusFilter !== "all" || selectedTags.length > 0) && (
             <button
               onClick={resetFilters}
-              className="text-xs text-blue-600 hover:underline dark:text-blue-400"
+              className="text-xs text-indigo-600 hover:underline dark:text-indigo-400"
             >
               필터 초기화
             </button>
@@ -191,7 +191,7 @@ function HackathonCard({ hackathon: h, index }: { hackathon: Hackathon; index: n
   return (
     <Link
       href={`/hackathons/${h.slug}`}
-      className="animate-fade-in-up group relative rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-blue-300 hover:shadow-md hover:-translate-y-1 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-700"
+      className="animate-fade-in-up group relative rounded-xl border border-slate-200 bg-white p-5 transition-all hover:border-indigo-300 hover:shadow-md hover:-translate-y-1 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-700"
       style={{ animationDelay: `${index * 80}ms` }}
     >
       {/* 북마크 */}
@@ -200,7 +200,7 @@ function HackathonCard({ hackathon: h, index }: { hackathon: Hackathon; index: n
       </div>
 
       {/* 썸네일 placeholder */}
-      <div className="mb-4 flex h-32 items-center justify-center rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+      <div className="mb-4 flex h-32 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950 dark:to-indigo-900">
         <span className="text-4xl opacity-50 transition-transform group-hover:scale-110">🏆</span>
       </div>
 
@@ -216,12 +216,12 @@ function HackathonCard({ hackathon: h, index }: { hackathon: Hackathon; index: n
         >
           {getStatusLabel(h.status)}
         </Badge>
-        <span className="text-xs font-medium text-gray-400">
+        <span className="text-xs font-medium text-slate-400">
           {getDday(h.period.submissionDeadlineAt)}
         </span>
       </div>
 
-      <h3 className="mb-3 line-clamp-2 text-sm font-semibold text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
+      <h3 className="mb-3 line-clamp-2 text-sm font-semibold text-slate-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
         {h.title}
       </h3>
 
@@ -229,7 +229,7 @@ function HackathonCard({ hackathon: h, index }: { hackathon: Hackathon; index: n
         {h.tags.map((tag) => (
           <span
             key={tag}
-            className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+            className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400"
           >
             {tag}
           </span>

@@ -3,11 +3,22 @@
 /* === 다크모드 Tailwind v4 설정 === */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* === 컬러 테마 CSS 변수 === */
+/* === Indigo 기반 14색 디자인 시스템 === */
 :root {
-  --color-primary: #2563eb;
-  --color-primary-light: #3b82f6;
-  --color-primary-dark: #1d4ed8;
+  /* Primary — Indigo */
+  --color-primary: #6366F1;
+  --color-primary-light: #818CF8;
+  --color-primary-dark: #4F46E5;
+
+  /* Semantic colors */
+  --color-sky: #3B82F6;
+  --color-emerald: #10B981;
+  --color-amber: #F59E0B;
+  --color-rose: #EF4444;
+  --color-violet: #8B5CF6;
+  --color-orange: #F97316;
+  --color-teal: #06B6D4;
+  --color-pink: #EC4899;
 }
 
 [data-color-theme="purple"] {
@@ -24,7 +35,7 @@
 
 @theme inline {
   --color-background: #ffffff;
-  --color-foreground: #171717;
+  --color-foreground: #0F172A;
   --color-primary: var(--color-primary);
   --color-primary-light: var(--color-primary-light);
   --color-primary-dark: var(--color-primary-dark);
@@ -45,8 +56,8 @@ body {
 .font-code { font-family: var(--font-code); }
 
 .dark body {
-  background: #0a0a0a;
-  color: #ededed;
+  background: #0F172A;
+  color: #F1F5F9;
 }
 
 /* === 애니메이션 === */
@@ -106,8 +117,8 @@ main {
 /* Better scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-.dark ::-webkit-scrollbar-thumb { background: #374151; }
+::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 3px; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; }
 
 /* Shimmer for loading */
 .shimmer {
@@ -161,12 +172,143 @@ html {
 
 /* Skeleton loading for CLS prevention */
 .skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 8px;
 }
 .dark .skeleton {
-  background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+  background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
   background-size: 200% 100%;
+}
+
+/* === 반응형 R1: 탭바 수평 스크롤 힌트 === */
+.scrollable-tabs {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  mask-image: linear-gradient(to right, black calc(100% - 40px), transparent);
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 40px), transparent);
+}
+.scrollable-tabs::-webkit-scrollbar { display: none; }
+.scrollable-tabs > * { scroll-snap-align: start; }
+.scrollable-tabs.scroll-start {
+  mask-image: linear-gradient(to right, black calc(100% - 40px), transparent);
+}
+.scrollable-tabs.scroll-end {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+/* === 반응형 R1: 테이블 수평 스크롤 인디케이터 === */
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+.table-scroll-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 40px;
+  background: linear-gradient(to right, transparent, var(--color-background));
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+.dark .table-scroll-wrapper::after {
+  background: linear-gradient(to right, transparent, #0F172A);
+}
+
+/* === 반응형 R2: 모달 → 바텀 시트 (모바일) === */
+@media (max-width: 639px) {
+  .responsive-modal {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    transform: none !important;
+    max-height: 85vh;
+    border-radius: 16px 16px 0 0 !important;
+    animation: slideUp 0.3s ease-out !important;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+}
+
+/* === 반응형 R3: 모바일 하단 네비게이션 === */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #E2E8F0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.dark .bottom-nav {
+  background: rgba(15, 23, 42, 0.95);
+  border-top-color: #334155;
+}
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  min-width: 56px;
+  border-radius: 10px;
+  color: #64748B;
+  font-size: 10px;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.bottom-nav-item.active {
+  color: #6366F1;
+}
+.bottom-nav-item .nav-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* 하단 네비 표시 시 메인 콘텐츠 패딩 */
+@media (max-width: 767px) {
+  .has-bottom-nav {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}
+
+/* === 반응형 R3: 반응형 타이포그래피 === */
+.text-responsive-hero {
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
+}
+.text-responsive-title {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+}
+.text-responsive-subtitle {
+  font-size: clamp(0.875rem, 2vw, 1.125rem);
+}
+
+/* === 반응형 R2: 사이드바 collapsed (태블릿) === */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .sidebar-collapsible {
+    width: 64px !important;
+  }
+  .sidebar-collapsible .sidebar-label {
+    display: none;
+  }
+  .sidebar-collapsible .sidebar-section-title {
+    display: none;
+  }
 }

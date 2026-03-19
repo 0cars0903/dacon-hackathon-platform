@@ -114,22 +114,22 @@ export default function HackathonTeamsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           {teams.length}개 팀이 등록되어 있습니다.
         </p>
         <div className="flex items-center gap-2">
           {/* 보기 모드 전환 */}
-          <div className="flex rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700">
             <button
               onClick={() => setViewMode("icon")}
-              className={`px-2.5 py-1.5 text-xs ${viewMode === "icon" ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}
+              className={`px-2.5 py-1.5 text-xs ${viewMode === "icon" ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" : "text-slate-500 dark:text-slate-400"}`}
               title="큰 아이콘"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`px-2.5 py-1.5 text-xs ${viewMode === "list" ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}
+              className={`px-2.5 py-1.5 text-xs ${viewMode === "list" ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" : "text-slate-500 dark:text-slate-400"}`}
               title="리스트"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
@@ -145,27 +145,27 @@ export default function HackathonTeamsPage() {
         <EmptyState emoji="👥" title="등록된 팀이 없습니다" description="첫 번째 팀을 만들어보세요!" />
       ) : viewMode === "list" ? (
         /* 리스트 뷰 */
-        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800">
+        <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
-                <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">팀명</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">인원</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">참가 방식</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">모집 분야</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">상태</th>
-                <th className="px-4 py-3 text-right font-medium text-gray-500 dark:text-gray-400">액션</th>
+              <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
+                <th className="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">팀명</th>
+                <th className="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">인원</th>
+                <th className="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">참가 방식</th>
+                <th className="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">모집 분야</th>
+                <th className="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">상태</th>
+                <th className="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">액션</th>
               </tr>
             </thead>
             <tbody>
               {teams.map((team) => (
-                <tr key={team.teamCode} className="border-b border-gray-100 bg-white hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800/50">
+                <tr key={team.teamCode} className="border-b border-slate-100 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/50">
                   <td className="px-4 py-3">
-                    <button onClick={() => toggleExpand(team.teamCode)} className="font-medium text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
+                    <button onClick={() => toggleExpand(team.teamCode)} className="font-medium text-slate-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">
                       {team.name}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{team.memberCount}명</td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{team.memberCount}명</td>
                   <td className="px-4 py-3">
                     <Badge variant={(team as Team).joinPolicy === "approval" ? "warning" : "success"} size="sm">
                       {(team as Team).joinPolicy === "approval" ? "확인 후 허용" : "자동 허용"}
@@ -174,7 +174,7 @@ export default function HackathonTeamsPage() {
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {team.lookingFor.slice(0, 3).map((role) => (
-                        <span key={role} className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">{role}</span>
+                        <span key={role} className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">{role}</span>
                       ))}
                     </div>
                   </td>
@@ -190,7 +190,7 @@ export default function HackathonTeamsPage() {
                         )}
                       </div>
                     ) : team.isOpen ? (
-                      <button onClick={() => handleJoin(team.teamCode)} className="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700">참가하기</button>
+                      <button onClick={() => handleJoin(team.teamCode)} className="rounded bg-indigo-600 px-2 py-1 text-xs text-white hover:bg-indigo-700">참가하기</button>
                     ) : null}
                   </td>
                 </tr>
@@ -213,7 +213,7 @@ export default function HackathonTeamsPage() {
             return (
               <div
                 key={team.teamCode}
-                className="animate-fade-in-up rounded-xl border border-gray-200 bg-white transition-all hover:border-blue-200 dark:border-gray-800 dark:bg-gray-900"
+                className="animate-fade-in-up rounded-xl border border-slate-200 bg-white transition-all hover:border-indigo-200 dark:border-slate-800 dark:bg-slate-900"
                 style={{ animationDelay: `${i * 60}ms` }}
               >
                 <div className="p-5">
@@ -221,7 +221,7 @@ export default function HackathonTeamsPage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => toggleExpand(team.teamCode)}
-                        className="font-semibold text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors"
+                        className="font-semibold text-slate-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400 transition-colors"
                       >
                         {team.name}
                       </button>
@@ -233,10 +233,10 @@ export default function HackathonTeamsPage() {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400">{team.memberCount}명 · {timeAgo(team.createdAt)}</span>
+                      <span className="text-xs text-slate-400">{team.memberCount}명 · {timeAgo(team.createdAt)}</span>
                       <button
                         onClick={() => toggleExpand(team.teamCode)}
-                        className="rounded p-0.5 text-gray-400 transition-transform hover:text-gray-600 dark:hover:text-gray-300"
+                        className="rounded p-0.5 text-slate-400 transition-transform hover:text-slate-600 dark:hover:text-slate-300"
                       >
                         <svg className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -244,11 +244,11 @@ export default function HackathonTeamsPage() {
                       </button>
                     </div>
                   </div>
-                  <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">{team.intro}</p>
+                  <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">{team.intro}</p>
                   <div className="flex items-center justify-between">
                     <div className="flex flex-wrap gap-1">
                       {team.lookingFor.map((role) => (
-                        <span key={role} className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">{role}</span>
+                        <span key={role} className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">{role}</span>
                       ))}
                     </div>
                     <div className="flex items-center gap-2">
@@ -272,14 +272,14 @@ export default function HackathonTeamsPage() {
                       ) : team.isOpen ? (
                         <button
                           onClick={() => handleJoin(team.teamCode)}
-                          className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
                         >
                           참가하기
                         </button>
                       ) : (
                         <button
                           onClick={() => setContactTeam({ name: team.name, url: team.contact.url })}
-                          className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400"
+                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400"
                         >
                           연락하기
                         </button>
@@ -297,11 +297,11 @@ export default function HackathonTeamsPage() {
 
                 {/* 확장 패널 */}
                 {isExpanded && (
-                  <div className="border-t border-gray-100 bg-gray-50/50 px-5 py-4 dark:border-gray-800 dark:bg-gray-800/30">
+                  <div className="border-t border-slate-100 bg-slate-50/50 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/30">
                     {/* 팀장 설정: joinPolicy 변경 */}
                     {isLeader && (
-                      <div className="mb-4 rounded-lg border border-blue-100 bg-blue-50/50 p-3 dark:border-blue-900 dark:bg-blue-900/20">
-                        <h4 className="mb-2 text-xs font-semibold text-blue-700 dark:text-blue-400">팀장 설정</h4>
+                      <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50/50 p-3 dark:border-indigo-900 dark:bg-indigo-900/20">
+                        <h4 className="mb-2 text-xs font-semibold text-indigo-700 dark:text-indigo-400">팀장 설정</h4>
                         <div className="flex items-center gap-3">
                           <label className="flex items-center gap-1.5 text-xs">
                             <input
@@ -309,9 +309,9 @@ export default function HackathonTeamsPage() {
                               name={`policy-${team.teamCode}`}
                               checked={(team as Team).joinPolicy === "auto" || !(team as Team).joinPolicy}
                               onChange={() => handlePolicyChange(team.teamCode, "auto")}
-                              className="text-blue-600"
+                              className="text-indigo-600"
                             />
-                            <span className="text-gray-700 dark:text-gray-300">자동 허용</span>
+                            <span className="text-slate-700 dark:text-slate-300">자동 허용</span>
                           </label>
                           <label className="flex items-center gap-1.5 text-xs">
                             <input
@@ -319,21 +319,21 @@ export default function HackathonTeamsPage() {
                               name={`policy-${team.teamCode}`}
                               checked={(team as Team).joinPolicy === "approval"}
                               onChange={() => handlePolicyChange(team.teamCode, "approval")}
-                              className="text-blue-600"
+                              className="text-indigo-600"
                             />
-                            <span className="text-gray-700 dark:text-gray-300">확인 후 허용</span>
+                            <span className="text-slate-700 dark:text-slate-300">확인 후 허용</span>
                           </label>
                         </div>
 
                         {/* 참가 요청 목록 */}
                         {joinRequests.length > 0 && (
                           <div className="mt-3 space-y-2">
-                            <h5 className="text-xs font-medium text-gray-600 dark:text-gray-400">대기 중인 참가 요청 ({joinRequests.length})</h5>
+                            <h5 className="text-xs font-medium text-slate-600 dark:text-slate-400">대기 중인 참가 요청 ({joinRequests.length})</h5>
                             {joinRequests.map((req: any) => (
-                              <div key={req.id} className="flex items-center justify-between rounded bg-white p-2 dark:bg-gray-800">
+                              <div key={req.id} className="flex items-center justify-between rounded bg-white p-2 dark:bg-slate-800">
                                 <div>
-                                  <span className="text-xs font-medium text-gray-900 dark:text-white">{req.userName}</span>
-                                  {req.message && <p className="text-[10px] text-gray-400">{req.message}</p>}
+                                  <span className="text-xs font-medium text-slate-900 dark:text-white">{req.userName}</span>
+                                  {req.message && <p className="text-[10px] text-slate-400">{req.message}</p>}
                                 </div>
                                 <div className="flex gap-1">
                                   <button onClick={async () => { handleJoinRequest(req.id, "accepted"); loadTeams(); }} className="rounded bg-green-500 px-2 py-0.5 text-[10px] text-white hover:bg-green-600">수락</button>
@@ -347,22 +347,22 @@ export default function HackathonTeamsPage() {
                     )}
 
                     {/* 멤버 목록 */}
-                    <h4 className="mb-3 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <h4 className="mb-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
                       팀 멤버 ({members.length || team.memberCount}명)
                     </h4>
                     {members.length > 0 ? (
                       <div className="space-y-2">
                         {members.map((m) => (
-                          <div key={m.userId} className="flex items-center justify-between rounded-lg bg-white p-3 dark:bg-gray-900">
+                          <div key={m.userId} className="flex items-center justify-between rounded-lg bg-white p-3 dark:bg-slate-900">
                             <div className="flex items-center gap-3">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900 dark:text-blue-400">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600 dark:bg-indigo-900 dark:text-indigo-400">
                                 {m.name.charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <Link href={`/users/${m.userId}`} className="text-sm font-medium text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
+                                <Link href={`/users/${m.userId}`} className="text-sm font-medium text-slate-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">
                                   {m.name}
                                 </Link>
-                                <p className="text-[10px] text-gray-400">{timeAgo(m.joinedAt)}</p>
+                                <p className="text-[10px] text-slate-400">{timeAgo(m.joinedAt)}</p>
                               </div>
                             </div>
                             <Badge variant={m.role === "팀장" ? "info" : "muted"} size="sm">{m.role}</Badge>
@@ -372,11 +372,11 @@ export default function HackathonTeamsPage() {
                     ) : (
                       <div className="flex items-center gap-3">
                         {Array.from({ length: team.memberCount }).map((_, idx) => (
-                          <div key={idx} className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+                          <div key={idx} className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-xs font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-400">
                             {idx + 1}
                           </div>
                         ))}
-                        <span className="text-xs text-gray-400">멤버 {team.memberCount}명</span>
+                        <span className="text-xs text-slate-400">멤버 {team.memberCount}명</span>
                       </div>
                     )}
                   </div>
@@ -394,27 +394,27 @@ export default function HackathonTeamsPage() {
       {/* 팀 채팅 모달 */}
       {chatOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="flex h-[500px] w-full max-w-lg flex-col rounded-2xl bg-white shadow-xl dark:bg-gray-900">
-            <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-800">
-              <h3 className="font-semibold text-gray-900 dark:text-white">
+          <div className="flex h-[500px] w-full max-w-lg flex-col rounded-2xl bg-white shadow-xl dark:bg-slate-900">
+            <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-800">
+              <h3 className="font-semibold text-slate-900 dark:text-white">
                 팀 채팅 — {teams.find((t) => t.teamCode === chatOpen)?.name}
               </h3>
-              <button onClick={() => setChatOpen(null)} className="rounded p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              <button onClick={() => setChatOpen(null)} className="rounded p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {chatMessages.length === 0 ? (
-                <p className="text-center text-sm text-gray-400 mt-10">아직 메시지가 없습니다. 첫 메시지를 보내보세요!</p>
+                <p className="text-center text-sm text-slate-400 mt-10">아직 메시지가 없습니다. 첫 메시지를 보내보세요!</p>
               ) : (
                 chatMessages.map((msg) => {
                   const isMe = msg.senderId === user?.id;
                   return (
                     <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[70%] rounded-2xl px-4 py-2 ${isMe ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"}`}>
+                      <div className={`max-w-[70%] rounded-2xl px-4 py-2 ${isMe ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white"}`}>
                         {!isMe && <p className="mb-0.5 text-[10px] font-medium opacity-70">{msg.senderName}</p>}
                         <p className="text-sm">{msg.content}</p>
-                        <p className={`mt-0.5 text-[10px] ${isMe ? "text-blue-200" : "text-gray-400"}`}>{timeAgo(msg.createdAt)}</p>
+                        <p className={`mt-0.5 text-[10px] ${isMe ? "text-indigo-200" : "text-slate-400"}`}>{timeAgo(msg.createdAt)}</p>
                       </div>
                     </div>
                   );
@@ -422,19 +422,19 @@ export default function HackathonTeamsPage() {
               )}
               <div ref={chatEndRef} />
             </div>
-            <div className="border-t border-gray-200 p-4 dark:border-gray-800">
+            <div className="border-t border-slate-200 p-4 dark:border-slate-800">
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendChat(chatOpen); } }}
-                  className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                  className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   placeholder="메시지를 입력하세요..."
                 />
                 <button
                   onClick={() => handleSendChat(chatOpen)}
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
                 >
                   전송
                 </button>

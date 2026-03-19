@@ -86,7 +86,7 @@ export default function BookmarksPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-gray-900 dark:text-white" style={{ fontWeight: 700 }}>
+        <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white" style={{ fontWeight: 700 }}>
           북마크
         </h1>
         {bookmarkedHackathons.length > 0 && (
@@ -114,7 +114,7 @@ export default function BookmarksPage() {
             return (
               <div
                 key={h.slug}
-                className="animate-fade-in group rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700"
+                className="animate-fade-in group rounded-xl border border-slate-200 bg-white p-5 transition-all hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
                 style={{ animationDelay: `${i * 60}ms` }}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -122,13 +122,13 @@ export default function BookmarksPage() {
                     <div className="mb-2 flex flex-wrap items-center gap-2">
                       <Badge variant={s.variant} size="sm">{s.text}</Badge>
                       {h.tags.slice(0, 3).map((tag) => (
-                        <span key={tag} className="text-xs text-gray-400">#{tag}</span>
+                        <span key={tag} className="text-xs text-slate-400">#{tag}</span>
                       ))}
                     </div>
-                    <h2 className="mb-1 text-lg font-semibold text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
+                    <h2 className="mb-1 text-lg font-semibold text-slate-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
                       {h.title}
                     </h2>
-                    <div className="mt-2 flex flex-wrap gap-4 text-xs text-gray-400">
+                    <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-400">
                       <span>제출 마감: {formatDate(h.period.submissionDeadlineAt)}</span>
                       <span>종료: {formatDate(h.period.endAt)}</span>
                     </div>

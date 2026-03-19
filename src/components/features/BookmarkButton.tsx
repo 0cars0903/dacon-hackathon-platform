@@ -58,10 +58,10 @@ export function BookmarkButton({ hackathonSlug }: { hackathonSlug: string }) {
       disabled={!user || loading}
       className={`rounded-lg p-1.5 transition-all ${
         !user
-          ? "text-gray-300 cursor-not-allowed dark:text-gray-600"
+          ? "text-slate-300 cursor-not-allowed dark:text-slate-600"
           : bookmarked
           ? "text-yellow-500 hover:text-yellow-600"
-          : "text-gray-300 hover:text-gray-400 dark:text-gray-600 dark:hover:text-gray-500"
+          : "text-slate-300 hover:text-slate-400 dark:text-slate-600 dark:hover:text-slate-500"
       } ${loading ? "opacity-50" : ""}`}
       aria-label={bookmarked ? "북마크 해제" : "북마크"}
     >

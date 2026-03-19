@@ -293,26 +293,26 @@ export default function AdminPage() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       {/* 토스트 */}
       {toast && (
-        <div className="fixed right-4 top-20 z-50 animate-fade-in rounded-lg bg-gray-900 px-4 py-3 text-sm text-white shadow-lg dark:bg-gray-100 dark:text-gray-900">
+        <div className="fixed right-4 top-20 z-50 animate-fade-in rounded-lg bg-slate-900 px-4 py-3 text-sm text-white shadow-lg dark:bg-slate-100 dark:text-slate-900">
           {toast}
         </div>
       )}
 
       <div className="mb-6 flex items-center gap-3">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">관리자 대시보드</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">관리자 대시보드</h1>
         <Badge variant="info" size="sm">Admin</Badge>
       </div>
 
       {/* 탭 */}
-      <div className="mb-6 flex border-b border-gray-200 dark:border-gray-800">
+      <div className="mb-6 flex border-b border-slate-200 dark:border-slate-800">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2.5 text-sm font-medium transition-colors ${
               activeTab === tab.key
-                ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400"
-                : "text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                ? "border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400"
+                : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
             }`}
           >
             {tab.label}

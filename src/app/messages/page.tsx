@@ -87,7 +87,7 @@ export default function MessagesPage() {
   if (!user) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-gray-500 dark:text-gray-400">로그인이 필요합니다.</p>
+        <p className="text-slate-500 dark:text-slate-400">로그인이 필요합니다.</p>
       </div>
     );
   }
@@ -159,37 +159,37 @@ export default function MessagesPage() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">메시지</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">메시지</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {totalUnread > 0 ? `읽지 않은 메시지 ${totalUnread}개` : "모든 메시지를 확인했습니다"}
           </p>
         </div>
         <button
           onClick={() => setShowNewChat(!showNewChat)}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
         >
           새 대화
         </button>
       </div>
 
       {/* Tabs */}
-      <div className="mb-4 flex gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
+      <div className="mb-4 flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
         <button
           onClick={() => setActiveTab("messages")}
           className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === "messages"
-              ? "bg-white text-gray-900 shadow dark:bg-gray-700 dark:text-white"
-              : "text-gray-500 hover:text-gray-700 dark:text-gray-400"
+              ? "bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-white"
+              : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
           }`}
         >
-          대화 {totalUnread > 0 && <span className="ml-1 rounded-full bg-blue-600 px-2 py-0.5 text-xs text-white">{totalUnread}</span>}
+          대화 {totalUnread > 0 && <span className="ml-1 rounded-full bg-indigo-600 px-2 py-0.5 text-xs text-white">{totalUnread}</span>}
         </button>
         <button
           onClick={() => setActiveTab("invitations")}
           className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === "invitations"
-              ? "bg-white text-gray-900 shadow dark:bg-gray-700 dark:text-white"
-              : "text-gray-500 hover:text-gray-700 dark:text-gray-400"
+              ? "bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-white"
+              : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
           }`}
         >
           팀 초대 {invitations.length > 0 && <span className="ml-1 rounded-full bg-orange-500 px-2 py-0.5 text-xs text-white">{invitations.length}</span>}
@@ -199,22 +199,22 @@ export default function MessagesPage() {
       {activeTab === "invitations" && (
         <div className="space-y-3">
           {invitations.length === 0 ? (
-            <div className="rounded-xl border border-gray-200 py-12 text-center dark:border-gray-700">
+            <div className="rounded-xl border border-slate-200 py-12 text-center dark:border-slate-700">
               <p className="text-4xl">📬</p>
-              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">받은 팀 초대가 없습니다.</p>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">받은 팀 초대가 없습니다.</p>
             </div>
           ) : (
             invitations.map((inv) => (
               <div
                 key={inv.id}
-                className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900"
+                className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {inv.inviterName}님이 <span className="text-blue-600 dark:text-blue-400">{inv.teamName}</span> 팀에 초대했습니다
+                    <p className="font-medium text-slate-900 dark:text-white">
+                      {inv.inviterName}님이 <span className="text-indigo-600 dark:text-indigo-400">{inv.teamName}</span> 팀에 초대했습니다
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-slate-500">
                       만료: {new Date(inv.expiresAt).toLocaleString("ko-KR")}
                     </p>
                   </div>
@@ -227,7 +227,7 @@ export default function MessagesPage() {
                     </button>
                     <button
                       onClick={() => handleRejectInvite(inv)}
-                      className="rounded-lg bg-gray-200 px-4 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300"
+                      className="rounded-lg bg-slate-200 px-4 py-1.5 text-xs font-medium text-slate-700 hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-300"
                     >
                       거절
                     </button>
@@ -240,17 +240,17 @@ export default function MessagesPage() {
       )}
 
       {activeTab === "messages" && (
-        <div className="flex h-[calc(100vh-280px)] min-h-[500px] overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div className="flex h-[calc(100vh-280px)] min-h-[500px] overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
           {/* Sidebar - Conversation List */}
-          <div className="w-80 flex-shrink-0 border-r border-gray-200 dark:border-gray-700">
+          <div className="w-80 flex-shrink-0 border-r border-slate-200 dark:border-slate-700">
             {showNewChat && (
-              <div className="border-b border-gray-200 p-3 dark:border-gray-700">
+              <div className="border-b border-slate-200 p-3 dark:border-slate-700">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="사용자 검색..."
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
                   autoFocus
                 />
                 {filteredProfiles.length > 0 && (
@@ -259,14 +259,14 @@ export default function MessagesPage() {
                       <button
                         key={p.id}
                         onClick={() => handleStartChat(p.id)}
-                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800"
+                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800"
                       >
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900 dark:text-blue-400">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600 dark:bg-indigo-900 dark:text-indigo-400">
                           {p.name.charAt(0)}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">{p.name}</p>
-                          <p className="text-xs text-gray-500">{p.skills.slice(0, 2).join(", ")}</p>
+                          <p className="text-sm font-medium text-slate-900 dark:text-white">{p.name}</p>
+                          <p className="text-xs text-slate-500">{p.skills.slice(0, 2).join(", ")}</p>
                         </div>
                       </button>
                     ))}
@@ -277,35 +277,35 @@ export default function MessagesPage() {
             <div className="overflow-y-auto" style={{ height: showNewChat ? "calc(100% - 120px)" : "100%" }}>
               {conversations.length === 0 ? (
                 <div className="flex h-full items-center justify-center p-4">
-                  <p className="text-center text-sm text-gray-400">대화가 없습니다. &quot;새 대화&quot;를 시작해보세요.</p>
+                  <p className="text-center text-sm text-slate-400">대화가 없습니다. &quot;새 대화&quot;를 시작해보세요.</p>
                 </div>
               ) : (
                 conversations.map((conv) => (
                   <button
                     key={conv.partnerId}
                     onClick={() => setSelectedPartnerId(conv.partnerId)}
-                    className={`flex w-full items-center gap-3 border-b border-gray-100 px-4 py-3 text-left transition-colors dark:border-gray-800 ${
+                    className={`flex w-full items-center gap-3 border-b border-slate-100 px-4 py-3 text-left transition-colors dark:border-slate-800 ${
                       selectedPartnerId === conv.partnerId
-                        ? "bg-blue-50 dark:bg-blue-900/20"
-                        : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                        ? "bg-indigo-50 dark:bg-indigo-900/20"
+                        : "hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
                   >
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600 dark:bg-blue-900 dark:text-blue-400">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600 dark:bg-indigo-900 dark:text-indigo-400">
                       {conv.partnerName.charAt(0)}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">{conv.partnerName}</p>
-                        <span className="text-xs text-gray-400">
+                        <p className="text-sm font-medium text-slate-900 dark:text-white">{conv.partnerName}</p>
+                        <span className="text-xs text-slate-400">
                           {formatTime(conv.lastMessageAt)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                        <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                           {conv.lastMessage}
                         </p>
                         {conv.unreadCount > 0 && (
-                          <span className="ml-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-xs font-medium text-white">
+                          <span className="ml-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-600 px-1.5 text-xs font-medium text-white">
                             {conv.unreadCount}
                           </span>
                         )}
@@ -322,12 +322,12 @@ export default function MessagesPage() {
             {selectedPartnerId ? (
               <>
                 {/* Chat Header */}
-                <div className="flex items-center gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600 dark:bg-blue-900 dark:text-blue-400">
+                <div className="flex items-center gap-3 border-b border-slate-200 px-6 py-4 dark:border-slate-700">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600 dark:bg-indigo-900 dark:text-indigo-400">
                     {partnerName.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{partnerName}</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{partnerName}</p>
                   </div>
                 </div>
 
@@ -335,7 +335,7 @@ export default function MessagesPage() {
                 <div className="flex-1 space-y-3 overflow-y-auto p-4">
                   {messages.length === 0 ? (
                     <div className="flex h-full items-center justify-center">
-                      <p className="text-sm text-gray-400">첫 메시지를 보내보세요!</p>
+                      <p className="text-sm text-slate-400">첫 메시지를 보내보세요!</p>
                     </div>
                   ) : (
                     messages.map((msg) => {
@@ -345,14 +345,14 @@ export default function MessagesPage() {
                           <div
                             className={`max-w-[70%] rounded-2xl px-4 py-2.5 ${
                               isMine
-                                ? "bg-blue-600 text-white"
-                                : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
+                                ? "bg-indigo-600 text-white"
+                                : "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white"
                             }`}
                           >
                             <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                             <p
                               className={`mt-1 text-right text-xs ${
-                                isMine ? "text-blue-200" : "text-gray-400"
+                                isMine ? "text-indigo-200" : "text-slate-400"
                               }`}
                             >
                               {formatTime(msg.createdAt)}
@@ -366,7 +366,7 @@ export default function MessagesPage() {
                 </div>
 
                 {/* Input */}
-                <div className="border-t border-gray-200 p-4 dark:border-gray-700">
+                <div className="border-t border-slate-200 p-4 dark:border-slate-700">
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -379,12 +379,12 @@ export default function MessagesPage() {
                         }
                       }}
                       placeholder="메시지를 입력하세요..."
-                      className="flex-1 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
                     />
                     <button
                       onClick={handleSend}
                       disabled={!newMessage.trim()}
-                      className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                      className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
                     >
                       전송
                     </button>
@@ -395,7 +395,7 @@ export default function MessagesPage() {
               <div className="flex h-full items-center justify-center">
                 <div className="text-center">
                   <p className="text-5xl">💬</p>
-                  <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">대화를 선택하거나 새 대화를 시작하세요</p>
+                  <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">대화를 선택하거나 새 대화를 시작하세요</p>
                 </div>
               </div>
             )}

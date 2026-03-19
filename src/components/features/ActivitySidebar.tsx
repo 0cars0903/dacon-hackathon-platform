@@ -58,14 +58,14 @@ export function ActivitySidebar() {
   };
 
   return (
-    <aside className="hidden w-72 shrink-0 border-l border-gray-200 bg-white xl:block dark:border-gray-800 dark:bg-gray-950">
+    <aside className="hidden w-72 shrink-0 border-l border-slate-200 bg-white xl:block dark:border-slate-800 dark:bg-slate-950">
       <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto p-4">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
             최근 활동
           </h3>
           {user?.role === "admin" && (
-            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">전체 보기</span>
+            <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">전체 보기</span>
           )}
         </div>
 
@@ -81,32 +81,32 @@ export function ActivitySidebar() {
               key={a.id}
               className={`animate-slide-in-right rounded-lg border p-3 transition-all ${
                 hasMessagePreview(a)
-                  ? "cursor-pointer border-blue-100 hover:border-blue-300 dark:border-blue-900/40 dark:hover:border-blue-700"
-                  : "border-gray-100 hover:border-gray-200 dark:border-gray-800 dark:hover:border-gray-700"
+                  ? "cursor-pointer border-indigo-100 hover:border-indigo-300 dark:border-indigo-900/40 dark:hover:border-indigo-700"
+                  : "border-slate-100 hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700"
               }`}
               style={{ animationDelay: `${i * 80}ms` }}
               onClick={() => hasMessagePreview(a) && toggleExpand(a.id)}
             >
               <div className="mb-1 flex items-center gap-2">
                 <span className="text-xs">{typeEmoji(a.type)}</span>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-slate-400">
                   {timeAgo(a.timestamp)}
                 </span>
                 {hasMessagePreview(a) && (
-                  <span className="ml-auto text-[10px] text-blue-500 dark:text-blue-400">
+                  <span className="ml-auto text-[10px] text-indigo-500 dark:text-indigo-400">
                     {expandedId === a.id ? "접기 ▲" : "미리보기 ▼"}
                   </span>
                 )}
               </div>
-              <p className="text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+              <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">
                 {a.message}
               </p>
 
               {/* 메시지 미리보기 확장 영역 */}
               {hasMessagePreview(a) && expandedId === a.id && (
-                <div className="mt-2 rounded-lg bg-blue-50 p-2.5 dark:bg-blue-900/20">
-                  <p className="mb-1 text-[10px] font-medium text-blue-600 dark:text-blue-400">메시지 내용</p>
-                  <p className="whitespace-pre-wrap text-xs leading-relaxed text-gray-700 dark:text-gray-300">
+                <div className="mt-2 rounded-lg bg-indigo-50 p-2.5 dark:bg-indigo-900/20">
+                  <p className="mb-1 text-[10px] font-medium text-indigo-600 dark:text-indigo-400">메시지 내용</p>
+                  <p className="whitespace-pre-wrap text-xs leading-relaxed text-slate-700 dark:text-slate-300">
                     {String(a.metadata?.messageContent || "")}
                   </p>
                 </div>
@@ -114,27 +114,27 @@ export function ActivitySidebar() {
             </div>
           ))}
           {activities.length === 0 && (
-            <p className="text-xs text-gray-400">표시할 활동이 없습니다.</p>
+            <p className="text-xs text-slate-400">표시할 활동이 없습니다.</p>
           )}
         </div>
 
         {/* 플랫폼 현황 — 실제 데이터 기반 */}
-        <div className="mt-6 rounded-lg bg-gray-50 p-3 dark:bg-gray-900">
-          <h4 className="mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+        <div className="mt-6 rounded-lg bg-slate-50 p-3 dark:bg-slate-900">
+          <h4 className="mb-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
             플랫폼 현황
           </h4>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-500 dark:text-gray-400">진행중 해커톤</span>
-              <span className="font-medium text-gray-900 dark:text-white">{stats.ongoingHackathons}개</span>
+              <span className="text-slate-500 dark:text-slate-400">진행중 해커톤</span>
+              <span className="font-medium text-slate-900 dark:text-white">{stats.ongoingHackathons}개</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-500 dark:text-gray-400">등록된 팀</span>
-              <span className="font-medium text-gray-900 dark:text-white">{stats.totalTeams}팀</span>
+              <span className="text-slate-500 dark:text-slate-400">등록된 팀</span>
+              <span className="font-medium text-slate-900 dark:text-white">{stats.totalTeams}팀</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-500 dark:text-gray-400">총 사용자</span>
-              <span className="font-medium text-gray-900 dark:text-white">{stats.totalUsers}명</span>
+              <span className="text-slate-500 dark:text-slate-400">총 사용자</span>
+              <span className="font-medium text-slate-900 dark:text-white">{stats.totalUsers}명</span>
             </div>
           </div>
         </div>

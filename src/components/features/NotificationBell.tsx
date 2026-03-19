@@ -127,7 +127,7 @@ export function NotificationBell() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+        className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
         aria-label="알림"
       >
         <svg
@@ -151,15 +151,15 @@ export function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="animate-fade-in absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900">
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-              알림 {unreadCount > 0 && <span className="ml-1 text-xs text-blue-500">({unreadCount})</span>}
+        <div className="animate-fade-in absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+              알림 {unreadCount > 0 && <span className="ml-1 text-xs text-indigo-500">({unreadCount})</span>}
             </h3>
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="text-xs text-blue-600 hover:underline dark:text-blue-400"
+                className="text-xs text-indigo-600 hover:underline dark:text-indigo-400"
               >
                 모두 읽음
               </button>
@@ -167,7 +167,7 @@ export function NotificationBell() {
           </div>
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-gray-400">
+              <p className="px-4 py-8 text-center text-sm text-slate-400">
                 알림이 없습니다
               </p>
             ) : (
@@ -181,9 +181,9 @@ export function NotificationBell() {
                       setIsOpen(false);
                     }
                   }}
-                  className={`flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                  className={`flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
                     !n.read
-                      ? "bg-blue-50/50 dark:bg-blue-900/10"
+                      ? "bg-indigo-50/50 dark:bg-indigo-900/10"
                       : ""
                   }`}
                 >
@@ -192,18 +192,18 @@ export function NotificationBell() {
                     <p
                       className={`text-sm ${
                         !n.read
-                          ? "font-medium text-gray-900 dark:text-white"
-                          : "text-gray-600 dark:text-gray-400"
+                          ? "font-medium text-slate-900 dark:text-white"
+                          : "text-slate-600 dark:text-slate-400"
                       }`}
                     >
                       {n.message}
                     </p>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-slate-400">
                       {timeAgoShort(n.timestamp)} 전
                     </span>
                   </div>
                   {!n.read && (
-                    <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
+                    <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-indigo-500" />
                   )}
                 </button>
               ))

@@ -25,17 +25,17 @@ export function RecommendedHackathons() {
   return (
     <section className="mb-8">
       <div className="mb-4 flex items-center gap-2">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">
           추천 해커톤
         </h2>
         {interestTags.length > 0 && (
-          <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+          <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
             AI 추천
           </span>
         )}
       </div>
       {interestTags.length === 0 && (
-        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
           설정에서 관심 태그를 추가하면 맞춤 추천을 받을 수 있어요!
         </p>
       )}
@@ -44,7 +44,7 @@ export function RecommendedHackathons() {
           <Link
             key={h.slug}
             href={`/hackathons/${h.slug}`}
-            className="group rounded-xl border border-gray-200 p-4 transition-all hover:border-blue-300 hover:shadow-sm dark:border-gray-800 dark:hover:border-blue-700"
+            className="group rounded-xl border border-slate-200 p-4 transition-all hover:border-indigo-300 hover:shadow-sm dark:border-slate-800 dark:hover:border-indigo-700"
           >
             <div className="mb-2 flex items-center justify-between">
               <Badge
@@ -59,11 +59,11 @@ export function RecommendedHackathons() {
               >
                 {getStatusLabel(h.status)}
               </Badge>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-slate-400">
                 {getDday(h.period.submissionDeadlineAt)}
               </span>
             </div>
-            <h3 className="mb-1 text-sm font-semibold text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
+            <h3 className="mb-1 text-sm font-semibold text-slate-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
               {h.title}
             </h3>
             <div className="flex flex-wrap gap-1">
@@ -74,8 +74,8 @@ export function RecommendedHackathons() {
                     interestTags.some(
                       (t) => t.toLowerCase() === tag.toLowerCase()
                     )
-                      ? "bg-blue-100 font-medium text-blue-700 dark:bg-blue-900/50 dark:text-blue-300"
-                      : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                      ? "bg-indigo-100 font-medium text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300"
+                      : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                   }`}
                 >
                   {tag}

@@ -23,7 +23,7 @@ import type { Team, TeamJoinRequest, TeamMember, Hackathon } from "@/types";
 
 export default function CampPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-4xl px-4 py-8 text-center text-gray-400">로딩 중...</div>}>
+    <Suspense fallback={<div className="mx-auto max-w-4xl px-4 py-8 text-center text-slate-400">로딩 중...</div>}>
       <CampContent />
     </Suspense>
   );
@@ -195,7 +195,7 @@ function CampContent() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">팀 모집</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">팀 모집</h1>
         {user ? (
           <Button onClick={() => setShowCreateModal(true)}>팀 만들기</Button>
         ) : (
@@ -213,7 +213,7 @@ function CampContent() {
         <button
           onClick={() => setSelectedHackathon("all")}
           className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-            selectedHackathon === "all" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
+            selectedHackathon === "all" ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400"
           }`}
         >
           전체
@@ -223,7 +223,7 @@ function CampContent() {
             key={h.slug}
             onClick={() => setSelectedHackathon(h.slug)}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              selectedHackathon === h.slug ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
+              selectedHackathon === h.slug ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400"
             }`}
           >
             {h.title.length > 15 ? h.title.slice(0, 15) + "…" : h.title}
@@ -241,21 +241,21 @@ function CampContent() {
             const pendingCount = getPendingRequestCount(team);
             const hasPending = hasPendingRequest(team);
             return (
-              <div key={team.teamCode} className="animate-fade-in-up rounded-xl border border-gray-200 bg-white p-5 transition-all hover:shadow-sm dark:border-gray-800 dark:bg-gray-900" style={{ animationDelay: `${i * 60}ms` }}>
+              <div key={team.teamCode} className="animate-fade-in-up rounded-xl border border-slate-200 bg-white p-5 transition-all hover:shadow-sm dark:border-slate-800 dark:bg-slate-900" style={{ animationDelay: `${i * 60}ms` }}>
                 <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{team.name}</h3>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">{team.name}</h3>
                     <Badge variant={team.isOpen ? "success" : "muted"} size="sm">{team.isOpen ? "모집중" : "모집마감"}</Badge>
                     {isMember && <Badge variant="info" size="sm">내 팀</Badge>}
                     {isCreator && <Badge variant="warning" size="sm">팀장</Badge>}
                   </div>
-                  <span className="text-xs text-gray-400">{timeAgo(team.createdAt)}</span>
+                  <span className="text-xs text-slate-400">{timeAgo(team.createdAt)}</span>
                 </div>
-                <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">{team.intro}</p>
+                <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">{team.intro}</p>
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-gray-400">👤 {team.memberCount}명</span>
+                      <span className="text-xs text-slate-400">👤 {team.memberCount}명</span>
                       {team.lookingFor.length > 0 && (
                         <div className="flex flex-wrap gap-1">{team.lookingFor.map((role) => <Tag key={role} label={role} size="sm" />)}</div>
                       )}
@@ -269,7 +269,7 @@ function CampContent() {
                           참가 요청 {pendingCount > 0 && <span className="absolute -right-2 -top-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full">{pendingCount}</span>}
                         </button>
                         <button onClick={() => setShowMembersModal(team)} className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700">팀원 보기</button>
-                        <button onClick={() => setEditingTeam(team)} className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700">수정</button>
+                        <button onClick={() => setEditingTeam(team)} className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700">수정</button>
                         <button onClick={() => handleDeleteTeam(team)} className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700">삭제</button>
                       </>
                     )}
@@ -299,7 +299,7 @@ function CampContent() {
                             creatorName: leader?.name || "팀장",
                             teamCode: team.teamCode,
                           });
-                        }} className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700">연락하기</button>
+                        }} className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700">연락하기</button>
                       </>
                     )}
                   </div>

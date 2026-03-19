@@ -40,7 +40,7 @@ export function MembersModal({
     <div className="space-y-3 max-h-96 overflow-y-auto">
       {members.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             팀원이 없습니다.
           </p>
         </div>
@@ -48,10 +48,10 @@ export function MembersModal({
         members.map((member) => (
           <div
             key={member.userId}
-            className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800"
+            className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800"
           >
             <div className="flex-1">
-              <p className="font-medium text-gray-900 dark:text-white">
+              <p className="font-medium text-slate-900 dark:text-white">
                 {member.name}
               </p>
               <div className="flex items-center gap-2 mt-1">
@@ -61,7 +61,7 @@ export function MembersModal({
                 >
                   {member.role}
                 </Badge>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-slate-400">
                   {timeAgo(member.joinedAt)}
                 </p>
               </div>

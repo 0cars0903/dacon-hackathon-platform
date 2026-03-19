@@ -109,13 +109,13 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div
-        className="w-full max-w-lg rounded-2xl bg-white shadow-2xl dark:bg-gray-900"
+        className="w-full max-w-lg rounded-2xl bg-white shadow-2xl dark:bg-slate-900"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">팀 초대 관리</h2>
-          <button onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
+        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-700">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">팀 초대 관리</h2>
+          <button onClick={onClose} className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -123,7 +123,7 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 px-6 dark:border-gray-700">
+        <div className="flex border-b border-slate-200 px-6 dark:border-slate-700">
           {[
             { key: "create" as const, label: "초대 생성" },
             { key: "list" as const, label: "초대 현황" },
@@ -134,8 +134,8 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
               onClick={() => setTab(t.key)}
               className={`border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                 tab === t.key
-                  ? "border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
-                  : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                  ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+                  : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400"
               }`}
             >
               {t.label}
@@ -149,8 +149,8 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
             <div className="space-y-4">
               {/* 공개 초대 코드 생성 */}
               <div>
-                <h3 className="mb-2 text-sm font-semibold text-gray-900 dark:text-white">공개 초대 코드</h3>
-                <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+                <h3 className="mb-2 text-sm font-semibold text-slate-900 dark:text-white">공개 초대 코드</h3>
+                <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
                   코드를 공유하면 누구나 참가할 수 있습니다. (48시간 유효)
                 </p>
                 {generatedInvite ? (
@@ -173,7 +173,7 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
                 ) : (
                   <button
                     onClick={handleCreateOpenInvite}
-                    className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+                    className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-medium text-white hover:bg-indigo-700"
                   >
                     초대 코드 생성
                   </button>
@@ -181,34 +181,34 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
               </div>
 
               {/* 사용자 검색 및 직접 초대 */}
-              <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
-                <h3 className="mb-2 text-sm font-semibold text-gray-900 dark:text-white">사용자 직접 초대</h3>
+              <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
+                <h3 className="mb-2 text-sm font-semibold text-slate-900 dark:text-white">사용자 직접 초대</h3>
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="이름, 닉네임 또는 스킬로 검색..."
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
                 />
                 {filteredProfiles.length > 0 && (
                   <div className="mt-2 max-h-40 space-y-1 overflow-y-auto">
                     {filteredProfiles.slice(0, 10).map((p) => (
                       <div
                         key={p.id}
-                        className="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+                        className="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800"
                       >
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900 dark:text-blue-400">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600 dark:bg-indigo-900 dark:text-indigo-400">
                             {p.name.charAt(0)}
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">{p.name}</p>
-                            <p className="text-xs text-gray-500">{p.skills.slice(0, 3).join(", ")}</p>
+                            <p className="text-sm font-medium text-slate-900 dark:text-white">{p.name}</p>
+                            <p className="text-xs text-slate-500">{p.skills.slice(0, 3).join(", ")}</p>
                           </div>
                         </div>
                         <button
                           onClick={() => handleInviteUser(p.id, p.name)}
-                          className="rounded-lg bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400"
+                          className="rounded-lg bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400"
                         >
                           초대
                         </button>
@@ -223,19 +223,19 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
           {tab === "list" && (
             <div className="space-y-2">
               {teamInvites.length === 0 ? (
-                <p className="py-8 text-center text-sm text-gray-500">보낸 초대가 없습니다.</p>
+                <p className="py-8 text-center text-sm text-slate-500">보낸 초대가 없습니다.</p>
               ) : (
                 teamInvites.map((inv) => (
                   <div
                     key={inv.id}
-                    className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 dark:border-gray-700"
+                    className="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3 dark:border-slate-700"
                   >
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">
                         {inv.inviteeName || "공개 초대"}{" "}
-                        <span className="font-mono text-xs text-gray-400">({inv.inviteCode})</span>
+                        <span className="font-mono text-xs text-slate-400">({inv.inviteCode})</span>
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-slate-500">
                         {new Date(inv.createdAt).toLocaleString("ko-KR")}
                       </p>
                     </div>
@@ -247,7 +247,7 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
                             ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                             : inv.status === "rejected"
                               ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                              : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                              : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400"
                       }`}
                     >
                       {inv.status === "pending"
@@ -266,7 +266,7 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
 
           {tab === "join" && (
             <div className="space-y-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
                 팀 리더에게 받은 초대 코드를 입력하여 팀에 참가하세요.
               </p>
               <div className="flex gap-2">
@@ -279,12 +279,12 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
                   }}
                   placeholder="초대 코드 입력 (예: ABC123)"
                   maxLength={6}
-                  className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-mono text-lg tracking-widest outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-mono text-lg tracking-widest outline-none focus:border-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
                 />
                 <button
                   onClick={handleJoinByCode}
                   disabled={inviteCode.length < 6}
-                  className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
                 >
                   참가
                 </button>

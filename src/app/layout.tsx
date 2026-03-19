@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ActivitySidebar } from "@/components/features/ActivitySidebar";
 import { NavigationSidebar } from "@/components/features/NavigationSidebar";
 import { ServiceWorkerRegistrar } from "@/components/features/ServiceWorkerRegistrar";
+import { BottomNav } from "@/components/layout/BottomNav";
 
 export const metadata: Metadata = {
   title: "DACON Platform - 해커톤 & 데이터 경진대회",
@@ -30,7 +31,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F172A" },
   ],
 };
 
@@ -60,7 +61,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
       </head>
       <body
-        className="min-h-screen bg-gray-50 font-body antialiased dark:bg-gray-950"
+        className="min-h-screen bg-slate-50 font-body antialiased dark:bg-slate-950"
       >
         <ServiceWorkerRegistrar />
         <AuthProvider>
@@ -69,10 +70,11 @@ export default function RootLayout({
               <Header />
               <div className="flex flex-1">
                 <NavigationSidebar />
-                <main className="flex-1 min-w-0">{children}</main>
+                <main className="flex-1 min-w-0 pb-16 md:pb-0">{children}</main>
                 <ActivitySidebar />
               </div>
               <Footer />
+              <BottomNav />
             </div>
           </ThemeProvider>
         </AuthProvider>

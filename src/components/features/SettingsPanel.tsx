@@ -9,7 +9,7 @@ import { getNotificationPrefs, saveNotificationPrefs, type NotificationPrefs } f
 import type { ColorTheme } from "@/types";
 
 const COLOR_THEMES: { key: ColorTheme; label: string; color: string }[] = [
-  { key: "blue", label: "블루", color: "bg-blue-500" },
+  { key: "blue", label: "블루", color: "bg-indigo-500" },
   { key: "purple", label: "퍼플", color: "bg-purple-500" },
   { key: "green", label: "그린", color: "bg-green-500" },
 ];
@@ -80,14 +80,14 @@ export function SettingsPanel() {
     <div className="space-y-8">
       {/* 테마 */}
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">테마</h3>
+        <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">테마</h3>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-sm text-slate-600 dark:text-slate-400">
             {theme === "dark" ? "다크 모드" : "라이트 모드"}
           </span>
           <button
             onClick={toggleTheme}
-            className="relative h-7 w-12 rounded-full bg-gray-200 transition-colors dark:bg-blue-600"
+            className="relative h-7 w-12 rounded-full bg-slate-200 transition-colors dark:bg-indigo-600"
           >
             <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${
               theme === "dark" ? "translate-x-5" : "translate-x-0.5"
@@ -98,7 +98,7 @@ export function SettingsPanel() {
 
       {/* 컬러 테마 */}
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">컬러 테마</h3>
+        <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">컬러 테마</h3>
         <div className="flex gap-3">
           {COLOR_THEMES.map((ct) => (
             <button
@@ -106,8 +106,8 @@ export function SettingsPanel() {
               onClick={() => setColorTheme(ct.key)}
               className={`flex items-center gap-2 rounded-lg border-2 px-4 py-2 text-sm font-medium transition-colors ${
                 colorTheme === ct.key
-                  ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                  : "border-gray-200 text-gray-600 hover:border-gray-300 dark:border-gray-700 dark:text-gray-400"
+                  ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                  : "border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:text-slate-400"
               }`}
             >
               <span className={`h-4 w-4 rounded-full ${ct.color}`} />
@@ -121,28 +121,28 @@ export function SettingsPanel() {
       {user && (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">알림 설정</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">알림 설정</h3>
             {saved && (
               <span className="animate-fade-in text-xs text-green-600 dark:text-green-400">저장됨</span>
             )}
           </div>
-          <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
             수신할 알림 유형을 선택하세요.
           </p>
           <div className="space-y-3">
             {notifItems.map((item) => (
               <div
                 key={item.key}
-                className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                className="flex items-center justify-between rounded-lg border border-slate-200 p-4 dark:border-slate-700"
               >
                 <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{item.label}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">{item.label}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{item.description}</p>
                 </div>
                 <button
                   onClick={() => toggleNotifPref(item.key)}
                   className={`relative h-6 w-10 rounded-full transition-colors ${
-                    notifPrefs[item.key] ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
+                    notifPrefs[item.key] ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"
                   }`}
                 >
                   <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
@@ -157,8 +157,8 @@ export function SettingsPanel() {
 
       {/* 관심 태그 */}
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">관심 태그</h3>
-        <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">
+        <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">관심 태그</h3>
+        <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">
           관심 태그를 설정하면 맞춤 해커톤과 팀을 추천받을 수 있습니다.
         </p>
 
@@ -183,7 +183,7 @@ export function SettingsPanel() {
             onChange={(e) => setCustomTag(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addCustomTag()}
             placeholder="직접 입력..."
-            className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+            className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"
           />
           <Button size="sm" variant="secondary" onClick={addCustomTag}>추가</Button>
         </div>
@@ -191,8 +191,8 @@ export function SettingsPanel() {
 
       {/* 데이터 관리 */}
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">데이터 관리</h3>
-        <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">
+        <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">데이터 관리</h3>
+        <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">
           모든 데이터는 서버에 저장됩니다.
         </p>
         <Button

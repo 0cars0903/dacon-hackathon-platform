@@ -54,8 +54,8 @@ export function FollowButton({ targetUserId, targetUserName, size = "md", onFoll
       disabled={loading}
       className={`rounded-lg font-medium transition-colors ${sizeClasses} ${
         following
-          ? "border border-gray-300 bg-white text-gray-700 hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-red-500 dark:hover:text-red-400"
-          : "bg-blue-600 text-white hover:bg-blue-700"
+          ? "border border-slate-300 bg-white text-slate-700 hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-red-500 dark:hover:text-red-400"
+          : "bg-indigo-600 text-white hover:bg-indigo-700"
       } disabled:opacity-50`}
     >
       {following ? "팔로잉" : "팔로우"}
@@ -82,12 +82,12 @@ export function FollowStats({ userId, className = "" }: FollowStatsProps) {
   return (
     <div className={`flex items-center gap-4 ${className}`}>
       <div className="text-center">
-        <p className="text-lg font-bold text-gray-900 dark:text-white">{counts.followers}</p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">팔로워</p>
+        <p className="text-lg font-bold text-slate-900 dark:text-white">{counts.followers}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">팔로워</p>
       </div>
       <div className="text-center">
-        <p className="text-lg font-bold text-gray-900 dark:text-white">{counts.following}</p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">팔로잉</p>
+        <p className="text-lg font-bold text-slate-900 dark:text-white">{counts.following}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">팔로잉</p>
       </div>
     </div>
   );
