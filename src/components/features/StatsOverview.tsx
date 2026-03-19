@@ -63,17 +63,19 @@ export function StatsOverview() {
   ];
 
   return (
-    <section className="mb-8 min-h-[104px]">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+    <section className="min-h-[104px]">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {STATS.map((stat, i) => (
           <div
             key={stat.label}
-            className="animate-fade-in-up rounded-xl border border-slate-200 bg-white p-4 text-center dark:border-slate-800 dark:bg-slate-900"
+            className="card-interactive animate-fade-in-up rounded-lg border border-slate-200 bg-white p-3 text-center shadow-sm transition-all duration-200 dark:border-slate-800 dark:bg-slate-900 sm:p-4"
             style={{ animationDelay: `${i * 100}ms` }}
           >
-            <div className={`mb-1 text-2xl font-bold ${stat.color}`}>
-              <AnimatedNumber target={stat.value} />
-              <span className="ml-0.5 text-sm font-medium">{stat.suffix}</span>
+            <div className={`mb-1 flex items-baseline justify-center gap-1 text-2xl font-bold ${stat.color}`}>
+              <span className="xp-pulse">
+                <AnimatedNumber target={stat.value} />
+              </span>
+              <span className="text-xs font-medium">{stat.suffix}</span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               {stat.label}

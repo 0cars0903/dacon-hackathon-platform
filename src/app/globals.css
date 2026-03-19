@@ -292,6 +292,238 @@ html {
   font-size: clamp(0.875rem, 2vw, 1.125rem);
 }
 
+/* === Kinetic Typography Hero Animation === */
+@keyframes kinetic-weight {
+  0%, 100% { font-weight: 800; letter-spacing: -1px; }
+  50% { font-weight: 700; letter-spacing: -0.5px; }
+}
+
+.kinetic-hero {
+  animation: kinetic-weight 3s ease-in-out infinite;
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* === Bento Grid Layout === */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  grid-auto-rows: auto;
+}
+
+.bento-hero {
+  grid-column: 1 / -1;
+  @media (min-width: 1024px) {
+    grid-column: span 2;
+  }
+}
+
+.bento-stats {
+  grid-column: 1 / -1;
+  @media (min-width: 1024px) {
+    grid-column: span 1;
+  }
+}
+
+.bento-activity {
+  grid-column: 1 / -1;
+  @media (min-width: 1024px) {
+    grid-column: span 1;
+  }
+}
+
+.bento-competitions {
+  grid-column: 1 / -1;
+  @media (min-width: 1024px) {
+    grid-column: span 1;
+  }
+}
+
+.bento-teams {
+  grid-column: 1 / -1;
+  @media (min-width: 1024px) {
+    grid-column: span 1;
+  }
+}
+
+/* === Micro-interactions: Hover Scale & Glow === */
+.card-interactive {
+  transition: all 0.2s ease-out;
+}
+
+.card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.1);
+}
+
+.card-interactive:active {
+  transform: translateY(-2px);
+}
+
+/* === Micro-interactions: Button Press === */
+.btn-press {
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-press:active {
+  transform: scale(0.95);
+}
+
+.btn-press:hover {
+  transform: translateY(-2px);
+}
+
+/* === XP/Score Pulse Animation === */
+@keyframes xp-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.xp-pulse {
+  animation: xp-pulse 0.6s ease-out;
+}
+
+/* === Countdown Timer Animation === */
+@keyframes countdown-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.countdown-active {
+  animation: countdown-blink 1s ease-in-out infinite;
+}
+
+/* === Swipe Cards Scroll Snap === */
+.swipe-cards-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  gap: 1rem;
+  scrollbar-width: none;
+}
+
+.swipe-cards-container::-webkit-scrollbar {
+  display: none;
+}
+
+.swipe-card {
+  flex: 0 0 calc(100% - 2rem);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+@media (min-width: 640px) {
+  .swipe-card {
+    flex: 0 0 calc(50% - 0.5rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .swipe-card {
+    flex: 0 0 calc(33.333% - 0.33rem);
+  }
+}
+
+/* === Responsive Leaderboard === */
+.leaderboard-card-view {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .leaderboard-card-view {
+    display: table;
+    width: 100%;
+  }
+}
+
+.leaderboard-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid #E2E8F0;
+  background: white;
+  align-items: center;
+}
+
+.dark .leaderboard-card {
+  border-color: #334155;
+  background: #1E293B;
+}
+
+.leaderboard-card.top-3 {
+  border: 2px solid #FFD700;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%);
+}
+
+@media (min-width: 768px) {
+  .leaderboard-card {
+    display: table-row;
+    padding: 0;
+    border: none;
+    border-bottom: 1px solid #E2E8F0;
+  }
+
+  .dark .leaderboard-card {
+    border-color: #334155;
+  }
+
+  .leaderboard-card > * {
+    padding: 1rem;
+    display: table-cell;
+    vertical-align: middle;
+  }
+}
+
+/* === Skeleton Loading Bento Blocks === */
+.skeleton-bento {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.skeleton-block {
+  background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.75rem;
+  min-height: 200px;
+}
+
+.dark .skeleton-block {
+  background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
+  background-size: 200% 100%;
+}
+
+/* === Safe Area Padding (Mobile) === */
+.has-safe-area {
+  padding-bottom: calc(64px + env(safe-area-inset-bottom));
+}
+
+/* === Touch Target Enlargement === */
+button, a, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* === Hero Container for Mobile-First Stacking === */
+.hero-section {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 1024px) {
+  .hero-section {
+    grid-column: span 2;
+  }
+}
+
 /* === 반응형 R2: 사이드바 collapsed (태블릿) === */
 @media (min-width: 1024px) and (max-width: 1279px) {
   .sidebar-collapsible {

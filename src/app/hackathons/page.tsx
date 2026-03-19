@@ -167,7 +167,7 @@ export default function HackathonsPage() {
         </div>
       </div>
 
-      {/* 해커톤 카드 그리드 */}
+      {/* 해커톤 카드 그리드 — Swipeable on mobile, Grid on desktop */}
       {filtered.length === 0 ? (
         <EmptyState
           emoji="🔍"
@@ -177,7 +177,7 @@ export default function HackathonsPage() {
           onAction={resetFilters}
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="swipe-cards-container lg:grid lg:grid-cols-2 lg:gap-4 xl:grid-cols-3">
           {filtered.map((h, i) => (
             <HackathonCard key={h.slug} hackathon={h} index={i} />
           ))}
@@ -191,7 +191,7 @@ function HackathonCard({ hackathon: h, index }: { hackathon: Hackathon; index: n
   return (
     <Link
       href={`/hackathons/${h.slug}`}
-      className="animate-fade-in-up group relative rounded-xl border border-slate-200 bg-white p-5 transition-all hover:border-indigo-300 hover:shadow-md hover:-translate-y-1 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-700"
+      className="swipe-card card-interactive animate-fade-in-up group relative rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
       style={{ animationDelay: `${index * 80}ms` }}
     >
       {/* 북마크 */}

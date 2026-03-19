@@ -267,7 +267,7 @@ function MultiRoundLeaderboard({
   );
 }
 
-/* ===== 공통 리더보드 테이블 ===== */
+/* ===== 공통 리더보드 테이블 — Responsive: Cards on Mobile, Table on Desktop ===== */
 function LeaderboardTable({
   entries,
   metricColumns,
@@ -288,53 +288,29 @@ function LeaderboardTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
-            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
-              순위
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
-              팀
-            </th>
-            {/* 세부 지표 컬럼들 */}
-            {metricColumns && metricColumns.map((col) => (
-              <th
-                key={col.key}
-                className="hidden px-4 py-3 text-right text-xs font-medium text-slate-500 md:table-cell dark:text-slate-400"
-              >
-                {col.label}
-              </th>
-            ))}
-            <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400">
-              종합 점수
-            </th>
-            <th className="hidden px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 sm:table-cell">
-              제출 시간
-            </th>
-          </tr>
-        </thead>
-        <tbody>
+    <>
+      {/* Mobile Card View */}
+      <div className="leaderboard-card-view md:hidden">
+        <div className="space-y-3">
           {entries.map((entry, i) => (
-            <tr
+            <div
               key={entry.rank}
-              className="animate-fade-in border-b border-slate-100 transition-colors hover:bg-slate-50 last:border-0 dark:border-slate-800 dark:hover:bg-slate-800/50"
+              className={`leaderboard-card animate-fade-in ${entry.rank <= 3 ? "top-3" : ""}`}
               style={{ animationDelay: `${i * 50}ms` }}
             >
-              <td className="px-4 py-4">
-                <span className={`text-sm font-medium ${entry.rank <= 3 ? "text-lg" : "text-slate-900 dark:text-white"}`}>
+              <div className="flex items-center justify-center">
+                <span className="text-lg font-bold">
                   {entry.rank <= 3
                     ? ["🥇", "🥈", "🥉"][entry.rank - 1]
                     : `#${entry.rank}`}
                 </span>
-              </td>
-              <td className="px-4 py-4">
-                <span className="text-sm font-medium text-slate-900 dark:text-white">
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="font-semibold text-slate-900 dark:text-white">
                   {entry.teamName}
                 </span>
                 {entry.scoreBreakdown && (
-                  <div className="mt-1 flex gap-2">
+                  <div className="flex gap-2">
                     <Badge variant="info" size="sm">
                       참가자 {entry.scoreBreakdown.participant}
                     </Badge>
@@ -343,19 +319,8 @@ function LeaderboardTable({
                     </Badge>
                   </div>
                 )}
-                {entry.artifacts && (
-                  <div className="mt-1 flex gap-2">
-                    <a href={entry.artifacts.webUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:underline">
-                      🌐 웹
-                    </a>
-                    <a href={entry.artifacts.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:underline">
-                      📄 PDF
-                    </a>
-                  </div>
-                )}
-                {/* 모바일 세부 지표 */}
                 {metricColumns && entry.metrics && (
-                  <div className="mt-2 flex flex-wrap gap-1.5 md:hidden">
+                  <div className="flex flex-wrap gap-1">
                     {metricColumns.map((col) => (
                       <span
                         key={col.key}
@@ -366,39 +331,133 @@ function LeaderboardTable({
                     ))}
                   </div>
                 )}
-              </td>
-              {/* 데스크톱 세부 지표 */}
+                {entry.artifacts && (
+                  <div className="flex gap-2">
+                    <a href={entry.artifacts.webUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:underline">
+                      🌐 웹
+                    </a>
+                    <a href={entry.artifacts.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:underline">
+                      📄 PDF
+                    </a>
+                  </div>
+                )}
+              </div>
+              <div className="text-right">
+                <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                  {entry.score}
+                </span>
+                <div className="mt-1 h-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                  <div
+                    className="h-full bg-indigo-500 transition-all duration-500"
+                    style={{ width: `${Math.min(entry.score, 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 md:block">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
+              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
+                순위
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
+                팀
+              </th>
+              {/* 세부 지표 컬럼들 */}
               {metricColumns && metricColumns.map((col) => (
-                <td
+                <th
                   key={col.key}
-                  className="hidden px-4 py-4 text-right md:table-cell"
+                  className="hidden px-4 py-3 text-right text-xs font-medium text-slate-500 lg:table-cell dark:text-slate-400"
                 >
-                  <span className="font-code text-sm text-slate-700 dark:text-slate-300">
-                    {entry.metrics?.[col.key] ?? "-"}
-                    <span className="ml-0.5 text-[10px] text-slate-400">{col.unit}</span>
+                  {col.label}
+                </th>
+              ))}
+              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400">
+                종합 점수
+              </th>
+              <th className="hidden px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 sm:table-cell">
+                제출 시간
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {entries.map((entry, i) => (
+              <tr
+                key={entry.rank}
+                className={`animate-fade-in border-b border-slate-100 transition-colors hover:bg-slate-50 last:border-0 dark:border-slate-800 dark:hover:bg-slate-800/50 ${entry.rank <= 3 ? "bg-yellow-50/30 dark:bg-yellow-900/10" : ""}`}
+                style={{ animationDelay: `${i * 50}ms` }}
+              >
+                <td className="px-4 py-4">
+                  <span className={`text-sm font-medium ${entry.rank <= 3 ? "text-lg" : "text-slate-900 dark:text-white"}`}>
+                    {entry.rank <= 3
+                      ? ["🥇", "🥈", "🥉"][entry.rank - 1]
+                      : `#${entry.rank}`}
                   </span>
                 </td>
-              ))}
-              <td className="px-4 py-4 text-right">
-                <div className="flex flex-col items-end gap-1">
-                  <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
-                    {entry.score}
+                <td className="px-4 py-4">
+                  <span className="text-sm font-medium text-slate-900 dark:text-white">
+                    {entry.teamName}
                   </span>
-                  <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                    <div
-                      className="h-full rounded-full bg-indigo-500 transition-all duration-500"
-                      style={{ width: `${Math.min(entry.score, 100)}%` }}
-                    />
+                  {entry.scoreBreakdown && (
+                    <div className="mt-1 flex gap-2">
+                      <Badge variant="info" size="sm">
+                        참가자 {entry.scoreBreakdown.participant}
+                      </Badge>
+                      <Badge variant="warning" size="sm">
+                        심사위원 {entry.scoreBreakdown.judge}
+                      </Badge>
+                    </div>
+                  )}
+                  {entry.artifacts && (
+                    <div className="mt-1 flex gap-2">
+                      <a href={entry.artifacts.webUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:underline">
+                        🌐 웹
+                      </a>
+                      <a href={entry.artifacts.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:underline">
+                        📄 PDF
+                      </a>
+                    </div>
+                  )}
+                </td>
+                {/* 데스크톱 세부 지표 */}
+                {metricColumns && metricColumns.map((col) => (
+                  <td
+                    key={col.key}
+                    className="hidden px-4 py-4 text-right lg:table-cell"
+                  >
+                    <span className="font-code text-sm text-slate-700 dark:text-slate-300">
+                      {entry.metrics?.[col.key] ?? "-"}
+                      <span className="ml-0.5 text-[10px] text-slate-400">{col.unit}</span>
+                    </span>
+                  </td>
+                ))}
+                <td className="px-4 py-4 text-right">
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                      {entry.score}
+                    </span>
+                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                      <div
+                        className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+                        style={{ width: `${Math.min(entry.score, 100)}%` }}
+                      />
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td className="hidden px-4 py-4 text-right text-xs text-slate-500 dark:text-slate-400 sm:table-cell">
-                {timeAgo(entry.submittedAt)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                </td>
+                <td className="hidden px-4 py-4 text-right text-xs text-slate-500 dark:text-slate-400 sm:table-cell">
+                  {timeAgo(entry.submittedAt)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }

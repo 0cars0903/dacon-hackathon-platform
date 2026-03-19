@@ -58,7 +58,7 @@ export function ActivitySidebar() {
   };
 
   return (
-    <aside className="hidden w-72 shrink-0 border-l border-slate-200 bg-white xl:block dark:border-slate-800 dark:bg-slate-950">
+    <aside className="hidden shrink-0 border-l border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 xl:block xl:w-72">
       <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto p-4">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white">

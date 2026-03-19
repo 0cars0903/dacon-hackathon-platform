@@ -68,12 +68,18 @@ export default function RootLayout({
           <ThemeProvider>
             <div className="flex min-h-screen flex-col">
               <Header />
-              <div className="flex flex-1">
+              <div className="flex flex-1 overflow-hidden">
+                {/* Navigation Sidebar - Hidden on mobile, icon-only on tablet, full on desktop */}
                 <NavigationSidebar />
-                <main className="flex-1 min-w-0 pb-16 md:pb-0">{children}</main>
+                {/* Main Content - Responsive padding for bottom nav */}
+                <main className="flex-1 min-w-0 overflow-y-auto md:pb-0">
+                  {children}
+                </main>
+                {/* Activity Sidebar - Hidden on mobile and tablet, visible on desktop */}
                 <ActivitySidebar />
               </div>
               <Footer />
+              {/* Bottom Navigation - Visible only on mobile */}
               <BottomNav />
             </div>
           </ThemeProvider>

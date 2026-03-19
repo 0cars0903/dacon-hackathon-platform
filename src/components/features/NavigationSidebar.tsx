@@ -30,7 +30,7 @@ export function NavigationSidebar() {
   }, []);
 
   return (
-    <aside className="hidden shrink-0 border-r border-slate-200 bg-white lg:block lg:w-16 xl:w-60 dark:border-slate-800 dark:bg-slate-950">
+    <aside className="hidden shrink-0 border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:block lg:w-16 xl:w-64">
       <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto p-2 xl:p-4">
         {/* 바로가기 */}
         <h3 className="mb-3 hidden text-sm font-semibold text-slate-900 xl:block dark:text-white">

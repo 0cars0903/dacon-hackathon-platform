@@ -38,8 +38,8 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/80" style={{ contain: "layout style" }}>
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/95" style={{ contain: "layout style" }}>
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 lg:px-6">
         <Link
           href="/"
           className="flex items-center gap-1 text-xl font-bold text-slate-900 transition-transform hover:scale-105 dark:text-white"
