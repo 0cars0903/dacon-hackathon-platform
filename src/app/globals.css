@@ -247,7 +247,7 @@ html {
   left: 0;
   right: 0;
   z-index: 50;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: space-around;
   height: 64px;
@@ -255,6 +255,9 @@ html {
   backdrop-filter: blur(12px);
   border-top: 1px solid #E2E8F0;
   padding-bottom: env(safe-area-inset-bottom);
+}
+@media (max-width: 767px) {
+  .bottom-nav { display: flex; }
 }
 .dark .bottom-nav {
   background: rgba(15, 23, 42, 0.95);
