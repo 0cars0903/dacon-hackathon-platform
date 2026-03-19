@@ -328,13 +328,11 @@ describe("User Preferences", () => {
   it("getUserPreferences — 저장된 값 반환", async () => {
     setTable("user_preferences", {
       theme: "dark",
-      color_theme: "purple",
       interest_tags: ["AI", "ML"],
     });
     const result = await getUserPreferences("user-001");
     expect(result).toEqual({
       theme: "dark",
-      colorTheme: "purple",
       interestTags: ["AI", "ML"],
     });
   });
@@ -343,7 +341,6 @@ describe("User Preferences", () => {
     setTable("user_preferences", null);
     const result = await getUserPreferences("user-001");
     expect(result.theme).toBe("light");
-    expect(result.colorTheme).toBe("blue");
     expect(result.interestTags).toEqual([]);
   });
 
@@ -351,7 +348,6 @@ describe("User Preferences", () => {
     setTable("user_preferences", null, null);
     const result = await saveUserPreferences("user-001", {
       theme: "dark",
-      colorTheme: "green",
       interestTags: ["Web"],
     });
     expect(result).toBe(true);

@@ -121,7 +121,7 @@ export default function HackathonInfoPage() {
                 <div
                   className={`absolute left-[-22px] top-1.5 h-3 w-3 rounded-full border-2 ${
                     isPast
-                      ? "border-green-500 bg-green-500"
+                      ? "border-emerald-500 bg-emerald-500"
                       : "border-indigo-500 bg-white dark:bg-slate-950"
                   }`}
                 />

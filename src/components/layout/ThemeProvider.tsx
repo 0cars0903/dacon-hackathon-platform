@@ -2,14 +2,11 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 import { useTheme } from "@/hooks/useTheme";
-import type { ColorTheme } from "@/types";
 
 interface ThemeContextType {
   theme: "light" | "dark";
-  colorTheme: ColorTheme;
   interestTags: string[];
   toggleTheme: () => void;
-  setColorTheme: (theme: ColorTheme) => void;
   setInterestTags: (tags: string[]) => void;
 }
 

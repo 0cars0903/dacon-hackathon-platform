@@ -57,7 +57,7 @@ export function StatsOverview() {
 
   const STATS = [
     { label: "진행중 해커톤", value: stats.ongoingHackathons, suffix: "개", color: "text-indigo-600 dark:text-indigo-400" },
-    { label: "참가 팀", value: stats.totalTeams, suffix: "팀", color: "text-green-600 dark:text-green-400" },
+    { label: "참가 팀", value: stats.totalTeams, suffix: "팀", color: "text-emerald-600 dark:text-emerald-400" },
     { label: "총 참가자", value: stats.totalUsers, suffix: "명", color: "text-purple-600 dark:text-purple-400" },
     { label: "제출물", value: 0, suffix: "건", color: "text-orange-600 dark:text-orange-400" },
   ];

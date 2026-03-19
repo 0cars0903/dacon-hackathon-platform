@@ -191,7 +191,7 @@ export function UserTab({
                     <td className="px-4 py-3">
                       {u.id !== user?.id ? (
                         <div className="flex items-center gap-2">
-                          <button onClick={() => openEditProfile(u.id)} className="text-xs text-green-600 hover:underline dark:text-green-400">수정</button>
+                          <button onClick={() => openEditProfile(u.id)} className="text-xs text-emerald-600 hover:underline dark:text-emerald-400">수정</button>
                           <button onClick={() => setEditingUser(u.id)} className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">권한</button>
                           {confirmDelete === u.id ? (
                             <div className="flex items-center gap-1">

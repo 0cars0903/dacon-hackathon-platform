@@ -830,7 +830,6 @@ export async function getUserPreferences(userId: string): Promise<UserPreference
     .single();
   return {
     theme: (data?.theme ?? "light") as UserPreferences["theme"],
-    colorTheme: (data?.color_theme ?? "blue") as UserPreferences["colorTheme"],
     interestTags: data?.interest_tags ?? [],
   };
 }
@@ -841,7 +840,6 @@ export async function saveUserPreferences(userId: string, prefs: Partial<UserPre
     .upsert({
       user_id: userId,
       theme: prefs.theme ?? "light",
-      color_theme: prefs.colorTheme ?? "blue",
       interest_tags: prefs.interestTags ?? [],
     }, { onConflict: "user_id" });
   return !error;

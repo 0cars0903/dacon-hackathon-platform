@@ -204,7 +204,7 @@ function CampContent() {
       </div>
 
       {joinSuccess && (
-        <div className="animate-fade-in-up mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">
+        <div className="animate-fade-in-up mb-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
           {joinSuccess} 팀에 참가했습니다!
         </div>
       )}
@@ -276,7 +276,7 @@ function CampContent() {
                     {isMember && !isCreator && (
                       <>
                         <button onClick={() => setShowMembersModal(team)} className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700">팀원 보기</button>
-                        <Link href={`/hackathons/${team.hackathonSlug}/teams`} className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700">팀 채팅</Link>
+                        <Link href={`/hackathons/${team.hackathonSlug}/teams`} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700">팀 채팅</Link>
                         <button onClick={() => handleLeaveTeam(team)} className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">팀 탈퇴</button>
                       </>
                     )}
@@ -285,9 +285,9 @@ function CampContent() {
                         {hasPending ? (
                           <button disabled className="rounded-lg bg-gray-400 px-3 py-1.5 text-sm font-medium text-white cursor-not-allowed">신청 중</button>
                         ) : team.joinPolicy === "auto" ? (
-                          <button onClick={() => handleJoinTeam(team)} className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700">바로 참가</button>
+                          <button onClick={() => handleJoinTeam(team)} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700">바로 참가</button>
                         ) : (
-                          <button onClick={() => setShowJoinRequestModal(team)} className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700">참가 신청</button>
+                          <button onClick={() => setShowJoinRequestModal(team)} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700">참가 신청</button>
                         )}
                         <button onClick={() => {
                           // creatorName 을 팀 멤버에서 찾기

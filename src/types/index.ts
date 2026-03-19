@@ -162,12 +162,9 @@ export interface ActivityFeedItem {
   metadata?: Record<string, unknown>;
 }
 
-// === 사용자 설정 (확장) ===
-export type ColorTheme = "blue" | "purple" | "green";
-
+// === 사용자 설정 ===
 export interface UserPreferences {
   theme: "light" | "dark";
-  colorTheme: ColorTheme;
   interestTags: string[];
 }
 

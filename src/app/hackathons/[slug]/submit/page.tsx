@@ -439,7 +439,7 @@ export default function HackathonSubmitPage() {
                   아래 형식에 맞춰 CSV 파일을 제출하세요. 첫 행은 헤더, 이후 행은 예측값입니다.
                 </p>
                 {sampleCSV && (
-                  <pre className="rounded-lg bg-slate-900 p-4 text-xs text-green-400 overflow-x-auto">{sampleCSV}</pre>
+                  <pre className="rounded-lg bg-slate-900 p-4 text-xs text-emerald-400 overflow-x-auto">{sampleCSV}</pre>
                 )}
                 <div className="mt-3 flex items-center justify-between">
                   <p className="text-xs text-slate-400">오늘 제출: {submissionCount} / {maxSubmissionsPerDay}회</p>
@@ -498,14 +498,14 @@ export default function HackathonSubmitPage() {
               )}
 
               {scoringResult && !isScoring && (
-                <div className={`rounded-xl border-2 p-6 ${scoringResult.success ? "border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-900/20" : "border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/20"}`}>
+                <div className={`rounded-xl border-2 p-6 ${scoringResult.success ? "border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-900/20" : "border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/20"}`}>
                   {scoringResult.success ? (
                     <div className="space-y-6">
                       {/* 최종 점수 */}
                       <div className="text-center">
-                        <p className="text-sm text-green-700 dark:text-green-400">채점 완료</p>
-                        <p className="mt-1 text-5xl font-bold text-green-800 dark:text-green-300">{scoringResult.finalScore}</p>
-                        <p className="mt-1 text-xs text-green-600 dark:text-green-400">
+                        <p className="text-sm text-emerald-700 dark:text-emerald-400">채점 완료</p>
+                        <p className="mt-1 text-5xl font-bold text-emerald-800 dark:text-emerald-300">{scoringResult.finalScore}</p>
+                        <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
                           {scoringResult.matchedSamples} / {scoringResult.totalSamples} 샘플 매칭됨
                         </p>
                       </div>
@@ -646,7 +646,7 @@ export default function HackathonSubmitPage() {
           </div>
 
           {submitted ? (
-            <div className="rounded-xl border-2 border-green-300 bg-green-50 p-8 text-center dark:border-green-700 dark:bg-green-900/20">
+            <div className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-8 text-center dark:border-emerald-700 dark:bg-emerald-900/20">
               <p className="text-3xl mb-3">✅</p>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">제출이 완료되었습니다!</h3>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{user.name}님의 결과물이 성공적으로 제출되었습니다.</p>
@@ -658,7 +658,7 @@ export default function HackathonSubmitPage() {
                 <div className="mb-6 flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">제출 항목</h3>
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">{user.name}님으로 로그인됨</span>
+                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">{user.name}님으로 로그인됨</span>
                   </div>
                   <div className="text-right text-sm text-slate-600 dark:text-slate-400">
                     <p className="font-medium">오늘 제출: {submissionCount} / {maxSubmissionsPerDay}회</p>

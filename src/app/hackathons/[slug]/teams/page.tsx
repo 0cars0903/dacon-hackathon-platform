@@ -184,7 +184,7 @@ export default function HackathonTeamsPage() {
                   <td className="px-4 py-3 text-right">
                     {isMemberOf(team) ? (
                       <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => setChatOpen(team.teamCode)} className="rounded bg-green-50 px-2 py-1 text-xs text-green-600 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400">채팅</button>
+                        <button onClick={() => setChatOpen(team.teamCode)} className="rounded bg-emerald-50 px-2 py-1 text-xs text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400">채팅</button>
                         {!isLeaderOf(team) && (
                           <button onClick={() => handleLeave(team.teamCode)} className="rounded bg-red-50 px-2 py-1 text-xs text-red-600 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400">탈퇴</button>
                         )}
@@ -256,7 +256,7 @@ export default function HackathonTeamsPage() {
                         <>
                           <button
                             onClick={() => setChatOpen(team.teamCode)}
-                            className="rounded-lg bg-green-50 px-3 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400"
+                            className="rounded-lg bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400"
                           >
                             팀 채팅
                           </button>
@@ -289,7 +289,7 @@ export default function HackathonTeamsPage() {
 
                   {/* 액션 결과 메시지 */}
                   {actionResult[team.teamCode] && (
-                    <p className={`mt-2 text-xs ${actionResult[team.teamCode].type === "success" ? "text-green-600" : "text-red-500"}`}>
+                    <p className={`mt-2 text-xs ${actionResult[team.teamCode].type === "success" ? "text-emerald-600" : "text-red-500"}`}>
                       {actionResult[team.teamCode].msg}
                     </p>
                   )}
@@ -336,7 +336,7 @@ export default function HackathonTeamsPage() {
                                   {req.message && <p className="text-[10px] text-slate-400">{req.message}</p>}
                                 </div>
                                 <div className="flex gap-1">
-                                  <button onClick={async () => { handleJoinRequest(req.id, "accepted"); loadTeams(); }} className="rounded bg-green-500 px-2 py-0.5 text-[10px] text-white hover:bg-green-600">수락</button>
+                                  <button onClick={async () => { handleJoinRequest(req.id, "accepted"); loadTeams(); }} className="rounded bg-emerald-500 px-2 py-0.5 text-[10px] text-white hover:bg-emerald-600">수락</button>
                                   <button onClick={async () => { handleJoinRequest(req.id, "rejected"); loadTeams(); }} className="rounded bg-red-500 px-2 py-0.5 text-[10px] text-white hover:bg-red-600">거절</button>
                                 </div>
                               </div>

@@ -211,7 +211,7 @@ function MultiRoundLeaderboard({
                 <span
                   className={`inline-block h-2 w-2 rounded-full ${
                     round.status === "completed"
-                      ? "bg-green-500"
+                      ? "bg-emerald-500"
                       : round.status === "active"
                         ? "bg-yellow-500"
                         : "bg-gray-400"

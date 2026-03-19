@@ -154,19 +154,19 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
                   코드를 공유하면 누구나 참가할 수 있습니다. (48시간 유효)
                 </p>
                 {generatedInvite ? (
-                  <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-900/20">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-2xl font-bold tracking-wider text-green-700 dark:text-green-400">
+                      <span className="font-mono text-2xl font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
                         {generatedInvite.inviteCode}
                       </span>
                       <button
                         onClick={() => handleCopyCode(generatedInvite.inviteCode)}
-                        className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700"
+                        className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
                       >
                         {copiedCode ? "복사됨!" : "복사"}
                       </button>
                     </div>
-                    <p className="mt-2 text-xs text-green-600 dark:text-green-400">
+                    <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-400">
                       만료: {new Date(generatedInvite.expiresAt).toLocaleString("ko-KR")}
                     </p>
                   </div>
@@ -244,7 +244,7 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
                         inv.status === "pending"
                           ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
                           : inv.status === "accepted"
-                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                             : inv.status === "rejected"
                               ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                               : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400"
@@ -293,7 +293,7 @@ export function TeamInviteModal({ isOpen, onClose, teamCode, teamName, hackathon
                 <div
                   className={`rounded-lg p-3 text-sm ${
                     joinResult.success
-                      ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
                       : "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
                   }`}
                 >

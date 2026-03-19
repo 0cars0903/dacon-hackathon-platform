@@ -15,7 +15,7 @@ interface ToastProps {
 }
 
 const typeStyles: Record<string, string> = {
-  success: "bg-green-600",
+  success: "bg-emerald-600",
   error: "bg-red-600",
   info: "bg-indigo-600",
 };

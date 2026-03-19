@@ -221,7 +221,7 @@ export default function MessagesPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleAcceptInvite(inv)}
-                      className="rounded-lg bg-green-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-green-700"
+                      className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
                     >
                       수락
                     </button>

@@ -110,7 +110,7 @@ export default function RankingsPage() {
           </div>
           <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
             <p className="text-xs text-slate-500 dark:text-slate-400">평균 점수</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{avgScore}</p>
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{avgScore}</p>
           </div>
           <ScoreChart title="점수 분포" scores={sorted.map((e) => e.score)} />
         </div>

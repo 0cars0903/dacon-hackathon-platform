@@ -6,13 +6,6 @@ import { useAuth } from "@/components/features/AuthProvider";
 import { Button } from "@/components/common/Button";
 import { Tag } from "@/components/common/Tag";
 import { getNotificationPrefs, saveNotificationPrefs, type NotificationPrefs } from "@/lib/supabase/data";
-import type { ColorTheme } from "@/types";
-
-const COLOR_THEMES: { key: ColorTheme; label: string; color: string }[] = [
-  { key: "blue", label: "블루", color: "bg-indigo-500" },
-  { key: "purple", label: "퍼플", color: "bg-purple-500" },
-  { key: "green", label: "그린", color: "bg-green-500" },
-];
 
 const SUGGESTED_TAGS = [
   "LLM", "Web", "VibeCoding", "GenAI", "ML Engineer",
@@ -21,7 +14,7 @@ const SUGGESTED_TAGS = [
 ];
 
 export function SettingsPanel() {
-  const { theme, colorTheme, interestTags, toggleTheme, setColorTheme, setInterestTags } = useThemeContext();
+  const { theme, interestTags, toggleTheme, setInterestTags } = useThemeContext();
   const { user } = useAuth();
   const [customTag, setCustomTag] = useState("");
   const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>({
@@ -96,34 +89,13 @@ export function SettingsPanel() {
         </div>
       </div>
 
-      {/* 컬러 테마 */}
-      <div>
-        <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">컬러 테마</h3>
-        <div className="flex gap-3">
-          {COLOR_THEMES.map((ct) => (
-            <button
-              key={ct.key}
-              onClick={() => setColorTheme(ct.key)}
-              className={`flex items-center gap-2 rounded-lg border-2 px-4 py-2 text-sm font-medium transition-colors ${
-                colorTheme === ct.key
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
-                  : "border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:text-slate-400"
-              }`}
-            >
-              <span className={`h-4 w-4 rounded-full ${ct.color}`} />
-              {ct.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* 알림 설정 */}
       {user && (
         <div>
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">알림 설정</h3>
             {saved && (
-              <span className="animate-fade-in text-xs text-green-600 dark:text-green-400">저장됨</span>
+              <span className="animate-fade-in text-xs text-emerald-600 dark:text-emerald-400">저장됨</span>
             )}
           </div>
           <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
@@ -187,27 +159,6 @@ export function SettingsPanel() {
           />
           <Button size="sm" variant="secondary" onClick={addCustomTag}>추가</Button>
         </div>
-      </div>
-
-      {/* 데이터 관리 */}
-      <div>
-        <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">데이터 관리</h3>
-        <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">
-          모든 데이터는 서버에 저장됩니다.
-        </p>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => {
-            if (confirm("로컬 캐시를 초기화하시겠습니까?")) {
-              const keysToRemove = ["dacon-auth-token", "dacon_recent_searches"];
-              keysToRemove.forEach((k) => localStorage.removeItem(k));
-              window.location.reload();
-            }
-          }}
-        >
-          로컬 캐시 초기화
-        </Button>
       </div>
     </div>
   );

@@ -126,7 +126,7 @@ export function RequestsModal({
               <div className="flex gap-2">
                 <button
                   onClick={() => handleAccept(request)}
-                  className="flex-1 rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700"
+                  className="flex-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
                 >
                   승인
                 </button>

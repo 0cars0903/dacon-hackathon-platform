@@ -121,7 +121,7 @@ export default function PublicUserProfilePage({ params }: { params: { id: string
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
             {[
               { label: "참가 해커톤", value: profile.stats.hackathonsJoined, color: "text-indigo-600 dark:text-indigo-400" },
-              { label: "생성 팀", value: profile.stats.teamsCreated, color: "text-green-600 dark:text-green-400" },
+              { label: "생성 팀", value: profile.stats.teamsCreated, color: "text-emerald-600 dark:text-emerald-400" },
               { label: "제출물", value: profile.stats.submissions, color: "text-purple-600 dark:text-purple-400" },
               { label: "총 점수", value: profile.stats.totalScore, color: "text-orange-600 dark:text-orange-400" },
             ].map((stat) => (

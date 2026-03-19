@@ -21,7 +21,7 @@ type SortBy = "latest" | "popular";
 const CATEGORY_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   question: { label: "질문", color: "text-indigo-700 dark:text-indigo-300", bg: "bg-indigo-100 dark:bg-indigo-900" },
   discussion: { label: "자유토론", color: "text-purple-700 dark:text-purple-300", bg: "bg-purple-100 dark:bg-purple-900" },
-  announcement: { label: "공지", color: "text-green-700 dark:text-green-300", bg: "bg-green-100 dark:bg-green-900" },
+  announcement: { label: "공지", color: "text-emerald-700 dark:text-emerald-300", bg: "bg-emerald-100 dark:bg-emerald-900" },
   bug: { label: "버그리포트", color: "text-red-700 dark:text-red-300", bg: "bg-red-100 dark:bg-red-900" },
 };
 

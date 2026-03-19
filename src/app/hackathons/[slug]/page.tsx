@@ -87,17 +87,17 @@ export default function HackathonOverviewPage() {
       {!isEnded && (
         <div className={`rounded-xl p-6 ${
           isRegistered
-            ? "border-2 border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20"
+            ? "border-2 border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20"
             : "border-2 border-indigo-200 bg-indigo-50 dark:border-indigo-800 dark:bg-indigo-900/20"
         }`}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               {isRegistered ? (
                 <>
-                  <h3 className="text-lg font-semibold text-green-800 dark:text-green-300">
+                  <h3 className="text-lg font-semibold text-emerald-800 dark:text-emerald-300">
                     참가 등록 완료
                   </h3>
-                  <p className="text-sm text-green-700 dark:text-green-400">
+                  <p className="text-sm text-emerald-700 dark:text-emerald-400">
                     {justRegistered ? "성공적으로 등록되었습니다! " : ""}
                     팀을 구성하고 결과물을 제출해보세요.
                   </p>
@@ -148,7 +148,7 @@ export default function HackathonOverviewPage() {
           <p className="text-xs text-slate-500 dark:text-slate-400">참가 팀</p>
         </div>
         <div className="rounded-xl border border-slate-200 p-4 text-center dark:border-slate-800">
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400">{leaderboard?.entries?.length || 0}</p>
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{leaderboard?.entries?.length || 0}</p>
           <p className="text-xs text-slate-500 dark:text-slate-400">리더보드 팀</p>
         </div>
         <div className="rounded-xl border border-slate-200 p-4 text-center dark:border-slate-800">
@@ -226,7 +226,7 @@ export default function HackathonOverviewPage() {
             const isPast = new Date(m.at).getTime() < Date.now();
             return (
               <div key={m.name} className="flex items-center gap-2">
-                <span className={`h-2 w-2 rounded-full ${isPast ? "bg-green-500" : "bg-indigo-500"}`} />
+                <span className={`h-2 w-2 rounded-full ${isPast ? "bg-emerald-500" : "bg-indigo-500"}`} />
                 <div>
                   <p className="text-sm font-medium text-slate-900 dark:text-white">{m.name}</p>
                   <p className="text-xs text-slate-400">{formatDateTime(m.at)}</p>

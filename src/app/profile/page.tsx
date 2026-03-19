@@ -181,7 +181,7 @@ export default function ProfilePage() {
                     <Button onClick={handleChangeNickname} size="sm" variant="secondary">닉네임 변경</Button>
                   </div>
                   {nicknameError && <p className="mt-1 text-xs text-red-500">{nicknameError}</p>}
-                  {nicknameSuccess && <p className="mt-1 text-xs text-green-500">닉네임이 변경되었습니다.</p>}
+                  {nicknameSuccess && <p className="mt-1 text-xs text-emerald-500">닉네임이 변경되었습니다.</p>}
                   <p className="mt-1 text-[10px] text-slate-400">닉네임 변경은 월 1회만 가능하며, 해커톤 진행 중에는 변경할 수 없습니다.</p>
                 </div>
                 <textarea value={editBio} onChange={(e) => setEditBio(e.target.value)} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" rows={2} placeholder="자기소개를 입력하세요" />
@@ -222,7 +222,7 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
             {[
               { label: "참가 해커톤", value: profile.stats.hackathonsJoined, color: "text-indigo-600 dark:text-indigo-400" },
-              { label: "생성 팀", value: profile.stats.teamsCreated, color: "text-green-600 dark:text-green-400" },
+              { label: "생성 팀", value: profile.stats.teamsCreated, color: "text-emerald-600 dark:text-emerald-400" },
               { label: "제출물", value: profile.stats.submissions, color: "text-purple-600 dark:text-purple-400" },
               { label: "총 점수", value: profile.stats.totalScore, color: "text-orange-600 dark:text-orange-400" },
             ].map((stat) => (
@@ -335,9 +335,9 @@ export default function ProfilePage() {
                   key={i}
                   className={`h-3 w-3 rounded-sm ${
                     d.level === 0 ? "bg-slate-100 dark:bg-slate-800" :
-                    d.level === 1 ? "bg-green-200 dark:bg-green-900" :
-                    d.level === 2 ? "bg-green-400 dark:bg-green-700" :
-                    "bg-green-600 dark:bg-green-500"
+                    d.level === 1 ? "bg-emerald-200 dark:bg-emerald-900" :
+                    d.level === 2 ? "bg-emerald-400 dark:bg-emerald-700" :
+                    "bg-emerald-600 dark:bg-emerald-500"
                   }`}
                   title={`${d.date}: ${d.level > 0 ? d.level + "건의 활동" : "활동 없음"}`}
                 />
@@ -347,9 +347,9 @@ export default function ProfilePage() {
               <span>적음</span>
               <div className="flex gap-[2px]">
                 <div className="h-2.5 w-2.5 rounded-sm bg-slate-100 dark:bg-slate-800" />
-                <div className="h-2.5 w-2.5 rounded-sm bg-green-200 dark:bg-green-900" />
-                <div className="h-2.5 w-2.5 rounded-sm bg-green-400 dark:bg-green-700" />
-                <div className="h-2.5 w-2.5 rounded-sm bg-green-600 dark:bg-green-500" />
+                <div className="h-2.5 w-2.5 rounded-sm bg-emerald-200 dark:bg-emerald-900" />
+                <div className="h-2.5 w-2.5 rounded-sm bg-emerald-400 dark:bg-emerald-700" />
+                <div className="h-2.5 w-2.5 rounded-sm bg-emerald-600 dark:bg-emerald-500" />
               </div>
               <span>많음</span>
             </div>
@@ -361,7 +361,7 @@ export default function ProfilePage() {
             <div className="space-y-4">
               {[
                 { label: "해커톤 참가", value: profile.stats.hackathonsJoined, max: 5, color: "bg-indigo-500" },
-                { label: "팀 생성", value: profile.stats.teamsCreated, max: 5, color: "bg-green-500" },
+                { label: "팀 생성", value: profile.stats.teamsCreated, max: 5, color: "bg-emerald-500" },
                 { label: "제출물", value: profile.stats.submissions, max: 10, color: "bg-purple-500" },
                 { label: "획득 배지", value: profile.badges.length, max: 10, color: "bg-orange-500" },
               ].map((item) => (
@@ -399,7 +399,7 @@ export default function ProfilePage() {
                 const h = allHackathons.find(x => x.slug === slug);
                 return (
                   <div key={`join-${slug}`} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-50 text-sm dark:bg-green-900/30">
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-sm dark:bg-emerald-900/30">
                       🏆
                     </div>
                     <div>
