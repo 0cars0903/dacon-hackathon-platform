@@ -67,17 +67,17 @@ describe("formatKRW", () => {
 });
 
 describe("getStatusColor", () => {
-  it("returns green classes for ongoing", () => {
-    expect(getStatusColor("ongoing")).toContain("green");
+  it("returns emerald classes for ongoing", () => {
+    expect(getStatusColor("ongoing")).toContain("emerald");
   });
-  it("returns gray classes for ended", () => {
-    expect(getStatusColor("ended")).toContain("gray");
+  it("returns slate classes for ended", () => {
+    expect(getStatusColor("ended")).toContain("slate");
   });
-  it("returns blue classes for upcoming", () => {
-    expect(getStatusColor("upcoming")).toContain("blue");
+  it("returns indigo classes for upcoming", () => {
+    expect(getStatusColor("upcoming")).toContain("indigo");
   });
-  it("returns gray for unknown", () => {
-    expect(getStatusColor("unknown")).toContain("gray");
+  it("returns slate for unknown", () => {
+    expect(getStatusColor("unknown")).toContain("slate");
   });
 });
 

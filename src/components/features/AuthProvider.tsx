@@ -223,8 +223,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    // 1. Supabase Auth 세션 종료
     await authClient().auth.signOut();
+    // 2. Data client 세션도 제거
+    await db().auth.signOut();
+    // 3. localStorage에서 인증 토큰 직접 제거 (세션 복원 방지)
+    try { localStorage.removeItem("dacon-auth-token"); } catch {}
+    // 4. 상태 초기화
     setUser(null);
+    // 5. 홈으로 리다이렉트
+    window.location.href = "/";
   }, []);
 
   const getProfileCb = useCallback(async (userId?: string): Promise<UserProfile | null> => {

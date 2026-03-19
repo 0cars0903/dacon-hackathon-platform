@@ -59,7 +59,7 @@ export function formatKRW(amount: number): string {
 export function getStatusColor(status: string): string {
   switch (status) {
     case "ongoing":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200";
     case "ended":
       return "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400";
     case "upcoming":
