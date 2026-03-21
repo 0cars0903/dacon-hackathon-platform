@@ -118,12 +118,12 @@ export function NavigationSidebar() {
             </h4>
             <div className="space-y-1.5">
               <a
-                href="https://dacon.io"
+                href="#"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block text-xs text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
               >
-                🔗 DACON 공식 사이트
+                🔗 CodeArena 공식 사이트
               </a>
               <a
                 href="https://github.com"

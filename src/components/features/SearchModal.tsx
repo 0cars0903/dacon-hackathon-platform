@@ -28,7 +28,7 @@ interface SearchModalProps {
 
 const DEBOUNCE_MS = 300;
 const MAX_RECENT_SEARCHES = 5;
-const RECENT_SEARCHES_KEY = "dacon_recent_searches";
+const RECENT_SEARCHES_KEY = "codearena_recent_searches";
 
 export function SearchModal({ isOpen: externalIsOpen, onClose }: SearchModalProps = {}) {
   const router = useRouter();

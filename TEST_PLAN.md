@@ -1,4 +1,4 @@
-# DACON 해커톤 플랫폼 — Test Case 계획서 & 결과 보고서
+# CodeArena 해커톤 플랫폼 — Test Case 계획서 & 결과 보고서
 
 > **대상 URL**: https://dacon-hackathon-platform.vercel.app
 > **테스트 일자**: 2026-03-14

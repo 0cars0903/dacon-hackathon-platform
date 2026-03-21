@@ -48,7 +48,7 @@ export default function UsersDirectoryPage() {
       {/* 헤더 */}
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold text-slate-900 dark:text-white">참가자</h1>
-        <p className="text-slate-600 dark:text-slate-400">DACON 해커톤 플랫폼의 모든 참가자를 확인해보세요.</p>
+        <p className="text-slate-600 dark:text-slate-400">CodeArena 해커톤 플랫폼의 모든 참가자를 확인해보세요.</p>
       </div>
 
       {/* 검색 & 필터 */}

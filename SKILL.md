@@ -1,6 +1,6 @@
-# DACON 긴급 인수인계 해커톤 플랫폼 — 구현 현황 SKILL.md
+# CodeArena 긴급 인수인계 해커톤 플랫폼 — 구현 현황 SKILL.md
 
-> **프로젝트**: DACON Hackathon Platform
+> **프로젝트**: CodeArena Hackathon Platform
 > **라이브 URL**: https://dacon-hackathon-platform.vercel.app
 > **GitHub**: https://github.com/0cars0903/dacon-hackathon-platform
 > **최종 커밋**: `1ffc459` (2026-03-14 19:05 KST)
@@ -26,7 +26,7 @@
 
 | # | 커밋 | 설명 | Phase |
 |---|------|------|-------|
-| 1 | `e0ab2e6` | Initial commit: DACON Hackathon Platform | Phase 1 |
+| 1 | `e0ab2e6` | Initial commit: CodeArena Hackathon Platform | Phase 1 |
 | 2 | `9f6e1fd` | chore: exclude tmp/ from git tracking | Phase 1 |
 | 3 | `4b738ec` | feat: major UI/UX upgrade (알림, 북마크, 애니메이션, 데이터 확장) | Phase 2 |
 | 4 | `4dd5327` | feat: 로그인, 서브페이지, 활동 사이드바, 리브랜딩 | Phase 3 |
@@ -139,7 +139,7 @@
   - 팔로우/언팔로우 토글
   - 팔로우 시 알림 생성
   - 프로필 페이지 팔로워/팔로잉 수 표시
-- [x] localStorage 키: `dacon_invitations`, `dacon_messages`, `dacon_follows`
+- [x] localStorage 키: `codearena_invitations`, `codearena_messages`, `codearena_follows`
 
 ### Phase 11 — ML/DL 자동채점 시스템
 - [x] **Ground Truth 데이터** (`src/data/ground-truth.json`)
@@ -230,20 +230,20 @@ src/
 
 | 키 | 용도 | Phase |
 |----|------|-------|
-| `dacon_user` | 현재 로그인 사용자 | 6 |
-| `dacon_bookmarks` | 북마크된 해커톤 slug 목록 | 2 |
-| `dacon_notifications` | 알림 목록 | 2 |
-| `dacon_preferences` | 테마, 색상, 관심 태그 | 3 |
-| `dacon_submissions_{slug}` | 해커톤별 제출 데이터 | 3 |
-| `dacon_forum_{slug}` | 해커톤별 포럼 게시글/댓글 | 8 |
-| `dacon_activity_feed` | 활동 피드 | 8 |
-| `dacon_registrations` | 해커톤 참가 등록 | 9 |
-| `dacon_notification_prefs` | 알림 종류별 설정 | 9 |
-| `dacon_invitations` | 팀 초대 | 10 |
-| `dacon_messages` | DM 메시지 | 10 |
-| `dacon_follows` | 팔로우 관계 | 10 |
-| `dacon_scored_{slug}` | 채점 결과 | 11 |
-| `dacon_lb_{slug}` | 동적 리더보드 | 11 |
+| `codearena_user` | 현재 로그인 사용자 | 6 |
+| `codearena_bookmarks` | 북마크된 해커톤 slug 목록 | 2 |
+| `codearena_notifications` | 알림 목록 | 2 |
+| `codearena_preferences` | 테마, 색상, 관심 태그 | 3 |
+| `codearena_submissions_{slug}` | 해커톤별 제출 데이터 | 3 |
+| `codearena_forum_{slug}` | 해커톤별 포럼 게시글/댓글 | 8 |
+| `codearena_activity_feed` | 활동 피드 | 8 |
+| `codearena_registrations` | 해커톤 참가 등록 | 9 |
+| `codearena_notification_prefs` | 알림 종류별 설정 | 9 |
+| `codearena_invitations` | 팀 초대 | 10 |
+| `codearena_messages` | DM 메시지 | 10 |
+| `codearena_follows` | 팔로우 관계 | 10 |
+| `codearena_scored_{slug}` | 채점 결과 | 11 |
+| `codearena_lb_{slug}` | 동적 리더보드 | 11 |
 
 ---
 

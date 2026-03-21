@@ -26,7 +26,7 @@ export function createClient(): SupabaseClient<any, "public", any> {
   authClient = createSupabaseClient(url, key, {
     auth: {
       persistSession: true,
-      storageKey: "dacon-auth-token",
+      storageKey: "codearena-auth-token",
       autoRefreshToken: false,
       detectSessionInUrl: false,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

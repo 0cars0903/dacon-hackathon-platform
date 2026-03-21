@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // 1차: localStorage에서 직접 토큰 확인 (GoTrueClient 초기화 우회)
         // authClient의 getSession/setSession은 내부 초기화에 블로킹되므로
         // data client(persistSession:false)를 통해 즉시 세션을 복원한다.
-        const stored = localStorage.getItem("dacon-auth-token");
+        const stored = localStorage.getItem("codearena-auth-token");
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
@@ -207,11 +207,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await logActivity({
         type: "user_signup",
-        message: `${name}님이 DACON 플랫폼에 가입했습니다.`,
+        message: `${name}님이 CodeArena 플랫폼에 가입했습니다.`,
         timestamp: new Date().toISOString(),
       });
       await addNotification(data.user.id, {
-        message: "DACON 플랫폼에 오신 것을 환영합니다! 프로필을 완성하고 해커톤에 참여해보세요.",
+        message: "CodeArena 플랫폼에 오신 것을 환영합니다! 프로필을 완성하고 해커톤에 참여해보세요.",
         type: "info",
         link: "/profile",
       });
@@ -228,7 +228,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // 2. Data client 세션도 제거
     await db().auth.signOut();
     // 3. localStorage에서 인증 토큰 직접 제거 (세션 복원 방지)
-    try { localStorage.removeItem("dacon-auth-token"); } catch {}
+    try { localStorage.removeItem("codearena-auth-token"); } catch {}
     // 4. 상태 초기화
     setUser(null);
     // 5. 홈으로 리다이렉트

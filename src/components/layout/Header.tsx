@@ -44,7 +44,7 @@ export function Header() {
           href="/"
           className="flex items-center gap-1 text-xl font-bold text-slate-900 transition-transform hover:scale-105 dark:text-white"
         >
-          <span className="font-display text-indigo-600 dark:text-indigo-400" style={{ fontWeight: 800, letterSpacing: '-0.5px' }}>DACON</span>
+          <span className="font-display text-indigo-600 dark:text-indigo-400" style={{ fontWeight: 800, letterSpacing: '-0.5px' }}>CodeArena</span>
           <span className="text-sm font-normal text-slate-500">Platform</span>
         </Link>
 

@@ -1,6 +1,6 @@
 {
-  "name": "DACON Platform - 해커톤 & 데이터 경진대회",
-  "short_name": "DACON",
+  "name": "CodeArena - 해커톤 & 데이터 경진대회 플랫폼",
+  "short_name": "CodeArena",
   "description": "해커톤을 탐색하고, 팀을 모집하고, 결과물을 제출하는 플랫폼",
   "start_url": "/",
   "display": "standalone",

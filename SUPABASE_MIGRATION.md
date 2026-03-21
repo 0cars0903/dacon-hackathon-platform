@@ -93,21 +93,21 @@ supabase/
 
 | localStorage 키 | Supabase 테이블 | 비고 |
 |-----------------|----------------|------|
-| `dacon_auth` | `auth.users` + `profiles` | Supabase Auth 내장 |
-| `dacon_users` | `auth.users` | 비밀번호 bcrypt 해싱 |
-| `dacon_profiles` | `profiles` + `badges` + `hackathon_participants` + `team_members` | 정규화 |
-| `dacon_teams` | `teams` + `team_members` | FK 관계 |
-| `dacon_team_chat` | `team_chat_messages` | Realtime 활성화 |
-| `dacon_join_requests` | `team_join_requests` | |
-| `dacon_invitations` | `team_invitations` | 48시간 자동 만료 |
-| `dacon_direct_messages` | `direct_messages` | Realtime 활성화 |
-| `dacon_follows` | `follows` | UNIQUE + CHECK 제약 |
-| `dacon_activity_feed` | `activity_feed` | |
-| `dacon_notifications` | `notifications` | Realtime 활성화 |
-| `dacon_forum_posts` | `forum_posts` | |
-| `dacon_forum_comments` | `forum_comments` | CASCADE 삭제 |
-| `dacon_submissions` | `submissions` | UPSERT 지원 |
-| `dacon_preferences` | `user_preferences` | |
+| `codearena_auth` | `auth.users` + `profiles` | Supabase Auth 내장 |
+| `codearena_users` | `auth.users` | 비밀번호 bcrypt 해싱 |
+| `codearena_profiles` | `profiles` + `badges` + `hackathon_participants` + `team_members` | 정규화 |
+| `codearena_teams` | `teams` + `team_members` | FK 관계 |
+| `codearena_team_chat` | `team_chat_messages` | Realtime 활성화 |
+| `codearena_join_requests` | `team_join_requests` | |
+| `codearena_invitations` | `team_invitations` | 48시간 자동 만료 |
+| `codearena_direct_messages` | `direct_messages` | Realtime 활성화 |
+| `codearena_follows` | `follows` | UNIQUE + CHECK 제약 |
+| `codearena_activity_feed` | `activity_feed` | |
+| `codearena_notifications` | `notifications` | Realtime 활성화 |
+| `codearena_forum_posts` | `forum_posts` | |
+| `codearena_forum_comments` | `forum_comments` | CASCADE 삭제 |
+| `codearena_submissions` | `submissions` | UPSERT 지원 |
+| `codearena_preferences` | `user_preferences` | |
 | (없음) | `hackathons` | 새로 추가 |
 | (없음) | `hackathon_details` | JSON sections |
 | (없음) | `hackathon_participants` | M:N 관계 |
@@ -132,6 +132,6 @@ supabase/
 
 | 계정 | 이메일 | 비밀번호 | 역할 |
 |------|--------|---------|------|
-| 관리자 | kuma@dacon.io | kuma1234 | admin |
-| 데모 | demo@dacon.io | demo1234 | user |
-| 시드 유저 (22명) | *@dacon.io | user1234 | user |
+| 관리자 | kuma@codearena.io | kuma1234 | admin |
+| 데모 | demo@codearena.io | demo1234 | user |
+| 시드 유저 (22명) | *@codearena.io | user1234 | user |

@@ -1,4 +1,4 @@
-# DACON Hackathon Platform
+# CodeArena Hackathon Platform
 
 AI/ML 해커톤 대회 운영을 위한 풀스택 웹 플랫폼입니다.
 해커톤 관리, 팀 빌딩, CSV 기반 자동 채점, 리더보드, 커뮤니티 기능을 제공합니다.

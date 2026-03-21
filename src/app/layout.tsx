@@ -10,7 +10,7 @@ import { ServiceWorkerRegistrar } from "@/components/features/ServiceWorkerRegis
 import { BottomNav } from "@/components/layout/BottomNav";
 
 export const metadata: Metadata = {
-  title: "DACON Platform - 해커톤 & 데이터 경진대회",
+  title: "CodeArena - 해커톤 & 데이터 경진대회 플랫폼",
   description:
     "해커톤을 탐색하고, 팀을 모집하고, 결과물을 제출하는 데이터 경진대회 플랫폼입니다.",
   manifest: "/manifest.json",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "DACON Platform",
+    title: "CodeArena Platform",
   },
 };
 

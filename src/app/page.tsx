@@ -19,7 +19,7 @@ export default async function HomePage() {
           <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/5 sm:h-48 sm:w-48" />
           <div className="absolute -bottom-12 -right-4 h-24 w-24 rounded-full bg-violet-400/10 sm:h-36 sm:w-36" />
           <h1 className="font-display text-responsive-hero relative mb-3 font-bold" style={{ fontWeight: 800, letterSpacing: '-1px' }}>
-            DACON PLATFORM
+            CODEARENA
           </h1>
           <p className="relative mb-1 text-lg font-medium text-white/90 sm:text-xl">데이터 경진대회 플랫폼</p>
           <p className="text-responsive-subtitle relative mb-6 text-indigo-100">
