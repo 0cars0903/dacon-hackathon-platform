@@ -168,7 +168,7 @@ export default function LoginPage() {
                 setError("");
                 setLoading(true);
                 try {
-                  const ok = await login("kuma@codearena.io", "kuma1234");
+                  const ok = await login("kuma@dacon.io", "kuma1234");
                   if (ok) {
                     router.push("/");
                     // Fallback: router.push가 간헐적으로 실패하는 경우 대비
@@ -202,7 +202,7 @@ export default function LoginPage() {
                 setError("");
                 setLoading(true);
                 try {
-                  const ok = await login("demo@codearena.io", "demo1234");
+                  const ok = await login("demo@dacon.io", "demo1234");
                   if (ok) {
                     router.push("/");
                     setTimeout(() => {
