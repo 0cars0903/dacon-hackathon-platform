@@ -46,9 +46,13 @@ export default function RootLayout({
         {/* Preconnect to font origin for faster loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Google Fonts: Syne (display) + Noto Sans KR (body) + Space Mono (code) */}
+        {/* Pretendard (display) + Noto Sans KR (body) + Space Mono (code) */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Space+Mono:wght@400;700&family=Syne:wght@600;700;800&display=swap"
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap"
           rel="stylesheet"
         />
         {/* Preload critical Noto Sans KR for LCP */}

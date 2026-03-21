@@ -29,7 +29,7 @@
   --color-primary-light: var(--color-primary-light);
   --color-primary-dark: var(--color-primary-dark);
   --font-body: 'Noto Sans KR', system-ui, -apple-system, sans-serif;
-  --font-display: 'Syne', 'Noto Sans KR', system-ui, sans-serif;
+  --font-display: 'Pretendard Variable', 'Pretendard', 'Noto Sans KR', system-ui, sans-serif;
   --font-code: 'Space Mono', 'Nanum Gothic Coding', ui-monospace, monospace;
 }
 
